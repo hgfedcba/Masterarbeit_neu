@@ -3,6 +3,9 @@ import logging
 import time
 from NetDefinitions import activation_functions
 from Config import Config
+from ConfigInitializer import ConfigInitializer
+
+# TODO: Find a possibility to only show value in the parameter string that are actually changed during the current iteration
 
 if __name__ == '__main__':
     log = logging.getLogger('l')
@@ -24,7 +27,6 @@ if __name__ == '__main__':
 
     h = activation_functions
 
-    C = Config(log)
-
+    CI = ConfigInitializer(4312)
 
     assert True

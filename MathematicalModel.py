@@ -1,4 +1,5 @@
 import numpy as np
+from ModelDefinitions import sigma_dict, payoff_dict, mu_dict
 
 
 # noinspection SpellCheckingInspection
@@ -14,6 +15,14 @@ class MathematicalModel:
         self.__internal_g = g  # objective function
         self.__xi = xi  # Startwert
         self.__reference_value = -1
+        self.parameter_string =""
+
+    def update_parameter_string(self):
+        parameter_string = "T: ", self.__T, "N: ", self.__N, "d: ", self.__d, "K: ", self.__K, "delta: ", self.__delta, "mu: ", mu_dict.get(self.__internal_mu), "sigma: ",\
+                           sigma_dict.get(self.__internal_sigma), "g: ", payoff_dict.get(self.__internal_g), "xi: ", self.__xi, "reference_value: ", self.__reference_value
+
+        parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
+        self.parameter_string = parameter_string + "\n"
 
     def getT(self):
         return self.__T
@@ -30,10 +39,10 @@ class MathematicalModel:
         return out
 
     def getN(self):
-        return self.N
+        return self.__N
 
     def getK(self):
-        return self.K
+        return self.__K
 
     def getdelta(self):
         return self.__delta

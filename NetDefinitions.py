@@ -6,7 +6,9 @@ from torch.optim import Adam, lr_scheduler
 activation_functions = [tanh, sigmoid, relu, hardtanh, relu6, elu, selu, celu, leaky_relu, rrelu, gelu, logsigmoid, hardshrink, tanhshrink, softsign, softplus, softmin, softmax, softshrink,
                         gumbel_softmax, log_softmax, hardsigmoid]
 
-optimizer = [Adam]
+optimizers = [Adam]
+optimizer_dict = {Adam: "Adam"}
+
 
 """
 Guide to the Definitions below and in Model Definitions:
@@ -27,7 +29,7 @@ def add_am_put_default_pretrain(K, slope_length):
         return out
     f = am_put_default_pretrain
     pretrain_functions.append(f)
-    pretrain_func_dict[f] = "am_put_default_pretrain"
+    pretrain_func_dict[f] = "am_put_default_pretrain with slope " + str(slope_length) + "."
     return f
 
 
@@ -45,30 +47,20 @@ def add_am_call_default_pretrain(K, slope_length):
     return f
 
 
-pretrain_functions = []
-pretrain_func_dict = {}
+pretrain_functions = [False]
+pretrain_func_dict = {False:"False"}
 
 
-lr_decay_algs = []
-lr_decay_dict = {}
+lr_decay_algs = [False]
+lr_decay_dict = {False:"False"}
 
 
 def add_multiplicative_lr_sheduler(factor):
-    f = lr_scheduler.MultiplicativeLR(optimizer, factor)
+    f = lr_scheduler.MultiplicativeLR(optimizers, factor)
     lr_decay_algs[f] = "multiplicative lr_sheduler with factor " + str(factor)
     lr_decay_algs.append(f)
     return f
 
-"""
-# has to be done every time a new config is picked
-def configure_pretrain_functions(K, slope_length):
-    global pretrain_functions
-    global pretrain_func_dict
-    pretrain_functions = [return_am_put_default_pretrain(K, slope_length)]
-    pretrain_func_dict = {
-        pretrain_functions[0]: "am_put_default_pretrain"
-    }
-"""
 
 activation_func_dict = {
     # TODO: commented functions might work in theory
@@ -98,8 +90,4 @@ activation_func_dict = {
     gumbel_softmax: "gumbel_softmax",
     log_softmax   : "log_softmax",
     hardsigmoid   : "hardsigmoid",
-}
-
-optimizer_dict = {
-    Adam: "Adam"
 }
