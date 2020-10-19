@@ -7,3 +7,6 @@ import matplotlib.backends.backend_pdf as pdfp
 import torch
 
 from Util import *
+
+
+# TODO: durationgraph: summiere val_frequency viele graphen aufeinander

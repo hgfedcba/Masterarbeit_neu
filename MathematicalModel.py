@@ -1,5 +1,6 @@
 import numpy as np
 from ModelDefinitions import sigma_dict, payoff_dict, mu_dict
+from Util import mylog
 
 
 # noinspection SpellCheckingInspection
@@ -15,13 +16,15 @@ class MathematicalModel:
         self.__internal_g = g  # objective function
         self.__xi = xi  # Startwert
         self.__reference_value = -1
-        self.parameter_string =""
+        self.parameter_string = ""
+        self.parameter_list = []
 
     def update_parameter_string(self):
         parameter_string = "T: ", self.__T, "N: ", self.__N, "d: ", self.__d, "K: ", self.__K, "delta: ", self.__delta, "mu: ", mu_dict.get(self.__internal_mu), "sigma: ",\
-                           sigma_dict.get(self.__internal_sigma), "g: ", payoff_dict.get(self.__internal_g), "xi: ", self.__xi, "reference_value: ", self.__reference_value
+                           sigma_dict.get(self.__internal_sigma), "g: ", payoff_dict.get(self.__internal_g), "xi: ", self.__xi, "reference_value: ", round(self.__reference_value,3)
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
+        # parameter_string = mylog(parameter_string)
         self.parameter_string = parameter_string + "\n"
 
     def getT(self):

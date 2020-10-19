@@ -9,6 +9,7 @@ def mylog(*argv, only_return=False):
     out = ''.join(str(s) + "\t" for s in argv)
     out += "\n"
     if not only_return:
+        # TODO: log not defined
         log.info(out)
     return out
 

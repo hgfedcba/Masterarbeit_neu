@@ -48,11 +48,11 @@ def add_am_call_default_pretrain(K, slope_length):
 
 
 pretrain_functions = [False]
-pretrain_func_dict = {False:"False"}
+pretrain_func_dict = {False : "False"}
 
 
 lr_decay_algs = [False]
-lr_decay_dict = {False:"False"}
+lr_decay_dict = {False : "False"}
 
 
 def add_multiplicative_lr_sheduler(factor):
