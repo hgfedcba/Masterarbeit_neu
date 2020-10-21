@@ -19,7 +19,9 @@ import NN
 from Util import mylog
 import time
 
-from Durations import Durations as DurClass
+from Memory import Memory as MemeClass
+
+import Out
 
 class ConfigInitializer:
     def __init__(self, option, log):
@@ -67,9 +69,9 @@ class ConfigInitializer:
             dict_a = {  #
                 'algorithm'                : [0],
                 'internal_neurons'         : [50, 500],
-                'layer_count'              : [3],
-                'activation1'              : [tanh],
-                'activation2'              : [sigmoid],
+                'hidden_layer_count'              : [3],
+                'activation_internal'              : [tanh],
+                'activation_final'              : [sigmoid],
                 'optimizer'                : [0],
                 'pretrain_func'            : [1, False],  # 2 information in 1 entry "False" for pass
                 'pretrain_iterations'      : [800],
@@ -103,19 +105,19 @@ class ConfigInitializer:
 
             # ->visual indicator<-
             for params in ParameterGrid(dict_a):
-                Durations = DurClass()
+                Memory = MemeClass()
 
                 stop_paths_in_plot = False
                 algorithm = params['algorithm']
                 internal_neurons = params['internal_neurons']
-                layer_count = params['layer_count']
-                activation1 = params['activation1']
-                activation2 = params['activation2']
+                hidden_layer_count = params['hidden_layer_count']
+                activation_internal = params['activation_internal']
+                activation_final = params['activation_final']
                 optimizer = params['optimizer']
                 if params['pretrain_func'] is False:
-                    pretrain = False
+                    do_pretrain = False
                 else:
-                    pretrain = True
+                    do_pretrain = True
                 pretrain_func = pretrain_functions[params['pretrain_func']]
                 pretrain_iterations = params['pretrain_iterations']
                 max_number_of_iterations = params['max_number_of_iterations']
@@ -133,7 +135,7 @@ class ConfigInitializer:
                 val_size = params['val_size']
                 final_val_size = params['final_val_size']
 
-                current_Config = Config(algorithm, internal_neurons, layer_count, activation1, activation2, optimizer, pretrain, pretrain_func, pretrain_iterations, max_number_of_iterations,
+                current_Config = Config(algorithm, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer, do_pretrain, pretrain_func, pretrain_iterations, max_number_of_iterations,
                                         max_minutes_of_iterations, batch_size, initial_lr, do_lr_decay, lr_decay_alg, random_seed, validation_frequency, antithetic_variables, val_size,
                                         final_val_size, stop_paths_in_plot)
                 if run_number == 0:
@@ -146,11 +148,11 @@ class ConfigInitializer:
 
                 # TODO: Here something important should happen
                 # Rufe main_routine auf und erhalte result
-                # result enthält prominent_result klasse, durations klasse
                 individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
 
-                current_NN = NN.NN(current_Config, Model, Durations, log)
+                current_NN = NN.NN(current_Config, Model, Memory, log)
 
+                # result enthält prominent_result klasse, durations klasse
                 optimitaion_result = [current_NN.optimization()]
                 optimitaion_result[0][0].final_validation(42)
                 # TODO: final val möchte ich eventuell außerhalb von optimization aufrufen. Es hat den Vorteil das es einfacher ist die Wege für final val zu verwalten
@@ -159,6 +161,8 @@ class ConfigInitializer:
                 f = open("intermediate_result.txt", "a")
                 f.write(self.result_to_resultstring(result_list[-1]))
                 f.close()
+
+                Out.create_graphics(Memory, optimitaion_result[0][0], Model, current_Config, run_number)
 
                 run_number += 1
 

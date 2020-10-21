@@ -62,6 +62,9 @@ def add_multiplicative_lr_sheduler(factor):
     return f
 
 
+def id(x):
+    return x
+
 activation_func_dict = {
     # TODO: commented functions might work in theory
     tanh          : "tanh",
@@ -90,4 +93,5 @@ activation_func_dict = {
     gumbel_softmax: "gumbel_softmax",
     log_softmax   : "log_softmax",
     hardsigmoid   : "hardsigmoid",
+    id:"id"
 }

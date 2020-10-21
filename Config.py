@@ -4,19 +4,19 @@ from NetDefinitions import Adam, relu, hardtanh, relu6, elu, selu, celu, leaky_r
 
 class Config:
     # Ich gebe Standardwerte an um den Datentyp zu deklarieren. Ich möchte die Standardwerte in fast allen Fällen überschreiben.
-    def __init__(self, algorithm=0, internal_neurons=50, layer_count=3, activation1=tanh, activation2=sigmoid, optimizer=Adam, pretrain=True, pretrain_func=pretrain_functions[0],
+    def __init__(self, algorithm=0, internal_neurons=50, hidden_layer_count=3, activation_internal=tanh, activation_final=sigmoid, optimizer=Adam, do_pretrain=True, pretrain_func=pretrain_functions[0],
                  pretrain_iterations=800,
                  max_number_of_iterations=50, max_minutes_of_iterations=5, batch_size=32, initial_lr=0.0001, do_lr_decay=False, lr_decay_alg=lr_decay_algs[0], random_seed=23343,
                  validation_frequency=2, antithetic_variables=True, val_size=64, final_val_size=128, stop_paths_in_plot=False):
         # net
         self.algorithm = algorithm  # 0 is source, 1 is mine, 2 is christensen learn f
         self.internal_neurons = internal_neurons
-        self.layer_count = layer_count
-        self.activation1 = activation1
-        self.activation2 = activation2
+        self.hidden_layer_count = hidden_layer_count
+        self.activation_internal = activation_internal
+        self.activation_final = activation_final
         self.optimizer = optimizer
 
-        self.pretrain = pretrain
+        self.do_pretrain = do_pretrain
         self.pretrain_func = pretrain_func
         self.pretrain_iterations = pretrain_iterations
 
@@ -36,12 +36,12 @@ class Config:
 
         self.stop_paths_in_plot = stop_paths_in_plot  # TODO:use
 
-        pl = [["algorithm", algorithm], ["internal_neurons", internal_neurons], ["layer_count", layer_count], ["activation1", activation_func_dict.get(activation1)],
-               ["activation2", activation_func_dict.get(activation2)], ["optimizer", optimizer_dict.get(optimizer)], ["pretrain", pretrain], ["pretrain_func", pretrain_func_dict.get(pretrain_func)],
-               ["pretrain_iterations", pretrain_iterations], ["max_number_of_iterations", max_number_of_iterations], ["max_minutes_of_iterations", max_minutes_of_iterations],
-               ["batch_size", batch_size], ["initial_lr", initial_lr], ["do_lr_decay", do_lr_decay], ["lr_decay_alg", lr_decay_dict.get(lr_decay_alg)], ["random_seed", random_seed],
-               ["validation_frequency", validation_frequency], ["antithetic_variables", antithetic_variables], ["val_size", val_size], ["final_val_size", final_val_size],
-               ["stop_paths_in_plot", stop_paths_in_plot]]
+        pl = [["algorithm", algorithm], ["internal_neurons", internal_neurons], ["hidden_layer_count", hidden_layer_count], ["activation_internal", activation_func_dict.get(activation_internal)],
+              ["activation_final", activation_func_dict.get(activation_final)], ["optimizer", optimizer_dict.get(optimizer)], ["do_pretrain", do_pretrain], ["pretrain_func", pretrain_func_dict.get(pretrain_func)],
+              ["pretrain_iterations", pretrain_iterations], ["max_number_of_iterations", max_number_of_iterations], ["max_minutes_of_iterations", max_minutes_of_iterations],
+              ["batch_size", batch_size], ["initial_lr", initial_lr], ["do_lr_decay", do_lr_decay], ["lr_decay_alg", lr_decay_dict.get(lr_decay_alg)], ["random_seed", random_seed],
+              ["validation_frequency", validation_frequency], ["antithetic_variables", antithetic_variables], ["val_size", val_size], ["final_val_size", final_val_size],
+              ["stop_paths_in_plot", stop_paths_in_plot]]
 
         self.parameter_list = pl
 

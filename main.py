@@ -4,7 +4,7 @@ import time
 from NetDefinitions import activation_functions
 from Config import Config
 from ConfigInitializer import ConfigInitializer
-from Durations import Durations
+from Memory import Memory
 
 if __name__ == '__main__':
     log = logging.getLogger('l')
