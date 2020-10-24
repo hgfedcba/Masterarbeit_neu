@@ -19,10 +19,8 @@ if __name__ == '__main__':
     fh.setFormatter(formatter)
     log.addHandler(fh)
 
-    # test = True
-    # test = False
-
-    CI = ConfigInitializer(4312, log)
+    # 4312 = am put, 0 = test
+    CI = ConfigInitializer(0, log)
 
     assert True
 

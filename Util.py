@@ -33,12 +33,14 @@ def draw_function(x, f, plot_number=0):
     plot(x, y)
 
     # TODO: Das gehört hier nicht hin
+    """
     xlabel('x', fontsize=16)
     ylabel('f(x)', fontsize=16)
     plt.ylim([0, 1])
     grid(True)
     # show()
     # plt.close(fig)
+    """
 
     return plot_number
 
@@ -52,13 +54,14 @@ def draw_connected_points(x, y, plot_number=0, color=None):
     # for l in range(len(x)):
     #     plot(x, y[l].flatten())
     plot(x, y, color=color)
-
+    """
     # TODO: Das gehört hier nicht hin
     xlabel('t', fontsize=16)
     ylabel('x', fontsize=16)
     grid(True)
     # show()
     # plt.close(fig)
+    """
 
     return plot_number
 

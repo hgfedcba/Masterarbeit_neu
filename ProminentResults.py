@@ -8,13 +8,13 @@ class ProminentResults:
         self.final_result = IndividualBestResult()
         self.log = log
 
-    def process_current_iteration(self, NN, m, val_cont_value, val_disc_value, stopping_times, time_to_this_result):
-        if val_cont_value > self.cont_best_result.cont_value or (val_cont_value == self.cont_best_result.cont_value and val_disc_value > self.cont_best_result.disc_value):
-            self.cont_best_result.update(NN, m, val_cont_value, val_disc_value, stopping_times, time_to_this_result)
+    def process_current_iteration(self, NN, m, val_cont_payoff, val_disc_payoff, stopping_times, time_to_this_result):
+        if val_cont_payoff > self.cont_best_result.cont_value or (val_cont_payoff == self.cont_best_result.cont_value and val_disc_payoff > self.cont_best_result.disc_value):
+            self.cont_best_result.update(NN, m, val_cont_payoff, val_disc_payoff, stopping_times, time_to_this_result)
             self.log.info("This is a new cont best!!!!!")
 
-        if val_disc_value > self.disc_best_result.disc_value or (val_disc_value == self.disc_best_result.disc_value and val_cont_value > self.disc_best_result.cont_value):
-            self.disc_best_result.update(NN, m, val_cont_value, val_disc_value, stopping_times, time_to_this_result)
+        if val_disc_payoff > self.disc_best_result.disc_value or (val_disc_payoff == self.disc_best_result.disc_value and val_cont_payoff > self.disc_best_result.cont_value):
+            self.disc_best_result.update(NN, m, val_cont_payoff, val_disc_payoff, stopping_times, time_to_this_result)
             self.log.info("This is a new disc best!!!!!")
 
     def set_final_result(self, NN, m, val_cont_value, val_disc_value, stopping_times, total_time_used):

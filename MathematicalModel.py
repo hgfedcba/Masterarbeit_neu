@@ -1,6 +1,7 @@
 import numpy as np
 from ModelDefinitions import sigma_dict, payoff_dict, mu_dict
 from Util import mylog
+import scipy.stats
 
 
 # noinspection SpellCheckingInspection
@@ -16,6 +17,7 @@ class MathematicalModel:
         self.__internal_g = g  # objective function
         self.__xi = xi  # Startwert
         self.__reference_value = -1
+        self.t = self.get_time_partition(N)
         self.parameter_string = ""
         self.parameter_list = []
 
@@ -26,6 +28,43 @@ class MathematicalModel:
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
         # parameter_string = mylog(parameter_string)
         self.parameter_string = parameter_string + "\n"
+
+    def generate_bm(self):
+        # Ein Rückgabewert ist ein np.array der entsprechenden Länge, in dem die Werte über den gesamten sample path eingetragen sind
+        out = np.zeros((self.getd(), self.getN() + 1))
+        for m in range(self.getd()):
+            for n in range(self.getN()):
+                out[m, n + 1] = scipy.stats.norm.rvs(loc=out[m, n], scale=(self.t[n + 1] - self.t[n]) ** 0.5)
+
+        return out
+
+    def generate_path_from_bm(self, bm):
+        out = np.zeros((self.getd(), self.getN() + 1))
+        out[:, 0] = self.getxi()
+        for n in range(self.getN()):
+            h = out[:, n]
+            part2 = self.getmu(out[:, n]) * (self.t[n + 1] - self.t[n])
+            part3 = self.getsigma(out[:, n]) @ (bm[:, n + 1] - bm[:, n])
+            out[:, n + 1] = out[:, n] + part2 + part3
+            # out[:, n + 1] = out[:, n] * (1 + part2 + part3)
+
+        # return self.Sim_Paths_GeoBM(self.Model.getxi(), self.Model.getmu(1), self.Model.getsigma(1), self.Model.getT(), self.N)
+        return out
+
+    def generate_paths(self, number, antithetic):
+        bms = []
+        out = []
+        L = number
+        for l in range(L):
+            if not antithetic or l < L / 2:
+                bms.append(self.generate_bm())
+            elif l == L / 2:
+                bms.extend([-item for item in bms])
+            out.append(self.generate_path_from_bm(bms[l]))
+
+        assert L == out.__len__()
+
+        return out
 
     def getT(self):
         return self.__T

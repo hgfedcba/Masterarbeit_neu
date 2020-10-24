@@ -26,7 +26,9 @@ def add_am_put_default_pretrain(K, slope_length):
         b = K
         a = b - slope_length
         out = (b - x) / slope_length + relu(x - b) / slope_length - relu(a - x) / slope_length
+        out = out[:, 0] #  TODO: Unsur if good
         return out
+
     f = am_put_default_pretrain
     pretrain_functions.append(f)
     pretrain_func_dict[f] = "am_put_default_pretrain with slope " + str(slope_length) + "."
@@ -48,16 +50,23 @@ def add_am_call_default_pretrain(K, slope_length):
 
 
 pretrain_functions = [False]
-pretrain_func_dict = {False : "False"}
+pretrain_func_dict = {False: "False"}
 
 
 lr_decay_algs = [False]
-lr_decay_dict = {False : "False"}
+lr_decay_dict = {False: "False"}
 
 
-def add_multiplicative_lr_sheduler(factor):
-    f = lr_scheduler.MultiplicativeLR(optimizers, factor)
-    lr_decay_algs[f] = "multiplicative lr_sheduler with factor " + str(factor)
+def add_multiplicative_lr_scheduler(factor):
+    f = lr_scheduler.MultiplicativeLR, lambda epoch: factor
+    lr_decay_dict[f] = "multiplicative lr_scheduler with factor " + str(factor)
+    lr_decay_algs.append(f)
+    return f
+
+
+def add_step_lr_scheduler(step_size):
+    f = lr_scheduler.StepLR, step_size
+    lr_decay_dict[f] = "every " + str(step_size) + " steps divide lr by 10"
     lr_decay_algs.append(f)
     return f
 

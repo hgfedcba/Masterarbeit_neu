@@ -9,7 +9,7 @@ class Config:
                  max_number_of_iterations=50, max_minutes_of_iterations=5, batch_size=32, initial_lr=0.0001, do_lr_decay=False, lr_decay_alg=lr_decay_algs[0], random_seed=23343,
                  validation_frequency=2, antithetic_variables=True, val_size=64, final_val_size=128, stop_paths_in_plot=False):
         # net
-        self.algorithm = algorithm  # 0 is source, 1 is mine, 2 is christensen learn f
+        self.algorithm = algorithm  # 0 is source, 1 is mine (have NN for discrete stopping time), 2 is christensen learn f
         self.internal_neurons = internal_neurons
         self.hidden_layer_count = hidden_layer_count
         self.activation_internal = activation_internal
