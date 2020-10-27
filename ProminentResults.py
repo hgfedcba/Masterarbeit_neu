@@ -52,9 +52,10 @@ class IndividualBestResult:
         self.time_to_this_result = time_to_this_result
 
     def final_validation(self, paths):
-        # return self.NN.validate([], paths, [], [], [])
-        self.final_cont_value = 19
-        self.final_disc_value = 25
+        cont, disc, stop = self.NN.validate(paths)
+        self.final_cont_value = cont
+        self.final_disc_value = disc
+        self.stopping_times = stop
 
     """
     self.log = log

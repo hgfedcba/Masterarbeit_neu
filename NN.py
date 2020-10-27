@@ -269,6 +269,7 @@ class NN:
         return cont_payoff, disc_payoff, stopping_times
 
     def generate_discrete_stopping_time_from_U(self, U):
+        # between 0 and N
         # TODO:implement algorithm 1
         tau_set = np.zeros(self.N + 1)
         for n in range(tau_set.size):

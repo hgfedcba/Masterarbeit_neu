@@ -94,13 +94,13 @@ class ConfigInitializer:
             'activation_internal'      : [tanh],
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
-            'pretrain_func'            : [1, False],  # 2 information in 1 entry "False" for pass
+            'pretrain_func'            : [1],  # 2 information in 1 entry "False" for pass
             'pretrain_iterations'      : [800],
             'max_number_of_iterations' : [2000],
             'max_minutes_of_iterations': [30],
             'batch_size'               : [32],
             'initial_lr'               : [0.0001],
-            'lr_decay_alg'             : [2, False],  # 2 Information in 1 entry
+            'lr_decay_alg'             : [False],  # 2 Information in 1 entry
             'random_seed'              : [23343],
             'validation_frequency'     : [2],
             'antithetic_variables'     : [True],
@@ -182,7 +182,7 @@ class ConfigInitializer:
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
 
-            log.info("This is run " + str(run_number) + " and the current config is " + individual_parameter_string)
+            log.info("\n\nThis is run " + str(run_number) + " and the current config is " + individual_parameter_string)
 
             current_NN = NN.NN(current_Config, Model, Memory, log, val_paths)
 
@@ -196,7 +196,7 @@ class ConfigInitializer:
             f.write(self.result_to_resultstring(result_list[-1]))
             f.close()
 
-            Out.create_graphics(Memory, optimitaion_result[0][0], Model, current_Config, run_number)
+            Out.create_graphics(Memory, optimitaion_result[0][0], Model, current_Config, run_number, val_paths)
 
             run_number += 1
 
@@ -229,10 +229,11 @@ class ConfigInitializer:
         os = mylog("\trun: ", str(result[2]),
                    "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),
                    "\tbest cont result:", short_disc(result[0].cont_best_result), " | ", short_cont(result[0].cont_best_result),
-                   "\tfinal result:", short_disc(result[0].final_result), " | ", short_cont(result[0].final_result),
-                   "\ttime taken for discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
+                   "\tfinal result:", result[0].final_result.final_disc_value, " | ", result[0].final_result.final_cont_value,
+                   "\ttime taken until discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
                    time.time() - result[1].start_time,
                    "\ttime spend training:", sum(result[1].train_durations), "time spend validating:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
+                   "time spend on pretrain:", result[1].pretain_duration,
                    "Parameterstring:", result[3], only_return=True)
         return os
 
