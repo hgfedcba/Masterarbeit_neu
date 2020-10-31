@@ -66,9 +66,8 @@ class ConfigInitializer:
         elif option == 4411:
             # bermudan max call
             # TODO: divide parameters
-            # TODO: graphikkarte
+            # TODO: graphikkarte (überraschend schwer)
             # TODO: assert train and val are everywhere
-            # TODO: fix output bug
             # TODO: sort by best disc result on val set, not only one
             # TODO: plot titles
             r = 0.05

@@ -9,10 +9,7 @@ import torch
 from Util import *
 
 
-# TODO: durationgraph: summiere val_frequency viele graphen aufeinander
-
 def create_graphics(Memory, ProminentResults, Model, Config, run_number, val_paths, final_val_paths, NN):
-    # TODO: Loss mit logarithmisher skala
     create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_paths, final_val_paths)
     create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN)
 
@@ -48,6 +45,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     vd = []
     tn = []
 
+    # Ich lasse die letzten val_frequency iterationen absichtlich aus dem plot heraus da es nicht einfach ist sie richtig anzuzeigen
     for k in range(0, int(len(Memory.train_durations)/Config.validation_frequency)):
         iter.append(Config.validation_frequency*k)
         td.append(sum(Memory.train_durations[Config.validation_frequency*k:Config.validation_frequency*(k+1)]))
@@ -68,18 +66,14 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     plot_number_duration_2 = 25
     fig25 = plt.figure(plot_number_duration_2)
 
-    iter = []
     td = []
     vd = []
     tn = []
 
-    # TODO: momentan 10 statt 0
-
     for k in range(0, int(len(Memory.train_durations)/Config.validation_frequency)):
-        iter.append(Config.validation_frequency*k)
-        td.append(Memory.pretrain_duration + sum(Memory.train_durations[:Config.validation_frequency*(k+1)]))
-        vd.append(Memory.pretrain_duration + sum(Memory.val_durations[:(k+1)]))
-        tn.append(Memory.pretrain_duration + sum(Memory.total_net_durations[:Config.validation_frequency*(k+1)]))
+        td.append(Memory.pretrain_duration + sum(Memory.train_durations[:Config.validation_frequency*(k)]))
+        vd.append(Memory.pretrain_duration + sum(Memory.val_durations[:(k)]))
+        tn.append(Memory.pretrain_duration + sum(Memory.total_net_durations[:Config.validation_frequency*(k)]))
 
     draw_connected_points(iter, td, plot_number_duration_2)
     draw_connected_points(iter, vd, plot_number_duration_2)
@@ -87,9 +81,10 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     draw_connected_points(iter, Memory.pretrain_duration * np.ones_like(iter), plot_number_duration_2)
     draw_connected_points(iter, (time.time() - Memory.start_time) * np.ones_like(iter), plot_number_duration_2)
     draw_connected_points(iter, (time.time() - Memory.start_time - Memory.final_val_duration) * np.ones_like(iter), plot_number_duration_2)
-    plt.legend(["train duration", "val duration", "time spend in net", "time for pretrain", "final val end", "final val start"])
+    plt.legend(["train duration", "val duration", "time spend in net", "pretrain end", "final val end", "final val start"])
     xlabel('t', fontsize=16)
     ylabel('time', fontsize=16)
+    plt.ylim([0, (time.time() - Memory.start_time)*1.05])
     plt.title('time spend on ' + str(Config.validation_frequency) + ' iterations')
     grid(True)
 

@@ -14,6 +14,7 @@ class Net(nn.Module):
         self.fcs = []
         for _ in range(hidden_layer_count):
             self.fcs.append(nn.Linear(internal_neurons, internal_neurons))
+            # self.fcs.append(nn.Linear(internal_neurons, internal_neurons).cuda())
         self.fcl = nn.Linear(internal_neurons, 1)
 
         self.activation_internal = activation_internal
@@ -79,6 +80,7 @@ class NN:
             self.u = []
             for _ in range(self.N):
                 net = Net(self.d, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
+                # net.to(torch.device("cuda:0"))
                 self.u.append(net)
 
         define_nets()
@@ -166,6 +168,7 @@ class NN:
                 # torch.autograd.set_detect_anomaly(True)
                 for epoch in range(1, epochs):
                     x_train = Variable(torch.from_numpy(x_values)).float()
+                    # x_train = x_train.to(torch.device("cuda:0"))
                     # x_train = torch.tensor(x_values, requires_grad=True)
                     y_correct = pretrain_func(x_train)
                     loss = []
@@ -297,17 +300,13 @@ class NN:
 
     # TODO: Hier geht es weiter
     def generate_stopping_time_factors_and_discrete_stoppoint_from_path(self, x_input):
+        # device = torch.device("cuda:0")
+
         local_N = x_input.shape[1]
         U = []
         sum = []
         x = []
         # x = torch.from_numpy(x_input) doesn't work for some reason
-
-        if torch.cuda.is_available():
-            dev = "cuda:0"
-        else:
-            dev = "cpu"
-        device = torch.device(dev)
 
         h = []
         # TODO:Parallel? NO!
@@ -318,13 +317,14 @@ class NN:
                 sum.append(0)
             # x.append(torch.tensor(x_input[:, n], dtype=torch.float32))
             x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=True))
-            x[-1] = x[-1].to(device)
+            # x[-1] = x[-1].to(device)
             if n < self.N:
                 t = time.time()
                 h.append(self.u[n](x[n]))
                 self.Memory.total_net_durations[-1] += time.time() - t
             else:
                 h.append(torch.ones(1))
+                # h[-1].to(device)
             # max = torch.max(torch.tensor([h1, h2]))
             # U[n] = max * (torch.ones(1) - sum)
             U.append(h[n] * (torch.ones(1) - sum[n]))
