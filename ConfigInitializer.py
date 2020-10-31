@@ -55,7 +55,9 @@ class ConfigInitializer:
             add_am_put_default_pretrain(K, 16)
 
             max_minutes = 30
-            final_val_size = 8192
+            test_size = 8192
+
+            x_plot_range_for_net_plot = [20, 60]
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(5.318)  # verified with my binomial trees
@@ -63,11 +65,17 @@ class ConfigInitializer:
 
         elif option == 4411:
             # bermudan max call
+            # TODO: divide parameters
+            # TODO: graphikkarte
+            # TODO: assert train and val are everywhere
+            # TODO: fix output bug
+            # TODO: sort by best disc result on val set, not only one
+            # TODO: plot titles
             r = 0.05
             sigma_constant = 0.2  # beta
             mu_constant = r
             K = 100
-            xi = 100
+            xi = 110
             T = 3
             N = 9
             d = 2  # dimension
@@ -79,10 +87,12 @@ class ConfigInitializer:
             add_am_call_default_pretrain(K, 40)
 
             max_minutes = 10
-            final_val_size = 16384
+            test_size = 16384
+
+            x_plot_range_for_net_plot = [80, 140]
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
-            Model.set_reference_value(13.902)
+            Model.set_reference_value(21.344)
             Model.update_parameter_string()
 
         elif option == 1:
@@ -103,7 +113,9 @@ class ConfigInitializer:
             add_am_put_default_pretrain(K, 16)
 
             max_minutes = 5
-            final_val_size = 1024
+            test_size = 1024
+
+            x_plot_range_for_net_plot = [20, 60]
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, 200, K))
@@ -127,14 +139,16 @@ class ConfigInitializer:
             add_am_put_default_pretrain(K, 16)
 
             max_minutes = 5*0.1
-            final_val_size = 128
+            test_size = 128
+
+            x_plot_range_for_net_plot = [20, 60]
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, N*10, K))
             Model.update_parameter_string()
 
+        test_paths = []
         val_paths = []
-        final_val_paths = []
 
         # Parametergrid für Netz
         # addAdam
@@ -156,13 +170,14 @@ class ConfigInitializer:
             'max_number_of_iterations' : [3000],
             'max_minutes_of_iterations': [max_minutes],
             'batch_size'               : [32],
-            'initial_lr'               : [0.01, 0.003, 0.1, 0.03],
+            'initial_lr'               : [0.01],
             'lr_decay_alg'             : [2],  # 2 Information in 1 entry
             'random_seed'              : [23343],
             'validation_frequency'     : [10],
-            'antithetic_variables'     : [True],
-            'val_size'                 : [1024],  # with my current implementation this has to be constant over a programm execution
-            'final_val_size'           : [final_val_size]  # with my current implementation this has to be constant over a programm execution
+            'antithetic_val'           : [True],
+            'antithetic_train'         : [False],
+            'test_size'                : [1024],  # with my current implementation this has to be constant over a programm execution
+            'val_size'                 : [test_size]  # with my current implementation this has to be constant over a programm execution
         }
 
         for u, v in dict_a.items():
@@ -211,14 +226,15 @@ class ConfigInitializer:
                 lr_decay_alg = lr_decay_algs[params['lr_decay_alg']]
             random_seed = params['random_seed']
             validation_frequency = params['validation_frequency']
-            antithetic_variables = params['antithetic_variables']
+            antithetic_val = params['antithetic_val']
+            antithetic_train = params['antithetic_val']
+            test_size = params['test_size']
             val_size = params['val_size']
-            final_val_size = params['final_val_size']
 
             current_Config = Config(algorithm, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer, do_pretrain, pretrain_func, pretrain_iterations,
                                     max_number_of_iterations,
-                                    max_minutes_of_iterations, batch_size, initial_lr, do_lr_decay, lr_decay_alg, random_seed, validation_frequency, antithetic_variables, val_size,
-                                    final_val_size, stop_paths_in_plot)
+                                    max_minutes_of_iterations, batch_size, initial_lr, do_lr_decay, lr_decay_alg, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size,
+                                    val_size, stop_paths_in_plot, x_plot_range_for_net_plot)
             if run_number == 0:
                 f = open("intermediate_results.txt", "w")
                 introstring = "Wir optimieren für das Modell: \t" + Model.parameter_string + "Folgende Parameter sind konstant über alle runs: \t" + \
@@ -229,8 +245,8 @@ class ConfigInitializer:
 
                 log.info("The reference value is: " + str(Model.get_reference_value()))
 
-                val_paths = Model.generate_paths(val_size, antithetic_variables)
-                final_val_paths = Model.generate_paths(final_val_size, antithetic_variables)
+                test_paths = Model.generate_paths(test_size, antithetic_val)
+                val_paths = Model.generate_paths(val_size, antithetic_val)
 
             # TODO: Here something important should happen
             # Rufe main_routine auf und erhalte result
@@ -238,12 +254,12 @@ class ConfigInitializer:
 
             log.info("\n\nThis is run " + str(run_number) + " and the current config is " + individual_parameter_string)
 
-            current_NN = NN.NN(current_Config, Model, Memory, log, val_paths)
+            current_NN = NN.NN(current_Config, Model, Memory, log, test_paths)
 
             # result enthält prominent_result klasse, durations klasse
             optimitaion_result = [current_NN.optimization()]
             fvs = time.time()
-            optimitaion_result[0][0].final_validation(final_val_paths)
+            optimitaion_result[0][0].final_validation(val_paths)
             Memory.final_val_duration = time.time() - fvs
             # TODO: final val möchte ich eventuell außerhalb von optimization aufrufen. Es hat den Vorteil das es einfacher ist die Wege für final val zu verwalten
             result_list.append([optimitaion_result[0][0], optimitaion_result[0][1], run_number, individual_parameter_string])
@@ -252,13 +268,13 @@ class ConfigInitializer:
             f.write(self.result_to_resultstring(result_list[-1]))
             f.close()
 
-            Out.create_graphics(Memory, optimitaion_result[0][0], Model, current_Config, run_number, val_paths, final_val_paths, current_NN)
+            Out.create_graphics(Memory, optimitaion_result[0][0], Model, current_Config, run_number, test_paths, val_paths, current_NN)
 
             run_number += 1
 
         def sort_resultlist_by_disc_value(result_list):
             def sort_key(element):
-                return -element[0].disc_best_result.final_disc_value
+                return -element[0].disc_best_result.val_disc_value
 
             result_list.sort(key=sort_key)
 
@@ -277,10 +293,10 @@ class ConfigInitializer:
     @staticmethod
     def result_to_resultstring(result):
         def short_disc(a):
-            return str(a.disc_value) + " \t (" + str(a.final_disc_value) + ")\t"
+            return str(a.test_disc_value) + " \t (" + str(a.val_disc_value) + ")\t"
 
         def short_cont(a):
-            return str(a.cont_value) + " \t (" + str(a.final_cont_value) + ")\t"
+            return str(a.test_cont_value) + " \t (" + str(a.val_cont_value) + ")\t"
 
         os = mylog("\trun: ", str(result[2]),
                    "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),

@@ -32,11 +32,11 @@ class Net(nn.Module):
 
 
 class NN:
-    def __init__(self, Config, Model, Memory, log, val_paths):
+    def __init__(self, Config, Model, Memory, log, test_paths):
         self.Memory = Memory
         self.log = log
 
-        self.val_paths = val_paths
+        self.test_paths = test_paths
 
         self.Model = Model
         self.T = Model.getT()
@@ -67,7 +67,7 @@ class NN:
         self.pretrain_func = Config.pretrain_func
 
         self.validation_frequency = Config.validation_frequency
-        self.antithetic_variables = Config.antithetic_variables
+        self.antithetic_train = Config.antithetic_train
 
         self.algorithm = Config.algorithm
         self.u = []
@@ -123,7 +123,7 @@ class NN:
             # validation
             if m % self.validation_frequency == 0:
                 val_start = time.time()
-                cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
+                cont_payoff, disc_payoff, stopping_times = self.validate(self.test_paths)
                 self.Memory.val_durations.append(time.time() - val_start)
                 log.info(
                     "After \t%s iterations the continuous value is\t %s and the discrete value is \t%s" % (m, round(cont_payoff, 3), round(disc_payoff, 3)))
@@ -225,11 +225,11 @@ class NN:
 
     def train(self, optimizer):
         U = torch.empty(self.batch_size, self.N + 1)
-        training_paths = self.Model.generate_paths(self.batch_size, False)
+        training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
         individual_payoffs = []
 
         for j in range(self.batch_size):
-            h = self.generate_stopping_time_factors_from_path(training_paths[j])
+            h, _ = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(training_paths[j])
             U[j, :] = h[:, 0]
             individual_payoffs.append(self.calculate_payoffs(U[j, :], training_paths[j], self.Model.getg, self.t))
         average_payoff = torch.sum(torch.stack(individual_payoffs)) / len(individual_payoffs)
@@ -253,21 +253,21 @@ class NN:
         U = torch.empty(L, self.N + 1)
         tau_list = []
         for l in range(L):
-            h = self.generate_stopping_time_factors_from_path(paths[l])
+            h, tau = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(paths[l])
             U[l, :] = h[:, 0]
             cont_individual_payoffs.append(self.calculate_payoffs(U[l, :], paths[l], self.Model.getg, self.t))
 
-            for_debugging1 = paths[l]
-            for_debugging2 = h[:, 0]
-            for_debugging3 = cont_individual_payoffs[l]
+            # for_debugging1 = paths[l]
+            # for_debugging2 = h[:, 0]
+            # for_debugging3 = cont_individual_payoffs[l]
 
             # part 2: discrete
-            tau_list.append(self.generate_discrete_stopping_time_from_U(U[l, :]))
+            tau_list.append(tau)
 
             single_stopping_time = np.zeros(self.N + 1)
             single_stopping_time[tau_list[l]] = 1
             disc_individual_payoffs.append(self.calculate_payoffs(single_stopping_time, paths[l], self.Model.getg, self.t).item())
-            for_debugging5 = disc_individual_payoffs[-1]
+            # for_debugging5 = disc_individual_payoffs[-1]
             stopping_times.append(single_stopping_time)
 
         disc_payoff = sum(disc_individual_payoffs) / L
@@ -275,7 +275,7 @@ class NN:
         cont_payoff = temp.item()
 
         return cont_payoff, disc_payoff, stopping_times
-
+    """
     def generate_discrete_stopping_time_from_U(self, U):
         # between 0 and N
         # TODO:implement algorithm 1
@@ -287,23 +287,27 @@ class NN:
             tau_set[n] = torch.sum(U[0:n + 1]).item() >= 1 - U[n].item()
         tau = np.argmax(tau_set)  # argmax returns the first "True" entry
         return tau
-
+    """
     def generate_discrete_stopping_time_from_u(self, u):
         # between 0 and N
-        # TODO:implement algorithm 1
-        tau = self.N
         for n in range(self.N + 1):
-            if u[n] > 0.5 and tau == self.N:
-                tau = n
-        return tau
+            if u[n] > 0.5:
+                return n
+        return self.N
 
     # TODO: Hier geht es weiter
-    def generate_stopping_time_factors_from_path(self, x_input):
+    def generate_stopping_time_factors_and_discrete_stoppoint_from_path(self, x_input):
         local_N = x_input.shape[1]
         U = []
         sum = []
         x = []
         # x = torch.from_numpy(x_input) doesn't work for some reason
+
+        if torch.cuda.is_available():
+            dev = "cuda:0"
+        else:
+            dev = "cpu"
+        device = torch.device(dev)
 
         h = []
         # TODO:Parallel? NO!
@@ -314,6 +318,7 @@ class NN:
                 sum.append(0)
             # x.append(torch.tensor(x_input[:, n], dtype=torch.float32))
             x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=True))
+            x[-1] = x[-1].to(device)
             if n < self.N:
                 t = time.time()
                 h.append(self.u[n](x[n]))
@@ -326,7 +331,7 @@ class NN:
 
         z = torch.stack(U)
         assert torch.sum(z).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(z).item())  # TODO: solve this better
-        return z
+        return z, self.generate_discrete_stopping_time_from_u(h)
 
     def calculate_payoffs(self, U, x, g, t):
         assert torch.sum(torch.tensor(U)).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(torch.tensor(U)).item())

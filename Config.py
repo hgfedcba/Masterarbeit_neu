@@ -7,13 +7,13 @@ class Config:
     def __init__(self, algorithm=0, internal_neurons=50, hidden_layer_count=3, activation_internal=tanh, activation_final=sigmoid, optimizer=Adam, do_pretrain=True,
                  pretrain_func=pretrain_functions[0], pretrain_iterations=800,
                  max_number_of_iterations=50, max_minutes_of_iterations=5, batch_size=32, initial_lr=0.0001, do_lr_decay=False, lr_decay_alg=lr_decay_algs[0], random_seed=23343,
-                 validation_frequency=2, antithetic_variables=True, val_size=64, final_val_size=128, stop_paths_in_plot=False):
+                 validation_frequency=2, antithetic_val=True, antithetic_train=False, test_size=64, val_size=128, stop_paths_in_plot=False, x_plot_range_for_net_plot=[20, 60]):
 
         # net
 
         # Algorithmus 0 macht genau was ich möchte. u_n bezeichnet die Wahrscheinlichkeit das es gut ist im n-ten Schritt zu stoppen. U_n bezeichnet die Wahrscheinlichkeit das im n_ten Schritt
-        # gestoppt wird. Es wird gestoppt wenn u_n > 0.5 ist, das ist äquivalent zu U_n > U_n+1+...
-        self.algorithm = algorithm  # 0 is source, 1 is mine (have NN for discrete stopping time), 2 is christensen learn f
+        # gestoppt wird. Es wird diskret gestoppt wenn u_n > 0.5 ist.
+        self.algorithm = algorithm  # 0 is source, 1 is mine, 2 is christensen learn f
         self.internal_neurons = internal_neurons
         self.hidden_layer_count = hidden_layer_count
         self.activation_internal = activation_internal
@@ -34,17 +34,20 @@ class Config:
         # Meta
         self.random_seed = random_seed
         self.validation_frequency = validation_frequency
-        self.antithetic_variables = antithetic_variables  # only in validation!
+        self.antithetic_val = antithetic_val  # only in validation!
+        self.antithetic_train = antithetic_train
+        self.test_size = test_size
         self.val_size = val_size
-        self.final_val_size = final_val_size
 
         self.stop_paths_in_plot = stop_paths_in_plot  # TODO:use
+
+        self.x_plot_range_for_net_plot = x_plot_range_for_net_plot
 
         pl = [["algorithm", algorithm], ["internal_neurons", internal_neurons], ["hidden_layer_count", hidden_layer_count], ["activation_internal", activation_func_dict.get(activation_internal)],
               ["activation_final", activation_func_dict.get(activation_final)], ["optimizer", optimizer_dict.get(optimizer)], ["do_pretrain", do_pretrain], ["pretrain_func", pretrain_func_dict.get(pretrain_func)],
               ["pretrain_iterations", pretrain_iterations], ["max_number_of_iterations", max_number_of_iterations], ["max_minutes_of_iterations", max_minutes_of_iterations],
               ["batch_size", batch_size], ["initial_lr", initial_lr], ["do_lr_decay", do_lr_decay], ["lr_decay_alg", lr_decay_dict.get(lr_decay_alg)], ["random_seed", random_seed],
-              ["validation_frequency", validation_frequency], ["antithetic_variables", antithetic_variables], ["val_size", val_size], ["final_val_size", final_val_size],
+              ["validation_frequency", validation_frequency], ["antithetic_val", antithetic_val], ["antithetic_train", antithetic_train], ["test_size", test_size], ["val_size", val_size],
               ["stop_paths_in_plot", stop_paths_in_plot]]
 
         self.parameter_list = pl

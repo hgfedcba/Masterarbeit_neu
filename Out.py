@@ -100,38 +100,38 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         # visualized stopping times graph
         plot_number_paths = 3
         fig3 = plt.figure(plot_number_paths)
-        create_paths_plot(val_paths, Model, ProminentResults.disc_best_result.stopping_times, plot_number_paths, "best disc")
+        create_paths_plot(val_paths, Model, ProminentResults.disc_best_result.test_stopping_times, plot_number_paths, "best disc")
         pdf.savefig(fig3)
         plt.close(fig3)
 
         plot_number_paths = 4
         fig4 = plt.figure(plot_number_paths)
-        create_paths_plot(val_paths, Model, ProminentResults.cont_best_result.stopping_times, plot_number_paths, "best cont")
+        create_paths_plot(val_paths, Model, ProminentResults.cont_best_result.test_stopping_times, plot_number_paths, "best cont")
         pdf.savefig(fig4)
         plt.close(fig4)
 
         plot_number_paths = 5
         fig5 = plt.figure(plot_number_paths)
-        create_paths_plot(val_paths, Model, ProminentResults.final_result.stopping_times, plot_number_paths, "final")
+        create_paths_plot(val_paths, Model, ProminentResults.final_result.test_stopping_times, plot_number_paths, "final")
         pdf.savefig(fig5)
         plt.close(fig5)
 
         # visualized stopping times graph
         plot_number_paths = 6
         fig6 = plt.figure(plot_number_paths)
-        create_paths_plot(final_val_paths, Model, ProminentResults.disc_best_result.final_stopping_times, plot_number_paths, "best disc")
+        create_paths_plot(final_val_paths, Model, ProminentResults.disc_best_result.val_stopping_times, plot_number_paths, "best disc")
         pdf.savefig(fig6)
         plt.close(fig6)
 
         plot_number_paths = 7
         fig7 = plt.figure(plot_number_paths)
-        create_paths_plot(final_val_paths, Model, ProminentResults.cont_best_result.final_stopping_times, plot_number_paths, "best cont")
+        create_paths_plot(final_val_paths, Model, ProminentResults.cont_best_result.val_stopping_times, plot_number_paths, "best cont")
         pdf.savefig(fig7)
         plt.close(fig7)
 
         plot_number_paths = 8
         fig8 = plt.figure(plot_number_paths)
-        create_paths_plot(final_val_paths, Model, ProminentResults.final_result.final_stopping_times, plot_number_paths, "final")
+        create_paths_plot(final_val_paths, Model, ProminentResults.final_result.val_stopping_times, plot_number_paths, "final")
         pdf.savefig(fig8)
         plt.close(fig8)
 
@@ -157,11 +157,15 @@ def create_paths_plot(val_paths, Model, stopping_times, plot_number, title):
 def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     # TODO: copy graph so i only use a copy when it was still open   ?????
     pdf = pdfp.PdfPages("net graphs " + str(run_number) + ".pdf")
-    n_samples = 41  # 81 and half stepsize seems way more reasonable
+    n_sample_points = 81  # 81 and half stepsize seems way more reasonable
     d = Model.getd()
+    """
     x = np.ones((n_samples, d))
     for i in range(0, n_samples):
         x[i] = np.ones(d) * (Model.getK() + i - 20)
+    """
+    short = Config.x_plot_range_for_net_plot
+    x = np.reshape(np.linspace(short[0], short[1], n_sample_points), (n_sample_points, 1)) * np.ones((1, d))
 
     NN = ProminentResults.disc_best_result.load_state_dict_into_given_net(NN)
     l = len(NN.u)

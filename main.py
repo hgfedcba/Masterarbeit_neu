@@ -20,7 +20,7 @@ if __name__ == '__main__':
     log.addHandler(fh)
 
     # 4312 = am put, 0 = test
-    CI = ConfigInitializer(4411, log)
+    CI = ConfigInitializer(0, log)
 
     assert True
 
