@@ -5,7 +5,7 @@ from MathematicalModel import MathematicalModel
 
 from NetDefinitions import add_am_call_default_pretrain, add_am_put_default_pretrain, add_multiplicative_lr_scheduler, pretrain_functions, lr_decay_algs, optimizers, add_step_lr_scheduler
 from NetDefinitions import Adam, relu, hardtanh, relu6, elu, selu, celu, leaky_relu, rrelu, gelu, logsigmoid, hardshrink, tanhshrink, softsign, softplus, softmin, softmax, softshrink, \
-    gumbel_softmax, log_softmax, hardsigmoid, tanh, sigmoid
+    gumbel_softmax, log_softmax, hardsigmoid, tanh, sigmoid, id
 
 from sklearn.model_selection import ParameterGrid
 
@@ -52,8 +52,61 @@ class ConfigInitializer:
             mu = add_mu_c_x(mu_constant, delta)
             g = add_american_put(d, K, r)
 
+            add_am_put_default_pretrain(K, 16)
+
+            max_minutes = 30
+            final_val_size = 8192
+
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(5.318)  # verified with my binomial trees
+            Model.update_parameter_string()
+
+        elif option == 4411:
+            # bermudan max call
+            r = 0.05
+            sigma_constant = 0.2  # beta
+            mu_constant = r
+            K = 100
+            xi = 100
+            T = 3
+            N = 9
+            d = 2  # dimension
+            delta = 0.1  # dividend rate
+            sigma = add_sigma_c_x(sigma_constant)
+            mu = add_mu_c_x(mu_constant, delta)
+            g = add_bermudan_max_call(K, r)
+
+            add_am_call_default_pretrain(K, 40)
+
+            max_minutes = 10
+            final_val_size = 16384
+
+            Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
+            Model.set_reference_value(13.902)
+            Model.update_parameter_string()
+
+        elif option == 1:
+            # Model
+            r = 0.05
+            sigma_constant = 0.25  # beta
+            mu_constant = r
+            K = 40
+            xi = 40
+            T = 10
+            N = 10
+            d = 1  # dimension
+            delta = 0  # dividend rate
+            sigma = add_sigma_c_x(sigma_constant)
+            mu = add_mu_c_x(mu_constant, delta)
+            g = add_american_put(d, K, r)
+
+            add_am_put_default_pretrain(K, 16)
+
+            max_minutes = 5
+            final_val_size = 1024
+
+            Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
+            Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, 200, K))
             Model.update_parameter_string()
 
         else:
@@ -71,8 +124,13 @@ class ConfigInitializer:
             mu = add_mu_c_x(mu_constant, delta)
             g = add_american_put(d, K, r)
 
+            add_am_put_default_pretrain(K, 16)
+
+            max_minutes = 5*0.1
+            final_val_size = 128
+
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
-            Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, N, K))
+            Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, N*10, K))
             Model.update_parameter_string()
 
         val_paths = []
@@ -80,9 +138,8 @@ class ConfigInitializer:
 
         # Parametergrid für Netz
         # addAdam
-        add_am_put_default_pretrain(K, 16)
         add_step_lr_scheduler(500)
-        add_multiplicative_lr_scheduler(0.99)
+        add_multiplicative_lr_scheduler(0.999)
 
         list_individual_parameters = []
         list_common_parameters = []
@@ -96,16 +153,16 @@ class ConfigInitializer:
             'optimizer'                : [0],
             'pretrain_func'            : [1],  # 2 information in 1 entry "False" for pass
             'pretrain_iterations'      : [800],
-            'max_number_of_iterations' : [2000],
-            'max_minutes_of_iterations': [30],
+            'max_number_of_iterations' : [3000],
+            'max_minutes_of_iterations': [max_minutes],
             'batch_size'               : [32],
-            'initial_lr'               : [0.0001],
-            'lr_decay_alg'             : [False],  # 2 Information in 1 entry
+            'initial_lr'               : [0.01, 0.003, 0.1, 0.03],
+            'lr_decay_alg'             : [2],  # 2 Information in 1 entry
             'random_seed'              : [23343],
-            'validation_frequency'     : [2],
+            'validation_frequency'     : [10],
             'antithetic_variables'     : [True],
-            'val_size'                 : [64],  # with my current implementation this has to be constant over a programm execution
-            'final_val_size'           : [256]  # with my current implementation this has to be constant over a programm execution
+            'val_size'                 : [1024],  # with my current implementation this has to be constant over a programm execution
+            'final_val_size'           : [final_val_size]  # with my current implementation this has to be constant over a programm execution
         }
 
         for u, v in dict_a.items():
@@ -144,9 +201,6 @@ class ConfigInitializer:
             max_number_of_iterations = params['max_number_of_iterations']
             max_minutes_of_iterations = params['max_minutes_of_iterations']
 
-            if option == 0:  # Test
-                max_minutes_of_iterations = 0.5
-
             batch_size = params['batch_size']
             initial_lr = params['initial_lr']
             if params['lr_decay_alg'] is False:
@@ -176,7 +230,7 @@ class ConfigInitializer:
                 log.info("The reference value is: " + str(Model.get_reference_value()))
 
                 val_paths = Model.generate_paths(val_size, antithetic_variables)
-                final_val_paths = Model.generate_paths(val_size, antithetic_variables)
+                final_val_paths = Model.generate_paths(final_val_size, antithetic_variables)
 
             # TODO: Here something important should happen
             # Rufe main_routine auf und erhalte result
@@ -188,7 +242,9 @@ class ConfigInitializer:
 
             # result enthält prominent_result klasse, durations klasse
             optimitaion_result = [current_NN.optimization()]
+            fvs = time.time()
             optimitaion_result[0][0].final_validation(final_val_paths)
+            Memory.final_val_duration = time.time() - fvs
             # TODO: final val möchte ich eventuell außerhalb von optimization aufrufen. Es hat den Vorteil das es einfacher ist die Wege für final val zu verwalten
             result_list.append([optimitaion_result[0][0], optimitaion_result[0][1], run_number, individual_parameter_string])
 
@@ -196,13 +252,13 @@ class ConfigInitializer:
             f.write(self.result_to_resultstring(result_list[-1]))
             f.close()
 
-            Out.create_graphics(Memory, optimitaion_result[0][0], Model, current_Config, run_number, val_paths)
+            Out.create_graphics(Memory, optimitaion_result[0][0], Model, current_Config, run_number, val_paths, final_val_paths, current_NN)
 
             run_number += 1
 
         def sort_resultlist_by_disc_value(result_list):
             def sort_key(element):
-                return -element[0].disc_best_result.disc_value
+                return -element[0].disc_best_result.final_disc_value
 
             result_list.sort(key=sort_key)
 
@@ -229,11 +285,12 @@ class ConfigInitializer:
         os = mylog("\trun: ", str(result[2]),
                    "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),
                    "\tbest cont result:", short_disc(result[0].cont_best_result), " | ", short_cont(result[0].cont_best_result),
-                   "\tfinal result:", result[0].final_result.final_disc_value, " | ", result[0].final_result.final_cont_value,
+                   "\tfinal result:", short_disc(result[0].final_result), " | ", short_cont(result[0].final_result),
                    "\ttime taken until discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
                    time.time() - result[1].start_time,
+                   "\titerations taken until discrete/cont/final result:", result[0].disc_best_result.m, " | ", result[0].cont_best_result.m, " | ", result[0].final_result.m,
                    "\ttime spend training:", sum(result[1].train_durations), "time spend validating:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
-                   "time spend on pretrain:", result[1].pretain_duration,
+                   "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].final_val_duration,
                    "Parameterstring:", result[3], only_return=True)
         return os
 

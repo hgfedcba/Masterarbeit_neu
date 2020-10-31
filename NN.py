@@ -5,8 +5,9 @@ import torch.optim as optim
 import pytest
 
 
+# TODO: IMPORTANT NOTE: I substract K from the input of the Network to ensure the learning works from the beginning on
 class Net(nn.Module):
-    def __init__(self, d, internal_neurons, hidden_layer_count, activation_internal, activation_final):
+    def __init__(self, d, internal_neurons, hidden_layer_count, activation_internal, activation_final, K):
         super(Net, self).__init__()
         # an affine operation: y = Wx + b
         self.fc1 = nn.Linear(d, internal_neurons)
@@ -19,7 +20,10 @@ class Net(nn.Module):
         self.activation_final = activation_final
         self.hidden_layer_count = hidden_layer_count
 
+        self.K = K
+
     def forward(self, y):
+        y = y-self.K
         y = self.activation_internal(self.fc1(y))
         for k in range(self.hidden_layer_count):
             y = self.activation_internal(self.fcs[k](y))
@@ -30,7 +34,6 @@ class Net(nn.Module):
 class NN:
     def __init__(self, Config, Model, Memory, log, val_paths):
         self.Memory = Memory
-        self.ProminentResults = ProminentResults(log)
         self.log = log
 
         self.val_paths = val_paths
@@ -75,10 +78,11 @@ class NN:
         def define_nets():
             self.u = []
             for _ in range(self.N):
-                net = Net(self.d, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final)
+                net = Net(self.d, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
                 self.u.append(net)
 
         define_nets()
+        self.ProminentResults = ProminentResults(log, self)
 
     def optimization(self):
         log = self.log
@@ -105,8 +109,10 @@ class NN:
         # 2. die maximale zeit nicht überschritten wurde
         # 3. es keine maximale Iterationszahl gibt oder sie noch nicht erreicht wurde
         # 4. in den letzten 200 Iterationen es ein neues optimum gab
+        # noch kaum iteriert wurde
         while (m % self.validation_frequency != 1 and not self.validation_frequency == 1) or \
-                ((time.time() - self.Memory.start_time) / 60 < self.T_max and (self.M_max == -1 or m < self.M_max) and self.ProminentResults.get_m_max() + 200 > m):
+                ((time.time() - self.Memory.start_time) / 60 < self.T_max and (self.M_max == -1 or m < self.M_max) and self.ProminentResults.get_m_max() + 200 > m)\
+                or m < 10:
             self.Memory.total_net_durations.append(0)
             m_th_iteration_start_time = time.time()
 
@@ -130,10 +136,9 @@ class NN:
             if self.do_lr_decay:
                 scheduler.step()
 
-            if m == 25:
-                assert True
-
             m += 1
+
+        self.ProminentResults.set_final_net(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
         return self.ProminentResults, self.Memory
 
@@ -149,8 +154,9 @@ class NN:
 
             net = self.u[m]
 
-            optimizer = optim.Adam(net.parameters(), lr=0.01)
-            # scheduler = optim.lr_scheduler.ExponentialLR(optimizer, 0.99)
+            optimizer = optim.Adam(net.parameters(), lr=0.01)  # worked for am_put
+            # optimizer = optim.Adam(net.parameters(), lr=0.001)
+            scheduler = optim.lr_scheduler.ExponentialLR(optimizer, 0.999)
             epochs = max_iterations
 
             def local_train():
@@ -172,6 +178,7 @@ class NN:
                     optimizer.zero_grad()
                     temp.backward()
                     optimizer.step()
+                    scheduler.step()
 
                     losses.append(temp.item())
                     # print("epoch #", epoch)
@@ -211,6 +218,7 @@ class NN:
                 draw_function(x_values, self.u[m])
                 plt.xlabel("x")
                 plt.ylabel("u[" + str(m) + "]")
+                plt.ylim([0, 1])
                 grid(True)
                 plt.show()
                 plt.close()
@@ -280,6 +288,15 @@ class NN:
         tau = np.argmax(tau_set)  # argmax returns the first "True" entry
         return tau
 
+    def generate_discrete_stopping_time_from_u(self, u):
+        # between 0 and N
+        # TODO:implement algorithm 1
+        tau = self.N
+        for n in range(self.N + 1):
+            if u[n] > 0.5 and tau == self.N:
+                tau = n
+        return tau
+
     # TODO: Hier geht es weiter
     def generate_stopping_time_factors_from_path(self, x_input):
         local_N = x_input.shape[1]
@@ -290,36 +307,31 @@ class NN:
 
         h = []
         # TODO:Parallel? NO!
-        if self.algorithm == 0:
-            for n in range(local_N):
-                if n > 0:
-                    sum.append(sum[n - 1] + U[n - 1])  # 0...n-1
-                else:
-                    sum.append(0)
-                # x.append(torch.tensor(x_input[:, n], dtype=torch.float32))
-                x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=True))
-                if n < self.N:
-                    t = time.time()
-                    h.append(self.u[n](x[n]))
-                    self.Memory.total_net_durations[-1] += time.time() - t
-                else:
-                    h.append(torch.ones(1))
-                # max = torch.max(torch.tensor([h1, h2]))
-                # U[n] = max * (torch.ones(1) - sum)
-                U.append(h[n] * (torch.ones(1) - sum[n]))
+        for n in range(local_N):
+            if n > 0:
+                sum.append(sum[n - 1] + U[n - 1])  # 0...n-1
+            else:
+                sum.append(0)
+            # x.append(torch.tensor(x_input[:, n], dtype=torch.float32))
+            x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=True))
+            if n < self.N:
+                t = time.time()
+                h.append(self.u[n](x[n]))
+                self.Memory.total_net_durations[-1] += time.time() - t
+            else:
+                h.append(torch.ones(1))
+            # max = torch.max(torch.tensor([h1, h2]))
+            # U[n] = max * (torch.ones(1) - sum)
+            U.append(h[n] * (torch.ones(1) - sum[n]))
 
-            z = torch.stack(U)
-            assert torch.sum(z).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(z).item())  # TODO: solve this better
-
-            return z
+        z = torch.stack(U)
+        assert torch.sum(z).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(z).item())  # TODO: solve this better
+        return z
 
     def calculate_payoffs(self, U, x, g, t):
         assert torch.sum(torch.tensor(U)).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(torch.tensor(U)).item())
 
-        v = None
         s = torch.zeros(1)
         for n in range(self.N + 1):
             s += U[n] * g(t[n], x[:, n])
-        if self.algorithm == 0:
-            v = s
-        return v
+        return s

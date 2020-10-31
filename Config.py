@@ -4,11 +4,15 @@ from NetDefinitions import Adam, relu, hardtanh, relu6, elu, selu, celu, leaky_r
 
 class Config:
     # Ich gebe Standardwerte an um den Datentyp zu deklarieren. Ich möchte die Standardwerte in fast allen Fällen überschreiben.
-    def __init__(self, algorithm=0, internal_neurons=50, hidden_layer_count=3, activation_internal=tanh, activation_final=sigmoid, optimizer=Adam, do_pretrain=True, pretrain_func=pretrain_functions[0],
-                 pretrain_iterations=800,
+    def __init__(self, algorithm=0, internal_neurons=50, hidden_layer_count=3, activation_internal=tanh, activation_final=sigmoid, optimizer=Adam, do_pretrain=True,
+                 pretrain_func=pretrain_functions[0], pretrain_iterations=800,
                  max_number_of_iterations=50, max_minutes_of_iterations=5, batch_size=32, initial_lr=0.0001, do_lr_decay=False, lr_decay_alg=lr_decay_algs[0], random_seed=23343,
                  validation_frequency=2, antithetic_variables=True, val_size=64, final_val_size=128, stop_paths_in_plot=False):
+
         # net
+
+        # Algorithmus 0 macht genau was ich möchte. u_n bezeichnet die Wahrscheinlichkeit das es gut ist im n-ten Schritt zu stoppen. U_n bezeichnet die Wahrscheinlichkeit das im n_ten Schritt
+        # gestoppt wird. Es wird gestoppt wenn u_n > 0.5 ist, das ist äquivalent zu U_n > U_n+1+...
         self.algorithm = algorithm  # 0 is source, 1 is mine (have NN for discrete stopping time), 2 is christensen learn f
         self.internal_neurons = internal_neurons
         self.hidden_layer_count = hidden_layer_count

@@ -6,6 +6,7 @@ class Memory:
         self.start_time = time()
         self.total_net_durations = []
         self.pretrain_duration = 0
+        self.final_val_duration = 0
         self.train_durations = []
         self.val_durations = []
 

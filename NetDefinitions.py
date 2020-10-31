@@ -26,7 +26,7 @@ def add_am_put_default_pretrain(K, slope_length):
         b = K
         a = b - slope_length
         out = (b - x) / slope_length + relu(x - b) / slope_length - relu(a - x) / slope_length
-        out = out[:, 0] #  TODO: Unsur if good
+        out = out[:, 0]  # TODO: Unsure if good
         return out
 
     f = am_put_default_pretrain
@@ -37,10 +37,11 @@ def add_am_put_default_pretrain(K, slope_length):
 
 def add_am_call_default_pretrain(K, slope_length):
     def am_call_default_pretrain(x):
+        x = -(x-K)+K
         b = K
         a = b - slope_length
         out = (b - x) / slope_length + relu(x - b) / slope_length - relu(a - x) / slope_length
-        out = -out+2*K
+        out = out[:, 0]  # TODO: Unsure if good
         return out
 
     f = am_call_default_pretrain

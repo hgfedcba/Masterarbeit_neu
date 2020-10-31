@@ -49,7 +49,7 @@ def add_american_put(d, K, r):
     return f
 
 
-def add_bermudan_max_call(r, K):
+def add_bermudan_max_call(K, r):
     def bermudan_max_call(t_in, x):
         return math.exp(-r * t_in) * max(max(x) - K, 0)
     f = bermudan_max_call
