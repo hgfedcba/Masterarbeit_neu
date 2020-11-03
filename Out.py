@@ -14,7 +14,7 @@ def create_graphics(Memory, ProminentResults, Model, Config, run_number, val_pat
     create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN)
 
 
-def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_paths, final_val_paths):
+def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test_paths, val_paths):
     pdf = pdfp.PdfPages("Metrics" + str(run_number) + ".pdf")
 
     # Value over time Graph
@@ -28,7 +28,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     plt.legend(["cont value", "disc value", "reference value"])
     # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
     # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
-    xlabel('t', fontsize=16)
+    xlabel('iteration', fontsize=16)
     ylabel('payoff', fontsize=16)
     grid(True)
     # plt.yscale('log')
@@ -55,7 +55,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     draw_connected_points(iter, vd, plot_number_duration)
     draw_connected_points(iter, tn, plot_number_duration)
     plt.legend(["train duration", "val duration", "time spend in net"])
-    xlabel('t', fontsize=16)
+    xlabel('iteration', fontsize=16)
     ylabel('time', fontsize=16)
     plt.title('time spend on ' + str(Config.validation_frequency) + ' iterations')
     grid(True)
@@ -82,10 +82,10 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     draw_connected_points(iter, (time.time() - Memory.start_time) * np.ones_like(iter), plot_number_duration_2)
     draw_connected_points(iter, (time.time() - Memory.start_time - Memory.final_val_duration) * np.ones_like(iter), plot_number_duration_2)
     plt.legend(["train duration", "val duration", "time spend in net", "pretrain end", "final val end", "final val start"])
-    xlabel('t', fontsize=16)
+    xlabel('iteration', fontsize=16)
     ylabel('time', fontsize=16)
     plt.ylim([0, (time.time() - Memory.start_time)*1.05])
-    plt.title('time spend on ' + str(Config.validation_frequency) + ' iterations')
+    plt.title('cumulative time spend')
     grid(True)
 
     pdf.savefig(fig25)
@@ -95,45 +95,45 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         # visualized stopping times graph
         plot_number_paths = 3
         fig3 = plt.figure(plot_number_paths)
-        create_paths_plot(val_paths, Model, ProminentResults.disc_best_result.test_stopping_times, plot_number_paths, "best disc")
+        create_paths_plot(test_paths, Model, ProminentResults.disc_best_result.test_stopping_times, plot_number_paths, "best disc", True)
         pdf.savefig(fig3)
         plt.close(fig3)
 
         plot_number_paths = 4
         fig4 = plt.figure(plot_number_paths)
-        create_paths_plot(val_paths, Model, ProminentResults.cont_best_result.test_stopping_times, plot_number_paths, "best cont")
+        create_paths_plot(test_paths, Model, ProminentResults.cont_best_result.test_stopping_times, plot_number_paths, "best cont", True)
         pdf.savefig(fig4)
         plt.close(fig4)
 
         plot_number_paths = 5
         fig5 = plt.figure(plot_number_paths)
-        create_paths_plot(val_paths, Model, ProminentResults.final_result.test_stopping_times, plot_number_paths, "final")
+        create_paths_plot(test_paths, Model, ProminentResults.final_result.test_stopping_times, plot_number_paths, "final", True)
         pdf.savefig(fig5)
         plt.close(fig5)
 
         # visualized stopping times graph
         plot_number_paths = 6
         fig6 = plt.figure(plot_number_paths)
-        create_paths_plot(final_val_paths, Model, ProminentResults.disc_best_result.val_stopping_times, plot_number_paths, "best disc")
+        create_paths_plot(val_paths, Model, ProminentResults.disc_best_result.val_stopping_times, plot_number_paths, "best disc", False)
         pdf.savefig(fig6)
         plt.close(fig6)
 
         plot_number_paths = 7
         fig7 = plt.figure(plot_number_paths)
-        create_paths_plot(final_val_paths, Model, ProminentResults.cont_best_result.val_stopping_times, plot_number_paths, "best cont")
+        create_paths_plot(val_paths, Model, ProminentResults.cont_best_result.val_stopping_times, plot_number_paths, "best cont", False)
         pdf.savefig(fig7)
         plt.close(fig7)
 
         plot_number_paths = 8
         fig8 = plt.figure(plot_number_paths)
-        create_paths_plot(final_val_paths, Model, ProminentResults.final_result.val_stopping_times, plot_number_paths, "final")
+        create_paths_plot(val_paths, Model, ProminentResults.final_result.val_stopping_times, plot_number_paths, "final", False)
         pdf.savefig(fig8)
         plt.close(fig8)
 
     pdf.close()
 
 
-def create_paths_plot(val_paths, Model, stopping_times, plot_number, title):
+def create_paths_plot(val_paths, Model, stopping_times, plot_number, title, on_testpaths):
     number_of_plots = min(len(val_paths), 64)
     t = np.asarray(range(0, Model.getN() + 1)) / Model.getN() * Model.getT()
     for k in range(number_of_plots):
@@ -144,7 +144,10 @@ def create_paths_plot(val_paths, Model, stopping_times, plot_number, title):
 
     xlabel('t', fontsize=16)
     ylabel('payoff', fontsize=16)
-    plt.title('stopped paths on validation set, ' + title)
+    if on_testpaths:
+        plt.title('stopped paths on test set, ' + title)
+    else:
+        plt.title('stopped paths on validation set, ' + title)
     plt.ylim([20, 60])
     grid(True)
 
@@ -176,7 +179,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     for k in range(l):
         c_fig = plt.figure(k+1)
         if not Config.pretrain_func is False:
-            draw_function(x, Config.pretrain_func, k+1)
+            draw_function(x, Config.pretrain_func, k+1, "black")
             plt.legend(["best disc result", "best cont result", "final result", "pretrain"])
         else:
             plt.legend(["best disc result", "best cont result", "final result"])

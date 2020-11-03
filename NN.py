@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import pytest
 
+device = torch.device("cuda:0")
 
 # TODO: IMPORTANT NOTE: I substract K from the input of the Network to ensure the learning works from the beginning on
 class Net(nn.Module):
@@ -66,6 +67,7 @@ class NN:
         self.do_pretrain = Config.do_pretrain
         self.pretrain_iterations = Config.pretrain_iterations
         self.pretrain_func = Config.pretrain_func
+        self.pretrain_range = Config.x_plot_range_for_net_plot
 
         self.validation_frequency = Config.validation_frequency
         self.antithetic_train = Config.antithetic_train
@@ -74,14 +76,15 @@ class NN:
         self.u = []
 
         # TODO: use this
-        self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+        # self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
         def define_nets():
             self.u = []
             for _ in range(self.N):
                 net = Net(self.d, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
-                # net.to(torch.device("cuda:0"))
+                # net.to(device)
                 self.u.append(net)
+
 
         define_nets()
         self.ProminentResults = ProminentResults(log, self)
@@ -147,12 +150,20 @@ class NN:
     def pretrain(self, pretrain_func, max_iterations):
         from torch.autograd import Variable
 
-        for m in range(len(self.u)):
-            n_samples = 31
+        n_sample_points = 81
+        """
+        x_values = np.ones((n_sample_points, self.d))
+        for i in range(0, n_sample_points):
+            x_values[i] = np.ones(self.d) * (self.Model.getK() + i - 16)  # True
+        """
+        short = self.pretrain_range
+        x_values = np.reshape(np.linspace(short[0], short[1], n_sample_points), (n_sample_points, 1)) * np.ones((1, self.d))
 
-            x_values = np.ones((n_samples, self.d))
-            for i in range(0, n_samples):
-                x_values[i] = np.ones(self.d) * (self.Model.getK() + i - 16)  # True
+        x_train = Variable(torch.from_numpy(x_values)).float()
+        # x_train = x_train.to(device)
+        # x_train = torch.tensor(x_values, requires_grad=True)
+
+        for m in range(len(self.u)):
 
             net = self.u[m]
 
@@ -162,14 +173,11 @@ class NN:
             epochs = max_iterations
 
             def local_train():
-                net.train()
+                net.train()  # TODO: What does this do
                 losses = []
 
                 # torch.autograd.set_detect_anomaly(True)
                 for epoch in range(1, epochs):
-                    x_train = Variable(torch.from_numpy(x_values)).float()
-                    # x_train = x_train.to(torch.device("cuda:0"))
-                    # x_train = torch.tensor(x_values, requires_grad=True)
                     y_correct = pretrain_func(x_train)
                     loss = []
                     y_pred = []
@@ -277,7 +285,9 @@ class NN:
         temp = torch.sum(torch.stack(cont_individual_payoffs)) / L
         cont_payoff = temp.item()
 
+        # tau list is better then stopping_times
         return cont_payoff, disc_payoff, stopping_times
+
     """
     def generate_discrete_stopping_time_from_U(self, U):
         # between 0 and N
@@ -291,6 +301,7 @@ class NN:
         tau = np.argmax(tau_set)  # argmax returns the first "True" entry
         return tau
     """
+
     def generate_discrete_stopping_time_from_u(self, u):
         # between 0 and N
         for n in range(self.N + 1):
@@ -300,8 +311,6 @@ class NN:
 
     # TODO: Hier geht es weiter
     def generate_stopping_time_factors_and_discrete_stoppoint_from_path(self, x_input):
-        # device = torch.device("cuda:0")
-
         local_N = x_input.shape[1]
         U = []
         sum = []
@@ -309,13 +318,11 @@ class NN:
         # x = torch.from_numpy(x_input) doesn't work for some reason
 
         h = []
-        # TODO:Parallel? NO!
         for n in range(local_N):
             if n > 0:
                 sum.append(sum[n - 1] + U[n - 1])  # 0...n-1
             else:
                 sum.append(0)
-            # x.append(torch.tensor(x_input[:, n], dtype=torch.float32))
             x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=True))
             # x[-1] = x[-1].to(device)
             if n < self.N:
@@ -325,8 +332,6 @@ class NN:
             else:
                 h.append(torch.ones(1))
                 # h[-1].to(device)
-            # max = torch.max(torch.tensor([h1, h2]))
-            # U[n] = max * (torch.ones(1) - sum)
             U.append(h[n] * (torch.ones(1) - sum[n]))
 
         z = torch.stack(U)

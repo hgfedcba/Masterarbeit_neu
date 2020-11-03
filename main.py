@@ -6,6 +6,16 @@ from Config import Config
 from ConfigInitializer import ConfigInitializer
 from Memory import Memory
 
+"""
+Eigene Kniffe:
+Netz x-K
+nutze u statt U
+u[N] = 1
+trainingsset, aber das bringt vermutlich nichts da overfitting nicht exisitiert
+antitheitc variables
+
+"""
+
 if __name__ == '__main__':
     log = logging.getLogger('l')
     logging.basicConfig(format='%(asctime)s:  %(message)s')

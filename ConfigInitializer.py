@@ -31,7 +31,7 @@ class ConfigInitializer:
         # i later use this concrete config for the nets etc.
 
         start_time = time.time()
-        introstring = None
+        intro_string = None
         current_Config = None
 
         result_list = []
@@ -55,7 +55,9 @@ class ConfigInitializer:
             add_am_put_default_pretrain(K, 16)
 
             max_minutes = 30
-            test_size = 8192
+            batch_size = 32
+            test_size = 1024
+            val_size = 8192
 
             x_plot_range_for_net_plot = [20, 60]
 
@@ -65,11 +67,11 @@ class ConfigInitializer:
 
         elif option == 4411:
             # bermudan max call
-            # TODO: divide parameters
             # TODO: graphikkarte (überraschend schwer)
             # TODO: assert train and val are everywhere
             # TODO: sort by best disc result on val set, not only one
-            # TODO: plot titles
+            # TODO: alg 2
+            # TODO: tabelle
             r = 0.05
             sigma_constant = 0.2  # beta
             mu_constant = r
@@ -83,12 +85,18 @@ class ConfigInitializer:
             mu = add_mu_c_x(mu_constant, delta)
             g = add_bermudan_max_call(K, r)
 
-            add_am_call_default_pretrain(K, 40)
+            add_am_call_default_pretrain(K+10, 60)
 
-            max_minutes = 10
-            test_size = 16384
+            max_minutes = 60
+            # batch_size = 8192
+            # test_size = 8192
+            # val_size = 16384
 
-            x_plot_range_for_net_plot = [80, 140]
+            batch_size = 1024
+            test_size = 2056
+            val_size = 32768
+
+            x_plot_range_for_net_plot = [80, 200]
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(21.344)
@@ -112,7 +120,9 @@ class ConfigInitializer:
             add_am_put_default_pretrain(K, 16)
 
             max_minutes = 5
-            test_size = 1024
+            batch_size = 32
+            test_size = 256
+            val_size = 1024
 
             x_plot_range_for_net_plot = [20, 60]
 
@@ -138,7 +148,9 @@ class ConfigInitializer:
             add_am_put_default_pretrain(K, 16)
 
             max_minutes = 5*0.1
-            test_size = 128
+            batch_size = 32
+            test_size = 64
+            val_size = 128
 
             x_plot_range_for_net_plot = [20, 60]
 
@@ -166,17 +178,17 @@ class ConfigInitializer:
             'optimizer'                : [0],
             'pretrain_func'            : [1],  # 2 information in 1 entry "False" for pass
             'pretrain_iterations'      : [800],
-            'max_number_of_iterations' : [3000],
+            'max_number_of_iterations' : [10000],
             'max_minutes_of_iterations': [max_minutes],
-            'batch_size'               : [32],
+            'batch_size'               : [batch_size],
             'initial_lr'               : [0.01],
             'lr_decay_alg'             : [2],  # 2 Information in 1 entry
-            'random_seed'              : [23343],
+            'random_seed'              : [1337],
             'validation_frequency'     : [10],
             'antithetic_val'           : [True],
             'antithetic_train'         : [False],
-            'test_size'                : [1024],  # with my current implementation this has to be constant over a programm execution
-            'val_size'                 : [test_size]  # with my current implementation this has to be constant over a programm execution
+            'test_size'                : [test_size],  # with my current implementation this has to be constant over a programm execution
+            'val_size'                 : [val_size]  # with my current implementation this has to be constant over a programm execution
         }
 
         for u, v in dict_a.items():
@@ -236,18 +248,18 @@ class ConfigInitializer:
                                     val_size, stop_paths_in_plot, x_plot_range_for_net_plot)
             if run_number == 0:
                 f = open("intermediate_results.txt", "w")
-                introstring = "Wir optimieren für das Modell: \t" + Model.parameter_string + "Folgende Parameter sind konstant über alle runs: \t" + \
+                intro_string = "Wir optimieren für das Modell: \t" + Model.parameter_string + "Folgende Parameter sind konstant über alle runs: \t" + \
                               current_Config.get_psl_wrt_list(list_common_parameters) + "\nLegende: a\t(b)\t | \tc\t(d)\t" + \
                               "Vor dem Strich stehen die diskreten Werte, hinter dem Strich die stetigen. In Klammern sind die Werte aus der final validation angegeben\n\n"
-                f.write(introstring)
+                f.write(intro_string)
                 f.close()
 
                 log.info("The reference value is: " + str(Model.get_reference_value()))
 
                 test_paths = Model.generate_paths(test_size, antithetic_val)
+                # TODO: load val paths from file intelligently
                 val_paths = Model.generate_paths(val_size, antithetic_val)
 
-            # TODO: Here something important should happen
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
 
@@ -257,6 +269,7 @@ class ConfigInitializer:
 
             # result enthält prominent_result klasse, durations klasse
             optimitaion_result = [current_NN.optimization()]
+            log.info("Final val begins")
             fvs = time.time()
             optimitaion_result[0][0].final_validation(val_paths)
             Memory.final_val_duration = time.time() - fvs
@@ -273,14 +286,14 @@ class ConfigInitializer:
 
         def sort_resultlist_by_disc_value(result_list):
             def sort_key(element):
-                return -element[0].disc_best_result.val_disc_value
+                return min(-element[0].disc_best_result.val_disc_value, -element[0].cont_best_result.val_disc_value-element[0].final_result.val_disc_value)
 
             result_list.sort(key=sort_key)
 
         sort_resultlist_by_disc_value(result_list)
 
         f = open("end_result.txt", "w")
-        f.write(introstring)
+        f.write(intro_string)
         for res in result_list:
             f.write(self.result_to_resultstring(res))
         f.close()

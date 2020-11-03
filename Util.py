@@ -20,7 +20,7 @@ def mylog(*argv, only_return=False):
     return out
 
 
-def draw_function(x, f, plot_number=0):
+def draw_function(x, f, plot_number=0, color=None):
     if plot_number == 0:
         h = time.time()
         plot_number = int(h)
@@ -30,7 +30,7 @@ def draw_function(x, f, plot_number=0):
     for c in x:
         h = torch.tensor([c], dtype=torch.float32)
         y.append(f(h))
-    plot(x, y)
+    plot(x, y, color=color)
 
     # TODO: Das gehört hier nicht hin
     """
