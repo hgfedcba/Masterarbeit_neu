@@ -20,28 +20,31 @@ def mylog(*argv, only_return=False):
     return out
 
 
-def draw_function(x, f, plot_number=0, color=None):
+"""
+def draw_net(x, f, plot_number=0, color=None, algorithm=0):
+    if algorithm == 0:
+        return draw_function(x, f[plot_number-1], plot_number=plot_number, color=color, algorithm=algorithm)
+    elif algorithm == 2:
+        return draw_function(x, f[0], plot_number=plot_number, color=color, algorithm=algorithm)
+"""
+
+
+def draw_function(x, f, plot_number=0, color=None, algorithm=0):
+    """
     if plot_number == 0:
         h = time.time()
         plot_number = int(h)
+    """
     plt.figure(plot_number)
 
     y = []
     for c in x:
-        h = torch.tensor([c], dtype=torch.float32)
+        if algorithm == 0:
+            h = torch.tensor([c], dtype=torch.float32)
+        elif algorithm == 2:
+            h = torch.tensor([np.append(plot_number-1, c)], dtype=torch.float32)
         y.append(f(h))
     plot(x, y, color=color)
-
-    # TODO: Das gehört hier nicht hin
-    """
-    xlabel('x', fontsize=16)
-    ylabel('f(x)', fontsize=16)
-    plt.ylim([0, 1])
-    grid(True)
-    # show()
-    # plt.close(fig)
-    """
-
     return plot_number
 
 

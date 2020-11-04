@@ -55,9 +55,9 @@ class ConfigInitializer:
             add_am_put_default_pretrain(K, 16)
 
             max_minutes = 30
-            batch_size = 32
+            batch_size = 512
             test_size = 1024
-            val_size = 8192
+            val_size = 16384
 
             x_plot_range_for_net_plot = [20, 60]
 
@@ -72,6 +72,8 @@ class ConfigInitializer:
             # TODO: sort by best disc result on val set, not only one
             # TODO: alg 2
             # TODO: tabelle
+            # TODO: pretrain for alg 2
+            # TODO: save paths in file for reference
             r = 0.05
             sigma_constant = 0.2  # beta
             mu_constant = r
@@ -93,10 +95,10 @@ class ConfigInitializer:
             # val_size = 16384
 
             batch_size = 1024
-            test_size = 2056
-            val_size = 32768
+            test_size = 2048
+            val_size = 16384
 
-            x_plot_range_for_net_plot = [80, 200]
+            x_plot_range_for_net_plot = [80, 250]
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(21.344)
@@ -120,9 +122,9 @@ class ConfigInitializer:
             add_am_put_default_pretrain(K, 16)
 
             max_minutes = 5
-            batch_size = 32
+            batch_size = 64
             test_size = 256
-            val_size = 1024
+            val_size = 2048
 
             x_plot_range_for_net_plot = [20, 60]
 
@@ -132,14 +134,14 @@ class ConfigInitializer:
 
         else:
             # Model
-            r = 0.06
-            sigma_constant = 0.4  # beta
+            r = 0.05
+            sigma_constant = 0.25  # beta
             mu_constant = r
             K = 40
             xi = 40
-            T = 1
+            T = 10
             N = 5
-            d = 1  # dimension
+            d = 2  # dimension
             delta = 0  # dividend rate
             sigma = add_sigma_c_x(sigma_constant)
             mu = add_mu_c_x(mu_constant, delta)
@@ -148,9 +150,9 @@ class ConfigInitializer:
             add_am_put_default_pretrain(K, 16)
 
             max_minutes = 5*0.1
-            batch_size = 32
+            batch_size = 64
             test_size = 64
-            val_size = 128
+            val_size = 256
 
             x_plot_range_for_net_plot = [20, 60]
 
@@ -170,13 +172,13 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                : [0],
-            'internal_neurons'         : [50],
+            'algorithm'                : [0, 2],
+            'internal_neurons'         : [100],  # 50?
             'hidden_layer_count'       : [3],
             'activation_internal'      : [tanh],
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
-            'pretrain_func'            : [1],  # 2 information in 1 entry "False" for pass
+            'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
             'pretrain_iterations'      : [800],
             'max_number_of_iterations' : [10000],
             'max_minutes_of_iterations': [max_minutes],

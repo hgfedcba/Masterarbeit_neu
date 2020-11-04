@@ -45,6 +45,7 @@ class NN:
         self.N = Model.getN()
         self.d = Model.getd()
         self.t = Model.t
+        self.K = Model.getK()
 
         np.random.seed(Config.random_seed)
         torch.manual_seed(Config.random_seed)
@@ -80,11 +81,14 @@ class NN:
 
         def define_nets():
             self.u = []
-            for _ in range(self.N):
-                net = Net(self.d, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
-                # net.to(device)
+            if self.algorithm == 0:
+                for _ in range(self.N):
+                    net = Net(self.d, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
+                    # net.to(device)
+                    self.u.append(net)
+            elif self.algorithm == 2:
+                net = Net(self.d+1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
                 self.u.append(net)
-
 
         define_nets()
         self.ProminentResults = ProminentResults(log, self)
@@ -150,7 +154,7 @@ class NN:
     def pretrain(self, pretrain_func, max_iterations):
         from torch.autograd import Variable
 
-        n_sample_points = 81
+        n_sample_points = 41
         """
         x_values = np.ones((n_sample_points, self.d))
         for i in range(0, n_sample_points):
@@ -181,9 +185,16 @@ class NN:
                     y_correct = pretrain_func(x_train)
                     loss = []
                     y_pred = []
-                    for l in range(x_train.shape[0]):
-                        y_pred.append(net(x_train[l]))
-                        loss.append((y_pred[l] - y_correct[l]) ** 2)
+                    if self.algorithm == 0:
+                        for l in range(x_train.shape[0]):
+                            y_pred.append(net(x_train[l]))
+                            loss.append((y_pred[l] - y_correct[l]) ** 2)
+                    elif self.algorithm == 2:
+                        for l in range(x_train.shape[0]):
+                            # TODO:
+                            for n in range(self.N):
+                                y_pred.append(net(x_train[l]))
+                                loss.append((y_pred[l] - y_correct[l]) ** 2)
 
                     temp = sum(loss)
                     optimizer.zero_grad()
@@ -317,26 +328,33 @@ class NN:
         x = []
         # x = torch.from_numpy(x_input) doesn't work for some reason
 
-        h = []
+        local_u = []
         for n in range(local_N):
             if n > 0:
                 sum.append(sum[n - 1] + U[n - 1])  # 0...n-1
             else:
                 sum.append(0)
-            x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=True))
-            # x[-1] = x[-1].to(device)
             if n < self.N:
                 t = time.time()
-                h.append(self.u[n](x[n]))
+                if self.algorithm == 0:
+                    x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=True))
+                    # x[-1] = x[-1].to(device)
+                    local_u.append(self.u[n](x[n]))
+                elif self.algorithm == 2:
+                    into = np.append(n+self.K, x_input[:, n])
+                    x.append(torch.tensor(into, dtype=torch.float32, requires_grad=True))
+                    # x[-1] = x[-1].to(device)
+                    local_u.append(self.u[0](x[n]))
                 self.Memory.total_net_durations[-1] += time.time() - t
             else:
-                h.append(torch.ones(1))
+                local_u.append(torch.ones(1))
                 # h[-1].to(device)
-            U.append(h[n] * (torch.ones(1) - sum[n]))
+            U.append(local_u[n] * (torch.ones(1) - sum[n]))
 
         z = torch.stack(U)
         assert torch.sum(z).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(z).item())  # TODO: solve this better
-        return z, self.generate_discrete_stopping_time_from_u(h)
+        return z, self.generate_discrete_stopping_time_from_u(local_u)
+        # return z, self.generate_discrete_stopping_time_from_U(z)
 
     def calculate_payoffs(self, U, x, g, t):
         assert torch.sum(torch.tensor(U)).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(torch.tensor(U)).item())

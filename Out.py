@@ -155,7 +155,7 @@ def create_paths_plot(val_paths, Model, stopping_times, plot_number, title, on_t
 def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     # TODO: copy graph so i only use a copy when it was still open   ?????
     pdf = pdfp.PdfPages("net graphs " + str(run_number) + ".pdf")
-    n_sample_points = 81  # 81 and half stepsize seems way more reasonable
+    n_sample_points = 86  # 81 and half stepsize seems way more reasonable
     d = Model.getd()
     """
     x = np.ones((n_samples, d))
@@ -165,24 +165,32 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     short = Config.x_plot_range_for_net_plot
     x = np.reshape(np.linspace(short[0], short[1], n_sample_points), (n_sample_points, 1)) * np.ones((1, d))
 
+    def get_net(u, k):
+        if Config.algorithm == 0:
+            return u[k]
+        elif Config.algorithm == 2:
+            return u[0]
+
+    # TODO: recall: it is vitaly important that plot_number=k+1+NN.k
+    l = NN.N
     NN = ProminentResults.disc_best_result.load_state_dict_into_given_net(NN)
-    l = len(NN.u)
     for k in range(l):
-        draw_function(x, NN.u[k], k+1)
+        draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm, color="blue")
     NN = ProminentResults.cont_best_result.load_state_dict_into_given_net(NN)
     for k in range(l):
-        draw_function(x, NN.u[k], k+1)
+        draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm, color="yellow")
     NN = ProminentResults.final_result.load_state_dict_into_given_net(NN)
     for k in range(l):
-        draw_function(x, NN.u[k], k+1)
+        draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm, color="red")
 
     for k in range(l):
-        c_fig = plt.figure(k+1)
-        if not Config.pretrain_func is False:
-            draw_function(x, Config.pretrain_func, k+1, "black")
+        c_fig = plt.figure(k+1+NN.K)
+        if Config.do_pretrain:
+            draw_function(x, Config.pretrain_func, k+1+NN.K, "black")
             plt.legend(["best disc result", "best cont result", "final result", "pretrain"])
         else:
             plt.legend(["best disc result", "best cont result", "final result"])
+
         if d == 1:
             label = "x"
         else:
