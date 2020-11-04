@@ -38,13 +38,18 @@ def draw_function(x, f, plot_number=0, color=None, algorithm=0):
     plt.figure(plot_number)
 
     y = []
+    actual_x = []
     for c in x:
         if algorithm == 0:
             h = torch.tensor([c], dtype=torch.float32)
         elif algorithm == 2:
             h = torch.tensor([np.append(plot_number-1, c)], dtype=torch.float32)
         y.append(f(h))
-    plot(x, y, color=color)
+        if len(c) > 1:
+            actual_x.append(c[0])
+        else:
+            actual_x.append(c)
+    plot(actual_x, y, color=color)
     return plot_number
 
 
@@ -57,26 +62,8 @@ def draw_connected_points(x, y, plot_number=0, color=None):
     # for l in range(len(x)):
     #     plot(x, y[l].flatten())
     plot(x, y, color=color)
-    """
-    # TODO: Das gehört hier nicht hin
-    xlabel('t', fontsize=16)
-    ylabel('x', fontsize=16)
-    grid(True)
-    # show()
-    # plt.close(fig)
-    """
 
     return plot_number
 
 
 #TODO: Recall the command for isolated points ist plt.scatter
-
-"""
-def generate_bm(d, N, t):
-
-
-def generate_path(bm, d, N, xi, t, mu, sigma):
-
-
-def generate_antithetic_path(bm, d, N, xi, t, mu, sigma):
-"""

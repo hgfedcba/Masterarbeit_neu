@@ -54,12 +54,14 @@ class ConfigInitializer:
 
             add_am_put_default_pretrain(K, 16)
 
-            max_minutes = 30
-            batch_size = 512
-            test_size = 1024
-            val_size = 16384
+            max_minutes = 60
 
-            x_plot_range_for_net_plot = [20, 60]
+            # not more, N=50!
+            batch_size = 256
+            test_size = 512
+            val_size = 4048
+
+            x_plot_range_for_net_plot = [10, 50]
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(5.318)  # verified with my binomial trees
@@ -89,7 +91,7 @@ class ConfigInitializer:
 
             add_am_call_default_pretrain(K+10, 60)
 
-            max_minutes = 60
+            max_minutes = 50
             # batch_size = 8192
             # test_size = 8192
             # val_size = 16384
@@ -126,7 +128,7 @@ class ConfigInitializer:
             test_size = 256
             val_size = 2048
 
-            x_plot_range_for_net_plot = [20, 60]
+            x_plot_range_for_net_plot = [10, 50]
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, 200, K))
@@ -141,7 +143,7 @@ class ConfigInitializer:
             xi = 40
             T = 10
             N = 5
-            d = 2  # dimension
+            d = 1  # dimension
             delta = 0  # dividend rate
             sigma = add_sigma_c_x(sigma_constant)
             mu = add_mu_c_x(mu_constant, delta)
@@ -154,7 +156,7 @@ class ConfigInitializer:
             test_size = 64
             val_size = 256
 
-            x_plot_range_for_net_plot = [20, 60]
+            x_plot_range_for_net_plot = [10, 50]
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, N*10, K))
@@ -172,7 +174,7 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                : [0, 2],
+            'algorithm'                : [2],
             'internal_neurons'         : [100],  # 50?
             'hidden_layer_count'       : [3],
             'activation_internal'      : [tanh],

@@ -175,13 +175,13 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     l = NN.N
     NN = ProminentResults.disc_best_result.load_state_dict_into_given_net(NN)
     for k in range(l):
-        draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm, color="blue")
+        draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm)
     NN = ProminentResults.cont_best_result.load_state_dict_into_given_net(NN)
     for k in range(l):
-        draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm, color="yellow")
+        draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm)
     NN = ProminentResults.final_result.load_state_dict_into_given_net(NN)
     for k in range(l):
-        draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm, color="red")
+        draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm)
 
     for k in range(l):
         c_fig = plt.figure(k+1+NN.K)
