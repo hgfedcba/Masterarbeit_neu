@@ -163,12 +163,7 @@ class NN:
         short = self.pretrain_range
         x_values = np.reshape(np.linspace(short[0], short[1], n_sample_points), (n_sample_points, 1)) * np.ones((1, self.d))
 
-        x_train = Variable(torch.from_numpy(x_values)).float()
-        # x_train = x_train.to(device)
-        # x_train = torch.tensor(x_values, requires_grad=True)
-
         for m in range(len(self.u)):
-
             net = self.u[m]
 
             optimizer = optim.Adam(net.parameters(), lr=0.01)  # worked for am_put
@@ -180,9 +175,14 @@ class NN:
                 net.train()  # TODO: What does this do
                 losses = []
 
+                x_train = Variable(torch.from_numpy(x_values)).float()
+                # x_train = x_train.to(device)
+                # x_train = torch.tensor(x_values, requires_grad=True)
+
+                y_correct = pretrain_func(x_train)
+
                 # torch.autograd.set_detect_anomaly(True)
                 for epoch in range(1, epochs):
-                    y_correct = pretrain_func(x_train)
                     loss = []
                     y_pred = []
                     if self.algorithm == 0:
@@ -190,9 +190,10 @@ class NN:
                             y_pred.append(net(x_train[l]))
                             loss.append((y_pred[l] - y_correct[l]) ** 2)
                     elif self.algorithm == 2:
-                        for l in range(x_train.shape[0]):
-                            # TODO:
-                            for n in range(self.N):
+                        for n in range(self.N):
+                            into = np.append(np.ones((n_sample_points, 1)) * n, x_values, 1)
+                            x_train = Variable(torch.from_numpy(into)).float()
+                            for l in range(x_train.shape[0]):
                                 y_pred.append(net(x_train[l]))
                                 loss.append((y_pred[l] - y_correct[l]) ** 2)
 
@@ -206,11 +207,14 @@ class NN:
                     # print("epoch #", epoch)
                     # print(losses[-1])
 
-                    if epoch == 100:
+                    if epoch == 50:
                         assert True
 
                     if losses[-1] < 0.1:
                         break
+                    if self.algorithm == 2 and losses[-1] < 0.1*self.N:
+                        break
+
                 return losses
 
             # print("training start....")
@@ -237,7 +241,11 @@ class NN:
                 plt.close()
 
                 # pretrain endergebnis
-                draw_function(x_values, self.u[m])
+                if self.algorithm == 0:
+                    draw_function(x_values, self.u[m])
+                elif self.algorithm == 2:
+                    for k in range(self.N):
+                        draw_function(x_values, self.u[0], plot_number=1+self.N+k, algorithm=2)
                 plt.xlabel("x")
                 plt.ylabel("u[" + str(m) + "]")
                 plt.ylim([0, 1])

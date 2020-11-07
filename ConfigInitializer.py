@@ -72,10 +72,10 @@ class ConfigInitializer:
             # TODO: graphikkarte (überraschend schwer)
             # TODO: assert train and val are everywhere
             # TODO: sort by best disc result on val set, not only one
-            # TODO: alg 2
             # TODO: tabelle
-            # TODO: pretrain for alg 2
             # TODO: save paths in file for reference
+            # TODO: Stopkurve. x-Achse: N    y-Achse: Schwellenwert
+            # TODO: payoff zu value umbenennen
             r = 0.05
             sigma_constant = 0.2  # beta
             mu_constant = r
@@ -104,6 +104,34 @@ class ConfigInitializer:
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(21.344)
+            Model.update_parameter_string()
+
+        elif option == 2:
+            # Model
+            r = 0.05
+            sigma_constant = 0.25  # beta
+            mu_constant = r
+            K = 40
+            xi = 40
+            T = 10
+            N = 10
+            d = 2  # dimension
+            delta = 0  # dividend rate
+            sigma = add_sigma_c_x(sigma_constant)
+            mu = add_mu_c_x(mu_constant, delta)
+            g = add_american_put(d, K, r)
+
+            add_am_put_default_pretrain(K, 16)
+
+            max_minutes = 5
+            batch_size = 64
+            test_size = 256
+            val_size = 2048
+
+            x_plot_range_for_net_plot = [10, 50]
+
+            Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
+            Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, 200, K))
             Model.update_parameter_string()
 
         elif option == 1:
@@ -142,7 +170,7 @@ class ConfigInitializer:
             K = 40
             xi = 40
             T = 10
-            N = 5
+            N = 10
             d = 1  # dimension
             delta = 0  # dividend rate
             sigma = add_sigma_c_x(sigma_constant)
@@ -180,8 +208,8 @@ class ConfigInitializer:
             'activation_internal'      : [tanh],
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
-            'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
-            'pretrain_iterations'      : [800],
+            'pretrain_func'            : [1],  # 2 information in 1 entry "False" for pass
+            'pretrain_iterations'      : [500],
             'max_number_of_iterations' : [10000],
             'max_minutes_of_iterations': [max_minutes],
             'batch_size'               : [batch_size],
@@ -189,7 +217,7 @@ class ConfigInitializer:
             'lr_decay_alg'             : [2],  # 2 Information in 1 entry
             'random_seed'              : [1337],
             'validation_frequency'     : [10],
-            'antithetic_val'           : [True],
+            'antithetic_val'           : [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
             'antithetic_train'         : [False],
             'test_size'                : [test_size],  # with my current implementation this has to be constant over a programm execution
             'val_size'                 : [val_size]  # with my current implementation this has to be constant over a programm execution
@@ -260,13 +288,22 @@ class ConfigInitializer:
 
                 log.info("The reference value is: " + str(Model.get_reference_value()))
 
-                test_paths = Model.generate_paths(test_size, antithetic_val)
+                test_paths = Model.generate_paths(1000000, antithetic_val)  # always 1e6
                 # TODO: load val paths from file intelligently
-                val_paths = Model.generate_paths(val_size, antithetic_val)
+                # val_paths = Model.generate_paths(val_size, antithetic_val)
+
+                test_paths_file = "../val_paths_4411.npy"
+                # val_2
+                # test_paths_4312
+                # test4411
+                # val4411
+                # np.save(test_paths_file, test_paths)
+
+                test_paths = np.load(test_paths_file, mmap_mode="r")
 
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
-
+            break
             log.info("\n\nThis is run " + str(run_number) + " and the current config is " + individual_parameter_string)
 
             current_NN = NN.NN(current_Config, Model, Memory, log, test_paths)

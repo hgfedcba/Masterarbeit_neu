@@ -61,6 +61,8 @@ class MathematicalModel:
             elif l == L / 2:
                 bms.extend([-item for item in bms])
             out.append(self.generate_path_from_bm(bms[l]))
+            if l % 10000 == 0:
+                print(l)
 
         assert L == out.__len__()
 
