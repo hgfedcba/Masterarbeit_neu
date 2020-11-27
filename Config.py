@@ -14,7 +14,6 @@ class Config:
         # Algorithmus 0 macht genau was ich möchte. u_n bezeichnet die Wahrscheinlichkeit das es gut ist im n-ten Schritt zu stoppen. U_n bezeichnet die Wahrscheinlichkeit das im n_ten Schritt
         # gestoppt wird. Es wird diskret gestoppt wenn u_n > 0.5 ist.
 
-        # TODO: learn f like christensen wants it. Double N. Test if above f still gives a reasonable result.
         if x_plot_range_for_net_plot is None:
             x_plot_range_for_net_plot = [20, 60]
         self.algorithm = algorithm  # 0 is source, 1 is mine, 2 is christensen learn f
@@ -43,7 +42,7 @@ class Config:
         self.test_size = test_size
         self.val_size = val_size
 
-        self.stop_paths_in_plot = stop_paths_in_plot  # TODO:use
+        self.stop_paths_in_plot = stop_paths_in_plot
 
         self.x_plot_range_for_net_plot = x_plot_range_for_net_plot
 

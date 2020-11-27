@@ -13,7 +13,5 @@ class Memory:
         self.val_paths = []
         self.final_val_paths = []
 
-        self.val_continuous_payoff_list = []
-        self.val_discrete_payoff_list = []
-
-        # TODO: RECALL: discrete stopping times are saved in ProminentResults
+        self.val_continuous_value_list = []
+        self.val_discrete_value_list = []

@@ -6,6 +6,12 @@ import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf as pdfp
 import torch
 
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+import numpy as np
+
 from Util import *
 
 
@@ -20,16 +26,16 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     # Value over time Graph
     plot_number_paths = 1
     fig1 = plt.figure(plot_number_paths)
-    x = range(0, Config.validation_frequency * (len(Memory.val_discrete_payoff_list)), Config.validation_frequency)
+    x = range(0, Config.validation_frequency * (len(Memory.val_discrete_value_list)), Config.validation_frequency)
     x = np.array(x)
-    draw_connected_points(x, Memory.val_continuous_payoff_list, plot_number_paths)
-    draw_connected_points(x, Memory.val_discrete_payoff_list, plot_number_paths)
+    draw_connected_points(x, Memory.val_continuous_value_list, plot_number_paths)
+    draw_connected_points(x, Memory.val_discrete_value_list, plot_number_paths)
     draw_connected_points(x, Model.get_reference_value()*np.ones_like(x), plot_number_paths, 'black')
     plt.legend(["cont value", "disc value", "reference value"])
     # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
     # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
     xlabel('iteration', fontsize=16)
-    ylabel('payoff', fontsize=16)
+    ylabel('value', fontsize=16)
     grid(True)
     # plt.yscale('log')
 
@@ -143,7 +149,7 @@ def create_paths_plot(val_paths, Model, stopping_times, plot_number, title, on_t
         plt.scatter(t[stop_point], stopped_path[stop_point], marker='o')
 
     xlabel('t', fontsize=16)
-    ylabel('payoff', fontsize=16)
+    ylabel('value', fontsize=16)
     if on_testpaths:
         plt.title('stopped paths on test set, ' + title)
     else:
@@ -153,10 +159,60 @@ def create_paths_plot(val_paths, Model, stopping_times, plot_number, title, on_t
 
 
 def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
-    # TODO: copy graph so i only use a copy when it was still open   ?????
     pdf = pdfp.PdfPages("net graphs " + str(run_number) + ".pdf")
     n_sample_points = 86  # 81 and half stepsize seems way more reasonable
     d = Model.getd()
+
+    if Model.getd() == 1 and Config.algorithm == 2:
+        # new
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        """
+        # Make data.
+        X = np.arange(-5, 5, 0.25)
+        Y = np.arange(-5, 5, 0.25)
+        X, Y = np.meshgrid(X, Y)
+        R = np.sqrt(X ** 2 + Y ** 2)
+        Z = np.sin(R)
+        """
+        X = NN.K + np.arange(0, Model.getT(), Model.getT()*1.0 / n_sample_points)
+        short = Config.x_plot_range_for_net_plot
+        Y = np.arange(short[0], short[1], (short[1] - short[0])*1.0 / n_sample_points)
+        X, Y = np.meshgrid(X, Y)
+        Z = np.zeros((n_sample_points, n_sample_points))
+        for i in range(n_sample_points):
+            for j in range(n_sample_points):
+                into = (X[i][j], Y[i][j])
+                h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
+                Z[i][j] = NN.u[0](h)
+        # Plot the surface
+        surf = ax.plot_surface(X-NN.K, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+        ax.set_xlabel("n")
+        ax.set_ylabel("X")
+        ax.set_zlabel("$u_n(X)$")
+        ax.zaxis.set_rotate_label(False)
+
+        # Customize the z axis
+        ax.set_zlim(0.0, 1.0)
+        ax.zaxis.set_major_locator(LinearLocator(10))
+        ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+
+        # Add a color bar which maps values to colors
+        fig.colorbar(surf, shrink=0.5, aspect=5)
+
+        ax.view_init(30, 40)
+        pdf.savefig(fig)
+        """
+        # rotate the axes and update
+        for angle in range(0, 720, 5):
+            ax.view_init(30, angle)
+            plt.draw()
+            plt.pause(.5)
+
+        fig.save("animation " + str(run_number) + ".gif", writer='imagemagick', fps=30)
+        """
+        plt.close(fig)
+
     """
     x = np.ones((n_samples, d))
     for i in range(0, n_samples):
@@ -164,6 +220,56 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     """
     short = Config.x_plot_range_for_net_plot
     x = np.reshape(np.linspace(short[0], short[1], n_sample_points), (n_sample_points, 1)) * np.ones((1, d))
+
+    if Model.getd() == 2 and Config.algorithm == 2:
+        for k in range(NN.N):
+            fig_k = plt.figure(k)
+            ax = fig_k.gca(projection='3d')
+            """
+            # Make data.
+            X = np.arange(-5, 5, 0.25)
+            Y = np.arange(-5, 5, 0.25)
+            X, Y = np.meshgrid(X, Y)
+            R = np.sqrt(X ** 2 + Y ** 2)
+            Z = np.sin(R)
+            """
+            short = Config.x_plot_range_for_net_plot
+            Y = np.arange(short[0], short[1], (short[1] - short[0]) * 1.0 / n_sample_points)
+
+            X, Y = np.meshgrid(Y, Y)
+            Z = np.zeros((n_sample_points, n_sample_points))
+            for i in range(n_sample_points):
+                for j in range(n_sample_points):
+                    into = (k+NN.K, X[i][j], Y[i][j])
+                    h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
+                    Z[i][j] = NN.u[0](h)
+            # Plot the surface
+            surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+            ax.set_xlabel("X")
+            ax.set_ylabel("Y")
+            ax.set_zlabel('u_%s' % k)
+            ax.zaxis.set_rotate_label(False)
+
+            # Customize the z axis
+            ax.set_zlim(0.0, 1.0)
+            ax.zaxis.set_major_locator(LinearLocator(10))
+            ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+
+            # Add a color bar which maps values to colors
+            fig_k.colorbar(surf, shrink=0.5, aspect=5)
+
+            ax.view_init(30, 40)
+            pdf.savefig(fig_k)
+            """
+            # rotate the axes and update
+            for angle in range(0, 720, 5):
+                ax.view_init(30, angle)
+                plt.draw()
+                plt.pause(.5)
+    
+            fig.save("animation " + str(run_number) + ".gif", writer='imagemagick', fps=30)
+            """
+            plt.close(fig_k)
 
     def get_net(u, k):
         if Config.algorithm == 0:

@@ -48,7 +48,6 @@ class IndividualBestResult:
         self.path = path
 
     def update(self, NN, m, cont_payoff, disc_payoff, stopping_times, time_to_this_result):
-        # TODO: DEEEPCOPY something else
         self.m = m
         self.test_cont_value = cont_payoff
         self.test_disc_value = disc_payoff

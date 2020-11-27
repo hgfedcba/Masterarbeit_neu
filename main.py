@@ -19,7 +19,7 @@ antitheitc variables
 if __name__ == '__main__':
     log = logging.getLogger('l')
     logging.basicConfig(format='%(asctime)s:  %(message)s')
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.INFO)
     # coloredlogs.install(level='DEBUG', fmt='%(asctime)s %(message)s', logger=log) # if i activate this then all the print messages are displayed
 
     log_name = time.strftime("%Y.%m.%d-%H.%M.%S") + ".log"
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     log.addHandler(fh)
 
     # 4312 = am put, 0 = test
-    CI = ConfigInitializer(4411, log)
+    CI = ConfigInitializer(1, log)
 
-    assert True
+    log.info("The End")
 

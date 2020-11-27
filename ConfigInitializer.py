@@ -33,10 +33,13 @@ class ConfigInitializer:
         start_time = time.time()
         intro_string = None
         current_Config = None
+        test_paths = None
+        val_paths = None
 
         result_list = []
         if option == 4312:
             # American put in 1d
+            # This Model is stupid since it results in no sells whatsoever
 
             # Model
             r = 0.06
@@ -55,27 +58,35 @@ class ConfigInitializer:
             add_am_put_default_pretrain(K, 16)
 
             max_minutes = 60
-
             # not more, N=50!
             batch_size = 256
             test_size = 512
             val_size = 4048
-
+            """
+            # works but takes too long
+            batch_size = 1024
+            test_size = 2048
+            val_size = 16384
+            """
             x_plot_range_for_net_plot = [10, 50]
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(5.318)  # verified with my binomial trees
             Model.update_parameter_string()
 
-        elif option == 4411:
+            test_paths_file = "../test_paths_4312.npy"
+            val_paths_file = "../val_paths_4312.npy"
+            test_paths = np.load(test_paths_file, mmap_mode="r")
+            val_paths = np.load(val_paths_file, mmap_mode="r")
+
+        elif option == 4411_2:
             # bermudan max call
             # TODO: graphikkarte (überraschend schwer)
-            # TODO: assert train and val are everywhere
-            # TODO: sort by best disc result on val set, not only one
             # TODO: tabelle
-            # TODO: save paths in file for reference
-            # TODO: Stopkurve. x-Achse: N    y-Achse: Schwellenwert
-            # TODO: payoff zu value umbenennen
+            # TODO: Stopkurve. x-Achse: N    y-Achse: Schwellenwert       nur 1d?
+            # TODO: path dependent option
+            # TODO: learn f like christensen wants it. Double N. Test if above f still gives a reasonable result.
+            # TODO: Saved paths are not antithetic...
             r = 0.05
             sigma_constant = 0.2  # beta
             mu_constant = r
@@ -91,7 +102,7 @@ class ConfigInitializer:
 
             add_am_call_default_pretrain(K+10, 60)
 
-            max_minutes = 50
+            max_minutes = 80
             # batch_size = 8192
             # test_size = 8192
             # val_size = 16384
@@ -105,6 +116,11 @@ class ConfigInitializer:
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(21.344)
             Model.update_parameter_string()
+
+            test_paths_file = "../test_paths_4411_2.npy"
+            val_paths_file = "../val_paths_4411_2.npy"
+            test_paths = np.load(test_paths_file, mmap_mode="r")
+            val_paths = np.load(val_paths_file, mmap_mode="r")
 
         elif option == 2:
             # Model
@@ -134,6 +150,11 @@ class ConfigInitializer:
             Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, 200, K))
             Model.update_parameter_string()
 
+            test_paths_file = "../test_paths_2.npy"
+            val_paths_file = "../val_paths_2.npy"
+            test_paths = np.load(test_paths_file, mmap_mode="r")
+            val_paths = np.load(val_paths_file, mmap_mode="r")
+
         elif option == 1:
             # Model
             r = 0.05
@@ -156,11 +177,24 @@ class ConfigInitializer:
             test_size = 256
             val_size = 2048
 
+            # using 1 as an actual benchmark
+            # Make new version with actual N
+            max_minutes = 20
+            batch_size = 512
+            test_size = 1024
+            val_size = 8192
+
             x_plot_range_for_net_plot = [10, 50]
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
-            Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, 200, K))
+            # Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, 2000, K))
+            Model.set_reference_value(6.245555049146182)  # N = 2000
             Model.update_parameter_string()
+
+            test_paths_file = "../test_paths_1.npy"
+            val_paths_file = "../val_paths_1.npy"
+            test_paths = np.load(test_paths_file, mmap_mode="r")
+            val_paths = np.load(val_paths_file, mmap_mode="r")
 
         else:
             # Model
@@ -190,8 +224,10 @@ class ConfigInitializer:
             Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, N*10, K))
             Model.update_parameter_string()
 
-        test_paths = []
-        val_paths = []
+            test_paths_file = "../test_paths_1.npy"
+            val_paths_file = "../val_paths_1.npy"
+            test_paths = np.load(test_paths_file, mmap_mode="r")
+            val_paths = np.load(val_paths_file, mmap_mode="r")
 
         # Parametergrid für Netz
         # addAdam
@@ -203,12 +239,12 @@ class ConfigInitializer:
 
         dict_a = {  #
             'algorithm'                : [2],
-            'internal_neurons'         : [100],  # 50?
-            'hidden_layer_count'       : [3],
-            'activation_internal'      : [tanh],
+            'internal_neurons'         : [50, 100],  # 50?
+            'hidden_layer_count'       : [2, 3, 4],
+            'activation_internal'      : [tanh, relu],
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
-            'pretrain_func'            : [1],  # 2 information in 1 entry "False" for pass
+            'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
             'pretrain_iterations'      : [500],
             'max_number_of_iterations' : [10000],
             'max_minutes_of_iterations': [max_minutes],
@@ -288,23 +324,13 @@ class ConfigInitializer:
 
                 log.info("The reference value is: " + str(Model.get_reference_value()))
 
-                test_paths = Model.generate_paths(1000000, antithetic_val)  # always 1e6
-                # TODO: load val paths from file intelligently
-                # val_paths = Model.generate_paths(val_size, antithetic_val)
-
-                test_paths_file = "../val_paths_4411.npy"
-                # val_2
-                # test_paths_4312
-                # test4411
-                # val4411
-                # np.save(test_paths_file, test_paths)
-
-                test_paths = np.load(test_paths_file, mmap_mode="r")
+                test_paths = test_paths[:test_size]
+                val_paths = val_paths[:val_size]
 
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
-            break
-            log.info("\n\nThis is run " + str(run_number) + " and the current config is " + individual_parameter_string)
+
+            log.info("This is run " + str(run_number) + " and the current config is: " + individual_parameter_string + "\n")
 
             current_NN = NN.NN(current_Config, Model, Memory, log, test_paths)
 
@@ -314,9 +340,9 @@ class ConfigInitializer:
             fvs = time.time()
             optimitaion_result[0][0].final_validation(val_paths)
             Memory.final_val_duration = time.time() - fvs
-            # TODO: final val möchte ich eventuell außerhalb von optimization aufrufen. Es hat den Vorteil das es einfacher ist die Wege für final val zu verwalten
             result_list.append([optimitaion_result[0][0], optimitaion_result[0][1], run_number, individual_parameter_string])
 
+            log.info("Plotting begins\n\n")
             f = open("intermediate_results.txt", "a")
             f.write(self.result_to_resultstring(result_list[-1]))
             f.close()
@@ -327,7 +353,7 @@ class ConfigInitializer:
 
         def sort_resultlist_by_disc_value(result_list):
             def sort_key(element):
-                return min(-element[0].disc_best_result.val_disc_value, -element[0].cont_best_result.val_disc_value-element[0].final_result.val_disc_value)
+                return min(-element[0].disc_best_result.val_disc_value, -element[0].cont_best_result.val_disc_value, -element[0].final_result.val_disc_value)
 
             result_list.sort(key=sort_key)
 

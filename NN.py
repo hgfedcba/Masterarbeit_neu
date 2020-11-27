@@ -127,20 +127,21 @@ class NN:
 
             average_payoff = self.train(optimizer)
             self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
-            # TODO: deactivate requires grad
 
             # validation
             if m % self.validation_frequency == 0:
                 val_start = time.time()
+
                 cont_payoff, disc_payoff, stopping_times = self.validate(self.test_paths)
-                self.Memory.val_durations.append(time.time() - val_start)
                 log.info(
                     "After \t%s iterations the continuous value is\t %s and the discrete value is \t%s" % (m, round(cont_payoff, 3), round(disc_payoff, 3)))
 
                 self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
-                self.Memory.val_continuous_payoff_list.append(cont_payoff)
-                self.Memory.val_discrete_payoff_list.append(disc_payoff)
+                self.Memory.val_continuous_value_list.append(cont_payoff)
+                self.Memory.val_discrete_value_list.append(disc_payoff)
+
+                self.Memory.val_durations.append(time.time() - val_start)
 
             if self.do_lr_decay:
                 scheduler.step()
@@ -172,7 +173,7 @@ class NN:
             epochs = max_iterations
 
             def local_train():
-                net.train()  # TODO: What does this do
+                # net.train()  # This informs dropout and batchnorm that training is taking place. Shouldn't have any effect here.
                 losses = []
 
                 x_train = Variable(torch.from_numpy(x_values)).float()
@@ -259,16 +260,17 @@ class NN:
         individual_payoffs = []
 
         for j in range(self.batch_size):
-            h, _ = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(training_paths[j])
+            h, _ = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(training_paths[j], True)
             U[j, :] = h[:, 0]
             individual_payoffs.append(self.calculate_payoffs(U[j, :], training_paths[j], self.Model.getg, self.t))
         average_payoff = torch.sum(torch.stack(individual_payoffs)) / len(individual_payoffs)
 
         loss = -average_payoff
+
+        t = time.time()
         optimizer.zero_grad()
         # torch.autograd.set_detect_anomaly(True)
         loss.backward()
-        t = time.time()
         optimizer.step()
         self.Memory.total_net_durations[-1] += time.time() - t
 
@@ -283,7 +285,7 @@ class NN:
         U = torch.empty(L, self.N + 1)
         tau_list = []
         for l in range(L):
-            h, tau = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(paths[l])
+            h, tau = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(paths[l], False)
             U[l, :] = h[:, 0]
             cont_individual_payoffs.append(self.calculate_payoffs(U[l, :], paths[l], self.Model.getg, self.t))
 
@@ -310,7 +312,6 @@ class NN:
     """
     def generate_discrete_stopping_time_from_U(self, U):
         # between 0 and N
-        # TODO:implement algorithm 1
         tau_set = np.zeros(self.N + 1)
         for n in range(tau_set.size):
             h1 = torch.sum(U[0:n + 1]).item()
@@ -329,7 +330,7 @@ class NN:
         return self.N
 
     # TODO: Hier geht es weiter
-    def generate_stopping_time_factors_and_discrete_stoppoint_from_path(self, x_input):
+    def generate_stopping_time_factors_and_discrete_stoppoint_from_path(self, x_input, grad):
         local_N = x_input.shape[1]
         U = []
         sum = []
@@ -345,12 +346,12 @@ class NN:
             if n < self.N:
                 t = time.time()
                 if self.algorithm == 0:
-                    x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=True))
+                    x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=grad))
                     # x[-1] = x[-1].to(device)
                     local_u.append(self.u[n](x[n]))
                 elif self.algorithm == 2:
                     into = np.append(n+self.K, x_input[:, n])
-                    x.append(torch.tensor(into, dtype=torch.float32, requires_grad=True))
+                    x.append(torch.tensor(into, dtype=torch.float32, requires_grad=grad))
                     # x[-1] = x[-1].to(device)
                     local_u.append(self.u[0](x[n]))
                 self.Memory.total_net_durations[-1] += time.time() - t

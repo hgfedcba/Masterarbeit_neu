@@ -61,8 +61,6 @@ class MathematicalModel:
             elif l == L / 2:
                 bms.extend([-item for item in bms])
             out.append(self.generate_path_from_bm(bms[l]))
-            if l % 10000 == 0:
-                print(l)
 
         assert L == out.__len__()
 
@@ -70,8 +68,6 @@ class MathematicalModel:
 
     def getT(self):
         return self.__T
-
-    # TODO: WRONG!
 
     def get_time_partition(self, N, step_size=1):
         out = np.zeros(int(N / step_size) + 1)

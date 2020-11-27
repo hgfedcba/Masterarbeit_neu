@@ -64,6 +64,3 @@ def draw_connected_points(x, y, plot_number=0, color=None):
     plot(x, y, color=color)
 
     return plot_number
-
-
-#TODO: Recall the command for isolated points ist plt.scatter
