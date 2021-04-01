@@ -35,6 +35,7 @@ class ConfigInitializer:
         current_Config = None
         test_paths = None
         val_paths = None
+        angle_for_net_plot = None
 
         result_list = []
         if option == 4312:
@@ -87,6 +88,7 @@ class ConfigInitializer:
             # TODO: path dependent option
             # TODO: learn f like christensen wants it. Double N. Test if above f still gives a reasonable result.
             # TODO: Saved paths are not antithetic...
+            # TODO: train values in metrics
             r = 0.05
             sigma_constant = 0.2  # beta
             mu_constant = r
@@ -111,7 +113,8 @@ class ConfigInitializer:
             test_size = 2048
             val_size = 16384
 
-            x_plot_range_for_net_plot = [80, 250]
+            x_plot_range_for_net_plot = [60, 250]
+            angle_for_net_plot = 220
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(21.344)
@@ -177,13 +180,14 @@ class ConfigInitializer:
             test_size = 256
             val_size = 2048
 
+            """
             # using 1 as an actual benchmark
             # Make new version with actual N
             max_minutes = 20
             batch_size = 512
             test_size = 1024
             val_size = 8192
-
+            """
             x_plot_range_for_net_plot = [10, 50]
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
@@ -239,9 +243,9 @@ class ConfigInitializer:
 
         dict_a = {  #
             'algorithm'                : [2],
-            'internal_neurons'         : [50, 100],  # 50?
-            'hidden_layer_count'       : [2, 3, 4],
-            'activation_internal'      : [tanh, relu],
+            'internal_neurons'         : [100],  # 50?
+            'hidden_layer_count'       : [3],
+            'activation_internal'      : [tanh, relu, leaky_relu, softsign, selu],
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
             'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
@@ -249,7 +253,7 @@ class ConfigInitializer:
             'max_number_of_iterations' : [10000],
             'max_minutes_of_iterations': [max_minutes],
             'batch_size'               : [batch_size],
-            'initial_lr'               : [0.01],
+            'initial_lr'               : [0.02],  # 0.01 for other setting
             'lr_decay_alg'             : [2],  # 2 Information in 1 entry
             'random_seed'              : [1337],
             'validation_frequency'     : [10],
@@ -313,7 +317,7 @@ class ConfigInitializer:
             current_Config = Config(algorithm, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer, do_pretrain, pretrain_func, pretrain_iterations,
                                     max_number_of_iterations,
                                     max_minutes_of_iterations, batch_size, initial_lr, do_lr_decay, lr_decay_alg, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size,
-                                    val_size, stop_paths_in_plot, x_plot_range_for_net_plot)
+                                    val_size, stop_paths_in_plot, x_plot_range_for_net_plot, angle_for_net_plot)
             if run_number == 0:
                 f = open("intermediate_results.txt", "w")
                 intro_string = "Wir optimieren für das Modell: \t" + Model.parameter_string + "Folgende Parameter sind konstant über alle runs: \t" + \
@@ -334,12 +338,14 @@ class ConfigInitializer:
 
             current_NN = NN.NN(current_Config, Model, Memory, log, test_paths)
 
-            # result enthält prominent_result klasse, durations klasse
+            # result enthält prominent_result klasse, memory klasse
             optimitaion_result = [current_NN.optimization()]
             log.info("Final val begins")
             fvs = time.time()
             optimitaion_result[0][0].final_validation(val_paths)
             Memory.final_val_duration = time.time() - fvs
+            Memory.end_time = time.time()
+
             result_list.append([optimitaion_result[0][0], optimitaion_result[0][1], run_number, individual_parameter_string])
 
             log.info("Plotting begins\n\n")
@@ -352,6 +358,7 @@ class ConfigInitializer:
             run_number += 1
 
         def sort_resultlist_by_disc_value(result_list):
+            # TODO: Think about val+test best values
             def sort_key(element):
                 return min(-element[0].disc_best_result.val_disc_value, -element[0].cont_best_result.val_disc_value, -element[0].final_result.val_disc_value)
 
@@ -382,9 +389,9 @@ class ConfigInitializer:
                    "\tbest cont result:", short_disc(result[0].cont_best_result), " | ", short_cont(result[0].cont_best_result),
                    "\tfinal result:", short_disc(result[0].final_result), " | ", short_cont(result[0].final_result),
                    "\ttime taken until discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
-                   time.time() - result[1].start_time,
+                   result[1].end_time - result[1].start_time,
                    "\titerations taken until discrete/cont/final result:", result[0].disc_best_result.m, " | ", result[0].cont_best_result.m, " | ", result[0].final_result.m,
-                   "\ttime spend training:", sum(result[1].train_durations), "time spend validating:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
+                   "\ttime spend training:", sum(result[1].train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
                    "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].final_val_duration,
                    "Parameterstring:", result[3], only_return=True)
         return os

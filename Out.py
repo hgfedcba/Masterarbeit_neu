@@ -60,7 +60,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     draw_connected_points(iter, td, plot_number_duration)
     draw_connected_points(iter, vd, plot_number_duration)
     draw_connected_points(iter, tn, plot_number_duration)
-    plt.legend(["train duration", "val duration", "time spend in net"])
+    plt.legend(["train duration", "test duration", "time spend in net"])
     xlabel('iteration', fontsize=16)
     ylabel('time', fontsize=16)
     plt.title('time spend on ' + str(Config.validation_frequency) + ' iterations')
@@ -87,7 +87,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     draw_connected_points(iter, Memory.pretrain_duration * np.ones_like(iter), plot_number_duration_2)
     draw_connected_points(iter, (time.time() - Memory.start_time) * np.ones_like(iter), plot_number_duration_2)
     draw_connected_points(iter, (time.time() - Memory.start_time - Memory.final_val_duration) * np.ones_like(iter), plot_number_duration_2)
-    plt.legend(["train duration", "val duration", "time spend in net", "pretrain end", "final val end", "final val start"])
+    plt.legend(["train duration", "test duration", "time spend in net", "pretrain end", "final val end", "final val start"])
     xlabel('iteration', fontsize=16)
     ylabel('time', fontsize=16)
     plt.ylim([0, (time.time() - Memory.start_time)*1.05])
@@ -258,7 +258,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
             # Add a color bar which maps values to colors
             fig_k.colorbar(surf, shrink=0.5, aspect=5)
 
-            ax.view_init(30, 40)
+            ax.view_init(30, Config.angle_for_net_plot)
             pdf.savefig(fig_k)
             """
             # rotate the axes and update

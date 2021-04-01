@@ -4,6 +4,7 @@ from time import time
 class Memory:
     def __init__(self):
         self.start_time = time()
+        self.end_time = time()
         self.total_net_durations = []
         self.pretrain_duration = 0
         self.final_val_duration = 0

@@ -7,7 +7,7 @@ class Config:
     def __init__(self, algorithm=0, internal_neurons=50, hidden_layer_count=3, activation_internal=tanh, activation_final=sigmoid, optimizer=Adam, do_pretrain=True,
                  pretrain_func=pretrain_functions[0], pretrain_iterations=800,
                  max_number_of_iterations=50, max_minutes_of_iterations=5, batch_size=32, initial_lr=0.0001, do_lr_decay=False, lr_decay_alg=lr_decay_algs[0], random_seed=23343,
-                 validation_frequency=2, antithetic_val=True, antithetic_train=False, test_size=64, val_size=128, stop_paths_in_plot=False, x_plot_range_for_net_plot=None):
+                 validation_frequency=2, antithetic_val=True, antithetic_train=False, test_size=64, val_size=128, stop_paths_in_plot=False, x_plot_range_for_net_plot=None, angle_for_net_plot=40):
 
         # net
 
@@ -45,6 +45,7 @@ class Config:
         self.stop_paths_in_plot = stop_paths_in_plot
 
         self.x_plot_range_for_net_plot = x_plot_range_for_net_plot
+        self.angle_for_net_plot = angle_for_net_plot
 
         pl = [["algorithm", algorithm], ["internal_neurons", internal_neurons], ["hidden_layer_count", hidden_layer_count], ["activation_internal", activation_func_dict.get(activation_internal)],
               ["activation_final", activation_func_dict.get(activation_final)], ["optimizer", optimizer_dict.get(optimizer)], ["do_pretrain", do_pretrain], ["pretrain_func", pretrain_func_dict.get(pretrain_func)],
