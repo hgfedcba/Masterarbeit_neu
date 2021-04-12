@@ -166,7 +166,9 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     if Model.getd() == 1 and Config.algorithm == 2:
         # new
         fig = plt.figure()
-        ax = fig.gca(projection='3d')
+        # TODO: zeile drunter entkommentieren
+        # ax = fig.gca(projection='3d')
+        ax = fig.add_subplot(111, projection='3d')
         """
         # Make data.
         X = np.arange(-5, 5, 0.25)

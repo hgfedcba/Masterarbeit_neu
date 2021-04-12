@@ -103,7 +103,7 @@ class NN:
         optimizer = self.optimizer(params, lr=self.initial_lr)
         if self.do_lr_decay:
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
-            scheduler.verbose = True
+            scheduler.verbose = False  # prints updates
 
         log.info("pretrain starts")
         pretrain_start = time.time()

@@ -16,7 +16,7 @@ class Config:
 
         if x_plot_range_for_net_plot is None:
             x_plot_range_for_net_plot = [20, 60]
-        self.algorithm = algorithm  # 0 is source, 1 is mine, 2 is christensen learn f
+        self.algorithm = algorithm  # 0 is source, 1 is mine, 2 is christensen learn f, 3 is different N
         self.internal_neurons = internal_neurons
         self.hidden_layer_count = hidden_layer_count
         self.activation_internal = activation_internal

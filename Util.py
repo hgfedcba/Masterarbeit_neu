@@ -40,16 +40,19 @@ def draw_function(x, f, plot_number=0, color=None, algorithm=0):
     y = []
     actual_x = []
     for c in x:
+        h = None
         if algorithm == 0:
-            h = torch.tensor([c], dtype=torch.float32)
+            h = torch.tensor([c], dtype=torch.float32, requires_grad=False)
         elif algorithm == 2:
-            h = torch.tensor([np.append(plot_number-1, c)], dtype=torch.float32)
+            h = torch.tensor([np.append(plot_number-1, c)], dtype=torch.float32, requires_grad=False)
         y.append(f(h))
         if len(c) > 1:
             actual_x.append(c[0])
         else:
             actual_x.append(c)
-    plot(actual_x, y, color=color)
+    # TODO: very fucking cool [ys.numpy() for ys in y]
+    z = np.array([ys.detach().numpy()[0] for ys in y])
+    plot(actual_x, z, color=color)
     return plot_number
 
 

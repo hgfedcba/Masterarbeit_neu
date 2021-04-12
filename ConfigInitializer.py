@@ -15,6 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import NN
+import copy
 
 from Util import mylog
 import time
@@ -58,7 +59,7 @@ class ConfigInitializer:
 
             add_am_put_default_pretrain(K, 16)
 
-            max_minutes = 60
+            max_minutes = 60/60  # TODO: changed
             # not more, N=50!
             batch_size = 256
             test_size = 512
@@ -89,6 +90,9 @@ class ConfigInitializer:
             # TODO: learn f like christensen wants it. Double N. Test if above f still gives a reasonable result.
             # TODO: Saved paths are not antithetic...
             # TODO: train values in metrics
+            # TODO: colorcode output
+
+            # TODO: Masterarbeit Mathe auf SSD
             r = 0.05
             sigma_constant = 0.2  # beta
             mu_constant = r
@@ -217,7 +221,7 @@ class ConfigInitializer:
 
             add_am_put_default_pretrain(K, 16)
 
-            max_minutes = 5*0.1
+            max_minutes = 0.5*0.5
             batch_size = 64
             test_size = 64
             val_size = 256
@@ -243,9 +247,9 @@ class ConfigInitializer:
 
         dict_a = {  #
             'algorithm'                : [2],
-            'internal_neurons'         : [100],  # 50?
+            'internal_neurons'         : [100, 50],  # 50?
             'hidden_layer_count'       : [3],
-            'activation_internal'      : [tanh, relu, leaky_relu, softsign, selu],
+            'activation_internal'      : [tanh, relu],# [tanh, relu, leaky_relu, softsign, selu]
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
             'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
@@ -326,29 +330,38 @@ class ConfigInitializer:
                 f.write(intro_string)
                 f.close()
 
-                log.info("The reference value is: " + str(Model.get_reference_value()))
+                log.warning("The reference value is: " + str(Model.get_reference_value()))
 
                 test_paths = test_paths[:test_size]
                 val_paths = val_paths[:val_size]
 
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
+            individual_parameter_list = current_Config.get_pl_wrt_list(list_individual_parameters)
 
-            log.info("This is run " + str(run_number) + " and the current config is: " + individual_parameter_string + "\n")
+            log.warning("This is run " + str(run_number) + " and the current config is: " + individual_parameter_string + "\n")
+            '''
+            if algorithm == 3:
+                Model_copied = copy.deepcopy(Model)
+                Model.__N = 10
+                current_NN = NN.NN(current_Config, Model_copied, Memory, log, test_paths)
 
+                # result enthält prominent_result klasse, memory klasse
+                optimitaion_result = [current_NN.optimization()]
+            '''
             current_NN = NN.NN(current_Config, Model, Memory, log, test_paths)
 
             # result enthält prominent_result klasse, memory klasse
             optimitaion_result = [current_NN.optimization()]
-            log.info("Final val begins")
+            log.warning("Final val begins")
             fvs = time.time()
             optimitaion_result[0][0].final_validation(val_paths)
             Memory.final_val_duration = time.time() - fvs
             Memory.end_time = time.time()
 
-            result_list.append([optimitaion_result[0][0], optimitaion_result[0][1], run_number, individual_parameter_string])
+            result_list.append([optimitaion_result[0][0], optimitaion_result[0][1], run_number, individual_parameter_string, individual_parameter_list])
 
-            log.info("Plotting begins\n\n")
+            log.warning("Plotting begins\n\n")
             f = open("intermediate_results.txt", "a")
             f.write(self.result_to_resultstring(result_list[-1]))
             f.close()
@@ -357,14 +370,14 @@ class ConfigInitializer:
 
             run_number += 1
 
-        def sort_resultlist_by_disc_value(result_list):
+        def sort_resultlist_by_highest_disc_value(result_list):
             # TODO: Think about val+test best values
             def sort_key(element):
-                return min(-element[0].disc_best_result.val_disc_value, -element[0].cont_best_result.val_disc_value, -element[0].final_result.val_disc_value)
+                return -max(element[0].disc_best_result.val_disc_value, element[0].cont_best_result.val_disc_value, element[0].final_result.val_disc_value)
 
             result_list.sort(key=sort_key)
 
-        sort_resultlist_by_disc_value(result_list)
+        sort_resultlist_by_highest_disc_value(result_list)
 
         f = open("end_result.txt", "w")
         f.write(intro_string)
@@ -373,8 +386,7 @@ class ConfigInitializer:
         f.close()
 
         # TODO: actually implement table
-
-        self.create_outputtable(Model, current_Config, list_common_parameters, list_individual_parameters, result_list)
+        self.create_outputtable(Model, current_Config, list_common_parameters, result_list)
 
     @staticmethod
     def result_to_resultstring(result):
@@ -396,24 +408,40 @@ class ConfigInitializer:
                    "Parameterstring:", result[3], only_return=True)
         return os
 
+    # discrete final/best disc auf final daten, time until for both    -  variable parameter
     @staticmethod
-    def create_outputtable(Model, current_config, list_common_parameters, list_individual_parameters, resultlist):
-        title_text = "Wir optimieren für das Modell: " + Model.parameter_string + "Folgende Parameter sind konstant über alle Runs: " + current_config.get_psl_wrt_list(list_common_parameters)
-        title_text = title_text.replace('\t', '  ')
+    def create_outputtable(Model, current_config, list_common_parameters, resultlist):
+        # TODO: Colorcode name vs value
+        title_text1 = "Wir optimieren für das Modell: \t" + Model.parameter_string + "\n\nFolgende Parameter sind konstant über alle Runs:\n"
+        title_text2 = current_config.get_psl_wrt_list(list_common_parameters)
+
+        for k in range(1, 4):
+            index = title_text2.find("\t", 150*k)
+            title_text2 = title_text2[:index] + '\n' + title_text2[index:]
+
+        title_text = title_text1 + title_text2
+        title_text = title_text.replace('\t', '    ')
+
         footer_text = 'stub'
         fig_background_color = 'skyblue'
         fig_border = 'steelblue'
 
-        individual_parameter_list = current_config.get_pl_wrt_list(list_individual_parameters)
+        data = []
+        # too long
+        '''
+        data.append(['average payoff of on the validation set using the net giving the best result on the test set', 'average payoff of on the validation set using the final net',
+                     'time until intermediate result', 'time total'])
+        '''
+        data.append(['intermediate', 'final', 'time to intermediate', 'time total'] + [param[0] for param in resultlist[0][4]])
+        for res in resultlist:
+            data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.val_disc_value, res[0].final_result.val_disc_value, res[0].disc_best_result.time_to_this_result,
+                         res[0].final_result.time_to_this_result] + [str(param[1]) for param in res[4]])
 
-        data = [
-            ['Freeze', 'W', 'Flood', 'Quake', 'Hail', 'max_number_of_iterations', 'max_minutes_of_iterations', 'validation_frequency'],
-            [66386, 174296, 75131, 577908, 32015, 32015, 32015, 32015],
-            [58230, 381139, 78045, 99308, 160454, 32015, 32015, 32015],
-            [89135, 80552, 152558, 'Ens', 603535, 32015, 32015, 32015],
-            [78415, 81858, 150656, 193263, 69638, 32015, 32015, 32015],
-            [139361, 331509, 343164, 781380, 52269, 32015, 32015, 32015],
-        ]  # Pop the headers from the data array
+        for i in range(1, data.__len__()):
+            for j in range(data[1].__len__()):
+                if isinstance(data[i][j], float):
+                    data[i][j] = round(data[i][j], 3)
+        # Pop the headers from the data array
         column_headers = data.pop(0)
         row_headers = [x.pop(0) for x in data]  # Table data needs to be non-numeric text. Format the data
         # while I'm at it.
@@ -421,16 +449,15 @@ class ConfigInitializer:
         for row in data:
             cell_text.append([str(x) for x in row])  # Get some lists of color specs for row and column headers
         rcolors = plt.cm.BuPu(np.full(len(row_headers), 0.1))
-        ccolors = plt.cm.BuPu(np.full(len(column_headers), 0.1))  # Create the figure. Setting a small pad on tight_layout
-        # seems to better regulate white space. Sometimes experimenting
-        # with an explicit figsize here can produce better outcome.
+        ccolors = plt.cm.BuPu(np.full(len(column_headers), 0.1))
+        # Create the figure. Setting a small pad on tight_layout seems to better regulate white space. Sometimes experimenting with an explicit figsize here can produce better outcome.
         plt.figure(linewidth=2,
                    edgecolor=fig_border,
                    facecolor=fig_background_color,
                    tight_layout={'pad': 1},
                    figsize=(10, 3)
                    )  # Add a table at the bottom of the axes
-        h = [0.05] * 5
+        h = [0.1] * 5
         h.extend([0.15] * 5)
         the_table = plt.table(cellText=cell_text,
                               colWidths=h,
