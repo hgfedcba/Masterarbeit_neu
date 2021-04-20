@@ -8,10 +8,10 @@ import scipy.stats
 class MathematicalModel:
     def __init__(self, T, N, d, K, delta, mu, sigma, g, xi):
         self.__T = T  # Time Horizon
-        self.__N=N #
+        self.__N = N
         self.__d = d  # Dimension of the underlying Problem
-        self.__K=K
-        self.__delta=delta
+        self.__K = K
+        self.__delta = delta
         self.__internal_mu = mu  # drift coefficient
         self.__internal_sigma = sigma  # standard deviation of returns
         self.__internal_g = g  # objective function
@@ -55,13 +55,20 @@ class MathematicalModel:
         bms = []
         out = []
         L = number
+        """
         for l in range(L):
             if not antithetic or l < L / 2:
                 bms.append(self.generate_bm())
             elif l == L / 2:
                 bms.extend([-item for item in bms])
             out.append(self.generate_path_from_bm(bms[l]))
-
+        """
+        for l in range(L):
+            if not antithetic or l % 2 == 0:
+                bms.append(self.generate_bm())
+            else:
+                bms.append(-bms[-1])
+            out.append(self.generate_path_from_bm(bms[l]))
         assert L == out.__len__()
 
         return out
@@ -80,6 +87,9 @@ class MathematicalModel:
 
     def getN(self):
         return self.__N
+
+    def setN(self, N):
+        self.__N = N
 
     def getK(self):
         return self.__K

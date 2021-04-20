@@ -163,7 +163,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     n_sample_points = 86  # 81 and half stepsize seems way more reasonable
     d = Model.getd()
 
-    if Model.getd() == 1 and Config.algorithm == 2:
+    if Model.getd() == 1 and (Config.algorithm == 2 or Config.algorithm == 3):
         # new
         fig = plt.figure()
         # TODO: zeile drunter entkommentieren
@@ -223,7 +223,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     short = Config.x_plot_range_for_net_plot
     x = np.reshape(np.linspace(short[0], short[1], n_sample_points), (n_sample_points, 1)) * np.ones((1, d))
 
-    if Model.getd() == 2 and Config.algorithm == 2:
+    if Model.getd() == 2 and (Config.algorithm == 2 or Config.algorithm == 3):
         for k in range(NN.N):
             fig_k = plt.figure(k)
             ax = fig_k.gca(projection='3d')
@@ -276,7 +276,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     def get_net(u, k):
         if Config.algorithm == 0:
             return u[k]
-        elif Config.algorithm == 2:
+        elif Config.algorithm == 2 or Config.algorithm == 3:
             return u[0]
 
     # TODO: recall: it is vitaly important that plot_number=k+1+NN.k

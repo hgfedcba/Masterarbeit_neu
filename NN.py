@@ -34,11 +34,11 @@ class Net(nn.Module):
 
 
 class NN:
-    def __init__(self, Config, Model, Memory, log, test_paths):
+    def __init__(self, Config, Model, Memory, log):
         self.Memory = Memory
         self.log = log
 
-        self.test_paths = test_paths
+        self.test_paths = None
 
         self.Model = Model
         self.T = Model.getT()
@@ -86,14 +86,17 @@ class NN:
                     net = Net(self.d, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
                     # net.to(device)
                     self.u.append(net)
-            elif self.algorithm == 2:
+            elif self.algorithm == 2 or self.algorithm == 3:
                 net = Net(self.d+1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
                 self.u.append(net)
 
         define_nets()
         self.ProminentResults = ProminentResults(log, self)
 
-    def optimization(self):
+    def optimization(self, test_paths, m_out):
+        self.test_paths = test_paths
+        self.N = test_paths.shape[2]-1
+
         log = self.log
         # scheduler = None
 
@@ -105,14 +108,15 @@ class NN:
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
             scheduler.verbose = False  # prints updates
 
-        log.info("pretrain starts")
         pretrain_start = time.time()
         if self.do_pretrain:
+            log.info("pretrain starts")
             self.pretrain(self.pretrain_func, self.pretrain_iterations)
         self.Memory.pretrain_duration = time.time() - pretrain_start
-        log.info("pretrain took \t%s seconds" % self.Memory.pretrain_duration)
+        if self.Memory.pretrain_duration > 0.1:
+            log.info("pretrain took \t%s seconds" % self.Memory.pretrain_duration)
 
-        m = 0
+        m = m_out
         # continues if:
         # 1. die letzte Iteration keine validation stattgefunden hat
         # 2. die maximale zeit nicht überschritten wurde
@@ -148,9 +152,9 @@ class NN:
 
             m += 1
 
-        self.ProminentResults.set_final_net(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+        self.ProminentResults.set_final_net(self, m-1, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
-        return self.ProminentResults, self.Memory
+        return m, self.ProminentResults, self.Memory
 
     def pretrain(self, pretrain_func, max_iterations):
         from torch.autograd import Variable
@@ -190,7 +194,7 @@ class NN:
                         for l in range(x_train.shape[0]):
                             y_pred.append(net(x_train[l]))
                             loss.append((y_pred[l] - y_correct[l]) ** 2)
-                    elif self.algorithm == 2:
+                    elif self.algorithm == 2 or self.algorithm == 3:
                         for n in range(self.N):
                             into = np.append(np.ones((n_sample_points, 1)) * n, x_values, 1)
                             x_train = Variable(torch.from_numpy(into)).float()
@@ -213,7 +217,7 @@ class NN:
 
                     if losses[-1] < 0.1:
                         break
-                    if self.algorithm == 2 and losses[-1] < 0.1*self.N:
+                    if (self.algorithm == 2 or self.algorithm == 3) and losses[-1] < 0.1*self.N:
                         break
 
                 return losses
@@ -244,7 +248,7 @@ class NN:
                 # pretrain endergebnis
                 if self.algorithm == 0:
                     draw_function(x_values, self.u[m])
-                elif self.algorithm == 2:
+                elif self.algorithm == 2 or self.algorithm == 3:
                     for k in range(self.N):
                         draw_function(x_values, self.u[0], plot_number=1+self.N+k, algorithm=2)
                 plt.xlabel("x")
@@ -349,7 +353,7 @@ class NN:
                     x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=grad))
                     # x[-1] = x[-1].to(device)
                     local_u.append(self.u[n](x[n]))
-                elif self.algorithm == 2:
+                elif self.algorithm == 2 or self.algorithm == 3:
                     into = np.append(n+self.K, x_input[:, n])
                     x.append(torch.tensor(into, dtype=torch.float32, requires_grad=grad))
                     # x[-1] = x[-1].to(device)

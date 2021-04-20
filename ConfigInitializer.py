@@ -1,4 +1,4 @@
-from ModelDefinitions import add_mu_c_x, add_sigma_c_x, add_american_put, add_bermudan_max_call, binomial_trees
+from ModelDefinitions import add_mu_c_x, add_sigma_c_x, add_american_put, add_american_lookback_max_put, add_bermudan_max_call, binomial_trees
 from ModelDefinitions import mu_dict, payoff_dict, sigma_dict
 
 from MathematicalModel import MathematicalModel
@@ -59,7 +59,7 @@ class ConfigInitializer:
 
             add_am_put_default_pretrain(K, 16)
 
-            max_minutes = 60/60  # TODO: changed
+            max_minutes = 60  # //5
             # not more, N=50!
             batch_size = 256
             test_size = 512
@@ -83,14 +83,15 @@ class ConfigInitializer:
 
         elif option == 4411_2:
             # bermudan max call
-            # TODO: graphikkarte (überraschend schwer)
+            # TODO: graphikkarte (überraschend schwer)  andere pytorch installation!
             # TODO: tabelle
             # TODO: Stopkurve. x-Achse: N    y-Achse: Schwellenwert       nur 1d?
             # TODO: path dependent option
-            # TODO: learn f like christensen wants it. Double N. Test if above f still gives a reasonable result.
             # TODO: Saved paths are not antithetic...
             # TODO: train values in metrics
             # TODO: colorcode output
+            # TODO: Robins-problem
+            # TODO: Russian option
 
             # TODO: Masterarbeit Mathe auf SSD
             r = 0.05
@@ -179,7 +180,7 @@ class ConfigInitializer:
 
             add_am_put_default_pretrain(K, 16)
 
-            max_minutes = 5
+            max_minutes = 3
             batch_size = 64
             test_size = 256
             val_size = 2048
@@ -246,10 +247,10 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                : [2],
-            'internal_neurons'         : [100, 50],  # 50?
+            'algorithm'                : [2, 3],
+            'internal_neurons'         : [100],  # 50?
             'hidden_layer_count'       : [3],
-            'activation_internal'      : [tanh, relu],# [tanh, relu, leaky_relu, softsign, selu]
+            'activation_internal'      : [relu],# [tanh, relu, leaky_relu, softsign, selu]
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
             'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
@@ -349,10 +350,23 @@ class ConfigInitializer:
                 # result enthält prominent_result klasse, memory klasse
                 optimitaion_result = [current_NN.optimization()]
             '''
-            current_NN = NN.NN(current_Config, Model, Memory, log, test_paths)
+            current_NN = NN.NN(current_Config, Model, Memory, log)
+            m_out = 0
 
-            # result enthält prominent_result klasse, memory klasse
-            optimitaion_result = [current_NN.optimization()]
+            # TODO: softcode 2
+            if algorithm == 3:  # later 3
+                N_factor = 2
+                # shorten test paths
+                shortened_test_paths = test_paths[:, :, ::N_factor]
+
+                Model.setN(Model.getN()//N_factor)
+                current_NN.M_max = 50
+                m_out = current_NN.optimization(shortened_test_paths, m_out)[0]
+                current_NN.M_max = max_number_of_iterations
+                Model.setN(Model.getN()*N_factor)
+                log.warning("Alg 3 \"pretrain\" ends")
+                # TODO: I should probably delete the best results
+            optimitaion_result = [current_NN.optimization(test_paths, m_out)[1:]]
             log.warning("Final val begins")
             fvs = time.time()
             optimitaion_result[0][0].final_validation(val_paths)
@@ -370,14 +384,14 @@ class ConfigInitializer:
 
             run_number += 1
 
-        def sort_resultlist_by_highest_disc_value(result_list):
+        def sort_resultlist_by_highest_disc_value_on_val_set(result_list):
             # TODO: Think about val+test best values
             def sort_key(element):
+                # return -max(element[0].disc_best_result.val_disc_value, element[0].cont_best_result.val_disc_value, element[0].final_result.val_disc_value)
                 return -max(element[0].disc_best_result.val_disc_value, element[0].cont_best_result.val_disc_value, element[0].final_result.val_disc_value)
-
             result_list.sort(key=sort_key)
 
-        sort_resultlist_by_highest_disc_value(result_list)
+        sort_resultlist_by_highest_disc_value_on_val_set(result_list)
 
         f = open("end_result.txt", "w")
         f.write(intro_string)
@@ -391,10 +405,10 @@ class ConfigInitializer:
     @staticmethod
     def result_to_resultstring(result):
         def short_disc(a):
-            return str(a.test_disc_value) + " \t (" + str(a.val_disc_value) + ")\t"
+            return str(round(a.test_disc_value, 5)) + " \t (" + str(round(a.val_disc_value, 5)) + ")\t"
 
         def short_cont(a):
-            return str(a.test_cont_value) + " \t (" + str(a.val_cont_value) + ")\t"
+            return str(round(a.test_cont_value, 5)) + " \t (" + str(round(a.val_cont_value, 5)) + ")\t"
 
         os = mylog("\trun: ", str(result[2]),
                    "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),
@@ -432,10 +446,11 @@ class ConfigInitializer:
         data.append(['average payoff of on the validation set using the net giving the best result on the test set', 'average payoff of on the validation set using the final net',
                      'time until intermediate result', 'time total'])
         '''
-        data.append(['intermediate', 'final', 'time to intermediate', 'time total'] + [param[0] for param in resultlist[0][4]])
+        data.append(['best disc', 'best_cont', 'final', 'iterations'] + [param[0] for param in resultlist[0][4]])
         for res in resultlist:
-            data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.val_disc_value, res[0].final_result.val_disc_value, res[0].disc_best_result.time_to_this_result,
-                         res[0].final_result.time_to_this_result] + [str(param[1]) for param in res[4]])
+            data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.val_disc_value, res[0].cont_best_result.val_disc_value, res[0].final_result.val_disc_value,
+                         str(res[0].disc_best_result.m) + " | "+ str(res[0].cont_best_result.m) + " | " + str(res[0].final_result.m)]
+                        + [str(param[1]) for param in res[4]])
 
         for i in range(1, data.__len__()):
             for j in range(data[1].__len__()):

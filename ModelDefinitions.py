@@ -48,7 +48,6 @@ def add_american_put(d, K, r):
     payoff_dict[f] = "american put"
     return f
 
-
 def add_bermudan_max_call(K, r):
     def bermudan_max_call(t_in, x):
         return math.exp(-r * t_in) * max(max(x) - K, 0)
