@@ -24,13 +24,13 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     pdf = pdfp.PdfPages("Metrics" + str(run_number) + ".pdf")
 
     # Value over time Graph
-    plot_number_paths = 1
-    fig1 = plt.figure(plot_number_paths)
+    plot_number_value = 1
+    fig1 = plt.figure(plot_number_value)
     x = range(0, Config.validation_frequency * (len(Memory.val_discrete_value_list)), Config.validation_frequency)
     x = np.array(x)
-    draw_connected_points(x, Memory.val_continuous_value_list, plot_number_paths)
-    draw_connected_points(x, Memory.val_discrete_value_list, plot_number_paths)
-    draw_connected_points(x, Model.get_reference_value()*np.ones_like(x), plot_number_paths, 'black')
+    draw_connected_points(x, Memory.val_continuous_value_list, plot_number_value)
+    draw_connected_points(x, Memory.val_discrete_value_list, plot_number_value)
+    draw_connected_points(x, Model.get_reference_value()*np.ones_like(x), plot_number_value, 'black')
     plt.legend(["cont value", "disc value", "reference value"])
     # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
     # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
@@ -41,6 +41,42 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
 
     pdf.savefig(fig1)
     plt.close(fig1)
+
+    # train Value over time Graph
+    plot_number_train = 12
+    fig12 = plt.figure(plot_number_train)
+    x = range(0, len(Memory.average_train_payoffs))
+    x = np.array(x)
+    draw_connected_points(x, Memory.average_train_payoffs, plot_number_train)
+    draw_connected_points(x, Model.get_reference_value()*np.ones_like(x), plot_number_train, 'black')
+    plt.legend(["train values", "reference value"])
+    # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
+    # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
+    xlabel('iteration', fontsize=16)
+    ylabel('value', fontsize=16)
+    grid(True)
+    # plt.yscale('log')
+
+    pdf.savefig(fig12)
+    plt.close(fig12)
+
+    # Value over time Graph
+    plot_number_stopping_time = 13
+    fig13 = plt.figure(plot_number_stopping_time)
+    x = range(0, Config.validation_frequency * (len(Memory.average_test_stopping_time)), Config.validation_frequency)
+    x = np.array(x)
+    draw_connected_points(x, Memory.average_test_stopping_time, plot_number_stopping_time)
+    plt.legend(["average time of stopping"])
+    plt.ylim([0, 9])
+    # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
+    # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
+    xlabel('iteration', fontsize=16)
+    ylabel('time', fontsize=16)
+    grid(True)
+    # plt.yscale('log')
+
+    pdf.savefig(fig13)
+    plt.close(fig13)
 
     # Duration over time graph
     plot_number_duration = 2
@@ -166,8 +202,6 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     if Model.getd() == 1 and (Config.algorithm == 2 or Config.algorithm == 3):
         # new
         fig = plt.figure()
-        # TODO: zeile drunter entkommentieren
-        # ax = fig.gca(projection='3d')
         ax = fig.add_subplot(111, projection='3d')
         """
         # Make data.
@@ -226,7 +260,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     if Model.getd() == 2 and (Config.algorithm == 2 or Config.algorithm == 3):
         for k in range(NN.N):
             fig_k = plt.figure(k)
-            ax = fig_k.gca(projection='3d')
+            ax = fig_k.gca(projection='3d')  # TODO: Matplotlib deprecation warning
             """
             # Make data.
             X = np.arange(-5, 5, 0.25)
@@ -249,7 +283,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
             surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
             ax.set_xlabel("X")
             ax.set_ylabel("Y")
-            ax.set_zlabel('u_%s' % k)
+            # ax.set_zlabel('u_%s' % k)
             ax.zaxis.set_rotate_label(False)
 
             # Customize the z axis
@@ -260,7 +294,9 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
             # Add a color bar which maps values to colors
             fig_k.colorbar(surf, shrink=0.5, aspect=5)
 
-            ax.view_init(30, Config.angle_for_net_plot)
+            # ax.view_init(30, Config.angle_for_net_plot)  # TODO: Seitenansicht
+            ax.view_init(90, Config.angle_for_net_plot)  # TODO: Von oben
+
             pdf.savefig(fig_k)
             """
             # rotate the axes and update

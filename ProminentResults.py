@@ -1,15 +1,21 @@
 from copy import deepcopy
-# TODO: DEEEPCOPY
 from Util import *
 
 
 class ProminentResults:
     def __init__(self, log, NN):
+        self.cont_best_result = None
+        self.disc_best_result = None
+        self.final_result = None
+        self.log = log
+        self.NN = NN
+
+        self.initialize_empty()
+
+    def initialize_empty(self):
         self.cont_best_result = IndividualBestResult("cont_NN.pt")
         self.disc_best_result = IndividualBestResult("disc_NN.pt")
         self.final_result = IndividualBestResult("final_NN.pt")
-        self.log = log
-        self.NN = NN
 
     def process_current_iteration(self, NN, m, val_cont_payoff, val_disc_payoff, stopping_times, time_to_this_result):
         if val_cont_payoff > self.cont_best_result.test_cont_value or (val_cont_payoff == self.cont_best_result.test_cont_value and val_disc_payoff > self.cont_best_result.test_disc_value):

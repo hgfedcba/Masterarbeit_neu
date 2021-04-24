@@ -21,7 +21,7 @@ class NetConfig:
         self.pretrain_func = self.am_put_default_pretrain
         self.pretrain_iterations = 800
 
-        self.stop_paths_in_plot = True  # TODO:use
+        self.stop_paths_in_plot = True
 
         self.max_number_iterations = 5001
         self.max_minutes_for_iteration = 50

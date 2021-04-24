@@ -1,4 +1,4 @@
-from ModelDefinitions import add_mu_c_x, add_sigma_c_x, add_american_put, add_american_lookback_max_put, add_bermudan_max_call, binomial_trees
+from ModelDefinitions import add_mu_c_x, add_sigma_c_x, add_american_put, add_bermudan_max_call, binomial_trees
 from ModelDefinitions import mu_dict, payoff_dict, sigma_dict
 
 from MathematicalModel import MathematicalModel
@@ -61,7 +61,7 @@ class ConfigInitializer:
 
             max_minutes = 60  # //5
             # not more, N=50!
-            batch_size = 256
+            train_size = 256
             test_size = 512
             val_size = 4048
             """
@@ -84,16 +84,14 @@ class ConfigInitializer:
         elif option == 4411_2:
             # bermudan max call
             # TODO: graphikkarte (überraschend schwer)  andere pytorch installation!
-            # TODO: tabelle
-            # TODO: Stopkurve. x-Achse: N    y-Achse: Schwellenwert       nur 1d?
             # TODO: path dependent option
             # TODO: Saved paths are not antithetic...
-            # TODO: train values in metrics
             # TODO: colorcode output
             # TODO: Robins-problem
             # TODO: Russian option
 
-            # TODO: Masterarbeit Mathe auf SSD
+            # TODO: Plot average time of stopping for test set
+
             r = 0.05
             sigma_constant = 0.2  # beta
             mu_constant = r
@@ -109,17 +107,17 @@ class ConfigInitializer:
 
             add_am_call_default_pretrain(K+10, 60)
 
-            max_minutes = 80
+            max_minutes = 60  # TODO: change
             # batch_size = 8192
             # test_size = 8192
             # val_size = 16384
 
-            batch_size = 1024
-            test_size = 2048
+            train_size = 2048
+            test_size = 4092
             val_size = 16384
 
-            x_plot_range_for_net_plot = [60, 250]
-            angle_for_net_plot = 220
+            x_plot_range_for_net_plot = [60, 200]
+            angle_for_net_plot = 225
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(21.344)
@@ -127,6 +125,51 @@ class ConfigInitializer:
 
             test_paths_file = "../test_paths_4411_2.npy"
             val_paths_file = "../val_paths_4411_2.npy"
+            test_paths = np.load(test_paths_file, mmap_mode="r")
+            val_paths = np.load(val_paths_file, mmap_mode="r")
+
+        elif option == 4411_5:
+            # bermudan max call
+
+            r = 0.05
+            sigma_constant = 0.2  # beta
+            mu_constant = r
+            K = 100
+            xi = 110
+            T = 3
+            N = 9
+            d = 5  # dimension
+            delta = 0.1  # dividend rate
+            sigma = add_sigma_c_x(sigma_constant)
+            mu = add_mu_c_x(mu_constant, delta)
+            g = add_bermudan_max_call(K, r)
+
+            add_am_call_default_pretrain(K+10, 60)
+
+            max_minutes = 60
+            # batch_size = 8192
+            # test_size = 8192
+            # val_size = 16384
+
+            train_size = 2048
+            test_size = 4092
+            val_size = 16384
+
+            x_plot_range_for_net_plot = [60, 200]
+            angle_for_net_plot = 225
+
+            Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
+            Model.set_reference_value(36.763)
+            Model.update_parameter_string()
+            """
+            test_paths = Model.generate_paths(1048576, True)
+            val_paths = Model.generate_paths(1048576, True)
+
+            np.save("../test_paths_4411_5.npy", test_paths)
+            np.save("../val_paths_4411_5.npy", val_paths)
+            """
+            test_paths_file = "../test_paths_4411_5.npy"
+            val_paths_file = "../val_paths_4411_5.npy"
             test_paths = np.load(test_paths_file, mmap_mode="r")
             val_paths = np.load(val_paths_file, mmap_mode="r")
 
@@ -148,11 +191,12 @@ class ConfigInitializer:
             add_am_put_default_pretrain(K, 16)
 
             max_minutes = 5
-            batch_size = 64
+            train_size = 64
             test_size = 256
             val_size = 2048
 
             x_plot_range_for_net_plot = [10, 50]
+            angle_for_net_plot = 225  # TODO: remove after test is finished
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, 200, K))
@@ -181,7 +225,7 @@ class ConfigInitializer:
             add_am_put_default_pretrain(K, 16)
 
             max_minutes = 3
-            batch_size = 64
+            train_size = 64
             test_size = 256
             val_size = 2048
 
@@ -223,7 +267,7 @@ class ConfigInitializer:
             add_am_put_default_pretrain(K, 16)
 
             max_minutes = 0.5*0.5
-            batch_size = 64
+            train_size = 64
             test_size = 64
             val_size = 256
 
@@ -247,23 +291,23 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                : [2, 3],
-            'internal_neurons'         : [100],  # 50?
-            'hidden_layer_count'       : [3],
-            'activation_internal'      : [relu],# [tanh, relu, leaky_relu, softsign, selu]
+            'algorithm'                : [2],
+            'internal_neurons'         : [50, 100],  # 50?
+            'hidden_layer_count'       : [3, 4],
+            'activation_internal'      : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
             'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
             'pretrain_iterations'      : [500],
             'max_number_of_iterations' : [10000],
             'max_minutes_of_iterations': [max_minutes],
-            'batch_size'               : [batch_size],
             'initial_lr'               : [0.02],  # 0.01 for other setting
             'lr_decay_alg'             : [2],  # 2 Information in 1 entry
             'random_seed'              : [1337],
             'validation_frequency'     : [10],
             'antithetic_val'           : [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
             'antithetic_train'         : [False],
+            'train_size'               : [train_size],
             'test_size'                : [test_size],  # with my current implementation this has to be constant over a programm execution
             'val_size'                 : [val_size]  # with my current implementation this has to be constant over a programm execution
         }
@@ -304,7 +348,7 @@ class ConfigInitializer:
             max_number_of_iterations = params['max_number_of_iterations']
             max_minutes_of_iterations = params['max_minutes_of_iterations']
 
-            batch_size = params['batch_size']
+            train_size = params['train_size']
             initial_lr = params['initial_lr']
             if params['lr_decay_alg'] is False:
                 do_lr_decay = False
@@ -321,7 +365,7 @@ class ConfigInitializer:
 
             current_Config = Config(algorithm, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer, do_pretrain, pretrain_func, pretrain_iterations,
                                     max_number_of_iterations,
-                                    max_minutes_of_iterations, batch_size, initial_lr, do_lr_decay, lr_decay_alg, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size,
+                                    max_minutes_of_iterations, train_size, initial_lr, do_lr_decay, lr_decay_alg, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size,
                                     val_size, stop_paths_in_plot, x_plot_range_for_net_plot, angle_for_net_plot)
             if run_number == 0:
                 f = open("intermediate_results.txt", "w")
@@ -353,9 +397,12 @@ class ConfigInitializer:
             current_NN = NN.NN(current_Config, Model, Memory, log)
             m_out = 0
 
-            # TODO: softcode 2
             if algorithm == 3:  # later 3
                 N_factor = 2
+                if N % N_factor != 0:
+                    N_factor = 3
+                    if N % N_factor != 0:
+                        log.critical("Algorithm 3 doesn't work")
                 # shorten test paths
                 shortened_test_paths = test_paths[:, :, ::N_factor]
 
@@ -365,7 +412,10 @@ class ConfigInitializer:
                 current_NN.M_max = max_number_of_iterations
                 Model.setN(Model.getN()*N_factor)
                 log.warning("Alg 3 \"pretrain\" ends")
-                # TODO: I should probably delete the best results
+
+                # deletes old Prominent Results
+                current_NN.ProminentResults.initialize_empty()
+
             optimitaion_result = [current_NN.optimization(test_paths, m_out)[1:]]
             log.warning("Final val begins")
             fvs = time.time()
@@ -385,7 +435,6 @@ class ConfigInitializer:
             run_number += 1
 
         def sort_resultlist_by_highest_disc_value_on_val_set(result_list):
-            # TODO: Think about val+test best values
             def sort_key(element):
                 # return -max(element[0].disc_best_result.val_disc_value, element[0].cont_best_result.val_disc_value, element[0].final_result.val_disc_value)
                 return -max(element[0].disc_best_result.val_disc_value, element[0].cont_best_result.val_disc_value, element[0].final_result.val_disc_value)
@@ -399,7 +448,6 @@ class ConfigInitializer:
             f.write(self.result_to_resultstring(res))
         f.close()
 
-        # TODO: actually implement table
         self.create_outputtable(Model, current_Config, list_common_parameters, result_list)
 
     @staticmethod

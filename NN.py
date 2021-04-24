@@ -57,7 +57,7 @@ class NN:
         self.lr_decay_alg = Config.lr_decay_alg
         self.do_lr_decay = Config.do_lr_decay
 
-        self.batch_size = Config.batch_size
+        self.batch_size = Config.train_size
 
         self.internal_neurons = Config.internal_neurons
         self.activation_internal = Config.activation_internal
@@ -131,6 +131,7 @@ class NN:
 
             average_payoff = self.train(optimizer)
             self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
+            self.Memory.average_train_payoffs.append(average_payoff)
 
             # validation
             if m % self.validation_frequency == 0:
@@ -146,6 +147,9 @@ class NN:
                 self.Memory.val_discrete_value_list.append(disc_payoff)
 
                 self.Memory.val_durations.append(time.time() - val_start)
+
+                i_value = [max(s*range(0, 10)) for s in stopping_times]
+                self.Memory.average_test_stopping_time.append(np.mean(i_value))
 
             if self.do_lr_decay:
                 scheduler.step()

@@ -44,8 +44,8 @@ if __name__ == '__main__':
     log.error("this is an error message")
     log.critical("this is a critical message")
     '''
-    # 4312 = am put, 0 = test, 10 = Lookback-option
-    CI = ConfigInitializer(1, log)
+    # 4312 = am put, 0 = test
+    CI = ConfigInitializer(4411_2, log)
 
     log.info("The End")
 

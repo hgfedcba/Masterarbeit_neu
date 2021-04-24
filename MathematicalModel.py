@@ -68,7 +68,10 @@ class MathematicalModel:
                 bms.append(self.generate_bm())
             else:
                 bms.append(-bms[-1])
-            out.append(self.generate_path_from_bm(bms[l]))
+            out.append(self.generate_path_from_bm(bms[-1]))
+            # if l % 100000 == 0:
+            #     print(l)
+
         assert L == out.__len__()
 
         return out

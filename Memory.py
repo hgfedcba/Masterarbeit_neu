@@ -16,3 +16,7 @@ class Memory:
 
         self.val_continuous_value_list = []
         self.val_discrete_value_list = []
+
+        self.average_train_payoffs = []
+
+        self.average_test_stopping_time = []
