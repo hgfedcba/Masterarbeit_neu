@@ -6,6 +6,17 @@ import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf as pdfp
 import torch
 
+
+def mylog(*argv):
+    argv = list(argv)
+    for s in range(len(argv)):
+        if isinstance(argv[s], float):
+            argv[s] = round(argv[s], 3)
+    out = ''.join(str(s) + "\t" for s in argv)
+    out += "\n"
+    return out
+
+
 """
 def draw_net(x, f, plot_number=0, color=None, algorithm=0):
     if algorithm == 0:

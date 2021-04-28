@@ -1,6 +1,5 @@
 import numpy as np
 from ModelDefinitions import sigma_dict, payoff_dict, mu_dict
-from Util import mylog
 import scipy.stats
 
 
