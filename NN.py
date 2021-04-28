@@ -76,7 +76,6 @@ class NN:
         self.algorithm = Config.algorithm
         self.u = []
 
-        # TODO: use this
         # self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
         def define_nets():
@@ -148,7 +147,7 @@ class NN:
 
                 self.Memory.val_durations.append(time.time() - val_start)
 
-                i_value = [max(s*range(0, 10)) for s in stopping_times]
+                i_value = [max(s*range(0, self.N+1)) for s in stopping_times]
                 self.Memory.average_test_stopping_time.append(np.mean(i_value))
 
             if self.do_lr_decay:
@@ -337,7 +336,6 @@ class NN:
                 return n
         return self.N
 
-    # TODO: Hier geht es weiter
     def generate_stopping_time_factors_and_discrete_stoppoint_from_path(self, x_input, grad):
         local_N = x_input.shape[1]
         U = []

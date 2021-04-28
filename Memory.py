@@ -12,7 +12,6 @@ class Memory:
         self.val_durations = []
 
         self.val_paths = []
-        self.final_val_paths = []
 
         self.val_continuous_value_list = []
         self.val_discrete_value_list = []

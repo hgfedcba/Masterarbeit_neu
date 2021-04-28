@@ -6,20 +6,6 @@ import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf as pdfp
 import torch
 
-
-def mylog(*argv, only_return=False):
-    argv = list(argv)
-    for s in range(len(argv)):
-        if isinstance(argv[s], float):
-            argv[s] = round(argv[s], 3)
-    out = ''.join(str(s) + "\t" for s in argv)
-    out += "\n"
-    if not only_return:
-        # TODO: log not defined
-        log.info(out)
-    return out
-
-
 """
 def draw_net(x, f, plot_number=0, color=None, algorithm=0):
     if algorithm == 0:
@@ -52,6 +38,7 @@ def draw_function(x, f, plot_number=0, color=None, algorithm=0):
             actual_x.append(c)
     # TODO: very fucking cool [ys.numpy() for ys in y]
     z = np.array([ys.detach().numpy()[0] for ys in y])
+
     plot(actual_x, z, color=color)
     return plot_number
 

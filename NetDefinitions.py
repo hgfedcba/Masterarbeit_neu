@@ -76,7 +76,6 @@ def id(x):
     return x
 
 activation_func_dict = {
-    # TODO: commented functions might work in theory
     tanh          : "tanh",
     sigmoid       : "sigmoid",
     # threshold     : "threshold",

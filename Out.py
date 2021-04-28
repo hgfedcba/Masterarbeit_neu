@@ -260,7 +260,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     if Model.getd() == 2 and (Config.algorithm == 2 or Config.algorithm == 3):
         for k in range(NN.N):
             fig_k = plt.figure(k)
-            ax = fig_k.gca(projection='3d')  # TODO: Matplotlib deprecation warning
+            ax = fig_k.add_subplot(111, projection='3d')
             """
             # Make data.
             X = np.arange(-5, 5, 0.25)
@@ -290,12 +290,13 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
             ax.set_zlim(0.0, 1.0)
             ax.zaxis.set_major_locator(LinearLocator(10))
             ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+            ax.tick_params(axis='z', label1On=False)
 
             # Add a color bar which maps values to colors
             fig_k.colorbar(surf, shrink=0.5, aspect=5)
 
-            # ax.view_init(30, Config.angle_for_net_plot)  # TODO: Seitenansicht
-            ax.view_init(90, Config.angle_for_net_plot)  # TODO: Von oben
+            # ax.view_init(30, Config.angle_for_net_plot)  # Seitenansicht
+            ax.view_init(90, Config.angle_for_net_plot)  # Von oben
 
             pdf.savefig(fig_k)
             """
@@ -308,6 +309,40 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
             fig.save("animation " + str(run_number) + ".gif", writer='imagemagick', fps=30)
             """
             plt.close(fig_k)
+
+        # Plot paths
+        fig_paths = plt.figure(4242)
+        ax = fig_paths.add_subplot(111, projection='3d')
+
+        number_of_paths_to_plot = 40
+
+        some_ones = np.ones_like(Memory.val_paths[0][1]) / number_of_paths_to_plot
+
+        for k in range(0, number_of_paths_to_plot):
+            ax.plot(Memory.val_paths[k][0], Memory.val_paths[k][1], some_ones*k)
+
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        # ax.set_zlabel('u_%s' % k)
+        ax.zaxis.set_rotate_label(False)
+
+        # Customize the z axis
+        ax.set_xlim(Config.x_plot_range_for_net_plot)
+        ax.set_ylim(Config.x_plot_range_for_net_plot)
+        ax.set_zlim(0.0, 1.0)
+        ax.zaxis.set_major_locator(LinearLocator(10))
+        ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+        ax.tick_params(axis='z', label1On=False)
+
+        # Add a color bar which maps values to colors
+        fig_paths.colorbar(surf, ax=ax, shrink=0.5, aspect=5)  # colorbar stays so that it is easier to compare in plot
+
+        # ax.view_init(30, Config.angle_for_net_plot)
+        ax.view_init(90, Config.angle_for_net_plot)
+
+        pdf.savefig(fig_paths)
+        plt.close(fig_paths)
+
 
     def get_net(u, k):
         if Config.algorithm == 0:

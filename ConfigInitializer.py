@@ -84,13 +84,11 @@ class ConfigInitializer:
         elif option == 4411_2:
             # bermudan max call
             # TODO: graphikkarte (überraschend schwer)  andere pytorch installation!
-            # TODO: path dependent option
             # TODO: Saved paths are not antithetic...
             # TODO: colorcode output
-            # TODO: Robins-problem
-            # TODO: Russian option
 
-            # TODO: Plot average time of stopping for test set
+            # TODO: Robins-problem
+            # TODO: Russian option o.ä.
 
             r = 0.05
             sigma_constant = 0.2  # beta
@@ -107,7 +105,7 @@ class ConfigInitializer:
 
             add_am_call_default_pretrain(K+10, 60)
 
-            max_minutes = 60  # TODO: change
+            max_minutes = 60
             # batch_size = 8192
             # test_size = 8192
             # val_size = 16384
@@ -116,7 +114,7 @@ class ConfigInitializer:
             test_size = 4092
             val_size = 16384
 
-            x_plot_range_for_net_plot = [60, 200]
+            x_plot_range_for_net_plot = [30, 190]
             angle_for_net_plot = 225
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
@@ -146,7 +144,7 @@ class ConfigInitializer:
 
             add_am_call_default_pretrain(K+10, 60)
 
-            max_minutes = 60
+            max_minutes = 80
             # batch_size = 8192
             # test_size = 8192
             # val_size = 16384
@@ -196,7 +194,6 @@ class ConfigInitializer:
             val_size = 2048
 
             x_plot_range_for_net_plot = [10, 50]
-            angle_for_net_plot = 225  # TODO: remove after test is finished
 
             Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, 200, K))
@@ -292,9 +289,9 @@ class ConfigInitializer:
 
         dict_a = {  #
             'algorithm'                : [2],
-            'internal_neurons'         : [50, 100],  # 50?
-            'hidden_layer_count'       : [3, 4],
-            'activation_internal'      : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
+            'internal_neurons'         : [100],  # 50?
+            'hidden_layer_count'       : [3],
+            'activation_internal'      : [tanh, relu, leaky_relu, softsign, selu],  # [tanh, relu, leaky_relu, softsign, selu]
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
             'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
@@ -380,6 +377,7 @@ class ConfigInitializer:
                 test_paths = test_paths[:test_size]
                 val_paths = val_paths[:val_size]
 
+            Memory.val_paths = val_paths
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
             individual_parameter_list = current_Config.get_pl_wrt_list(list_individual_parameters)
