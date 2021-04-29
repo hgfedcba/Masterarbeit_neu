@@ -144,7 +144,7 @@ class ConfigInitializer:
 
             add_am_call_default_pretrain(K+10, 60)
 
-            max_minutes = 80
+            max_minutes = 90
             # batch_size = 8192
             # test_size = 8192
             # val_size = 16384
@@ -288,10 +288,10 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                : [2],
+            'algorithm'                : [0],
             'internal_neurons'         : [100],  # 50?
             'hidden_layer_count'       : [3],
-            'activation_internal'      : [tanh, relu, leaky_relu, softsign, selu],  # [tanh, relu, leaky_relu, softsign, selu]
+            'activation_internal'      : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
             'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
@@ -465,7 +465,7 @@ class ConfigInitializer:
                    "\titerations taken until discrete/cont/final result:", result[0].disc_best_result.m, " | ", result[0].cont_best_result.m, " | ", result[0].final_result.m,
                    "\ttime spend training:", sum(result[1].train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
                    "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].final_val_duration,
-                   "Parameterstring:", result[3], only_return=True)
+                   "Parameterstring:", result[3])
         return os
 
     # discrete final/best disc auf final daten, time until for both    -  variable parameter

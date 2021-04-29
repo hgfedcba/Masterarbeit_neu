@@ -257,7 +257,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     short = Config.x_plot_range_for_net_plot
     x = np.reshape(np.linspace(short[0], short[1], n_sample_points), (n_sample_points, 1)) * np.ones((1, d))
 
-    if Model.getd() == 2 and (Config.algorithm == 2 or Config.algorithm == 3):
+    if Model.getd() == 2:
         for k in range(NN.N):
             fig_k = plt.figure(k)
             ax = fig_k.add_subplot(111, projection='3d')
@@ -276,9 +276,14 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
             Z = np.zeros((n_sample_points, n_sample_points))
             for i in range(n_sample_points):
                 for j in range(n_sample_points):
-                    into = (k+NN.K, X[i][j], Y[i][j])
-                    h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
-                    Z[i][j] = NN.u[0](h)
+                    if Config.algorithm == 2 or Config.algorithm == 3:
+                        into = (k+NN.K, X[i][j], Y[i][j])
+                        h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
+                        Z[i][j] = NN.u[0](h)
+                    elif Config.algorithm == 0:
+                        into = (X[i][j], Y[i][j])
+                        h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
+                        Z[i][j] = NN.u[k](h)
             # Plot the surface
             surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
             ax.set_xlabel("X")
