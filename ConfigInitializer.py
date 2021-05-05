@@ -288,10 +288,10 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                : [0],
-            'internal_neurons'         : [100],  # 50?
+            'algorithm'                : [0, 2],
+            'internal_neurons'         : [50, 100],  # 50?
             'hidden_layer_count'       : [3],
-            'activation_internal'      : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
+            'activation_internal'      : [selu, relu],  # [tanh, relu, leaky_relu, softsign, selu]
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
             'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
