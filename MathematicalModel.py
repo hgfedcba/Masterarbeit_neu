@@ -50,10 +50,9 @@ class MathematicalModel:
         # return self.Sim_Paths_GeoBM(self.Model.getxi(), self.Model.getmu(1), self.Model.getsigma(1), self.Model.getT(), self.N)
         return out
 
-    def generate_paths(self, number, antithetic):
+    def generate_paths(self, L, antithetic):
         bms = []
         out = []
-        L = number
         """
         for l in range(L):
             if not antithetic or l < L / 2:
@@ -75,10 +74,8 @@ class MathematicalModel:
 
         return out
 
-    def getT(self):
-        return self.__T
-
     def get_time_partition(self, N, step_size=1):
+        assert N % step_size == 0  # TODO: I have to convert something here to int but am too lazy to find out what
         out = np.zeros(int(N / step_size) + 1)
 
         for n in range(int(N / step_size)):
@@ -86,6 +83,9 @@ class MathematicalModel:
             # assert out[n] != out[n + 1]
 
         return out
+
+    def getT(self):
+        return self.__T
 
     def getN(self):
         return self.__N

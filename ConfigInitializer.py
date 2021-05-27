@@ -83,12 +83,6 @@ class ConfigInitializer:
 
         elif option == 4411_2:
             # bermudan max call
-            # TODO: graphikkarte (überraschend schwer)  andere pytorch installation!
-            # TODO: Saved paths are not antithetic...
-            # TODO: colorcode output
-
-            # TODO: Robins-problem
-            # TODO: Russian option o.ä.
 
             r = 0.05
             sigma_constant = 0.2  # beta
@@ -413,7 +407,7 @@ class ConfigInitializer:
 
                 # deletes old Prominent Results
                 current_NN.ProminentResults.initialize_empty()
-
+            # test_paths = test_paths[:, 0, :]  # TODO: recall this removes the unnecessary dimension
             optimitaion_result = [current_NN.optimization(test_paths, m_out)[1:]]
             log.warning("Final val begins")
             fvs = time.time()

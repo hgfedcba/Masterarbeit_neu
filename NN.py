@@ -6,7 +6,8 @@ import pytest
 
 device = torch.device("cuda:0")
 
-# TODO: IMPORTANT NOTE: I substract K from the input of the Network to ensure the learning works from the beginning on
+
+# TODO: IMPORTANT NOTE: I subtract K from the input of the Network to ensure the learning works from the beginning on
 class Net(nn.Module):
     def __init__(self, d, internal_neurons, hidden_layer_count, activation_internal, activation_final, K):
         super(Net, self).__init__()
