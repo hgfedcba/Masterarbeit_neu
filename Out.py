@@ -133,7 +133,9 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     pdf.savefig(fig25)
     plt.close(fig25)
 
-    if Model.getd() == 1:
+    path_dim = Model.getpath_dim()
+
+    if np.allclose(path_dim, 1 * np.ones_like(path_dim)):
         # visualized stopping times graph
         plot_number_paths = 3
         fig3 = plt.figure(plot_number_paths)
@@ -197,9 +199,14 @@ def create_paths_plot(val_paths, Model, stopping_times, plot_number, title, on_t
 def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     pdf = pdfp.PdfPages("net graphs " + str(run_number) + ".pdf")
     n_sample_points = 86  # 81 and half stepsize seems way more reasonable
-    d = Model.getd()
 
-    if Model.getd() == 1 and (Config.algorithm == 2 or Config.algorithm == 3):
+    d = Model.getpath_dim()
+    if np.allclose(d, np.ones_like(d) * d[0]):
+        d = d[0]
+    else:
+        d = -1
+
+    if d == 1 and (Config.algorithm == 2 or Config.algorithm == 3):
         # new
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
@@ -255,9 +262,8 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
         x[i] = np.ones(d) * (Model.getK() + i - 20)
     """
     short = Config.x_plot_range_for_net_plot
-    x = np.reshape(np.linspace(short[0], short[1], n_sample_points), (n_sample_points, 1)) * np.ones((1, d))
 
-    if Model.getd() == 2:
+    if d == 2:
         for k in range(NN.N):
             fig_k = plt.figure(k)
             ax = fig_k.add_subplot(111, projection='3d')
@@ -269,7 +275,6 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
             R = np.sqrt(X ** 2 + Y ** 2)
             Z = np.sin(R)
             """
-            short = Config.x_plot_range_for_net_plot
             Y = np.arange(short[0], short[1], (short[1] - short[0]) * 1.0 / n_sample_points)
 
             X, Y = np.meshgrid(Y, Y)
@@ -348,42 +353,44 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
         pdf.savefig(fig_paths)
         plt.close(fig_paths)
 
+    if d == 1 or d == 2:
+        def get_net(u, k):
+            if Config.algorithm == 0:
+                return u[k]
+            elif Config.algorithm == 2 or Config.algorithm == 3:
+                return u[0]
 
-    def get_net(u, k):
-        if Config.algorithm == 0:
-            return u[k]
-        elif Config.algorithm == 2 or Config.algorithm == 3:
-            return u[0]
+        x = np.reshape(np.linspace(short[0], short[1], n_sample_points), (n_sample_points, 1)) * np.ones((1, d))
 
-    # TODO: recall: it is vitaly important that plot_number=k+1+NN.k
-    l = NN.N
-    NN = ProminentResults.disc_best_result.load_state_dict_into_given_net(NN)
-    for k in range(l):
-        draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm)
-    NN = ProminentResults.cont_best_result.load_state_dict_into_given_net(NN)
-    for k in range(l):
-        draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm)
-    NN = ProminentResults.final_result.load_state_dict_into_given_net(NN)
-    for k in range(l):
-        draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm)
+        # TODO: recall: it is vitaly important that plot_number=k+1+NN.k
+        l = NN.N
+        NN = ProminentResults.disc_best_result.load_state_dict_into_given_net(NN)
+        for k in range(l):
+            draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm)
+        NN = ProminentResults.cont_best_result.load_state_dict_into_given_net(NN)
+        for k in range(l):
+            draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm)
+        NN = ProminentResults.final_result.load_state_dict_into_given_net(NN)
+        for k in range(l):
+            draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm)
 
-    for k in range(l):
-        c_fig = plt.figure(k+1+NN.K)
-        if Config.do_pretrain:
-            draw_function(x, Config.pretrain_func, k+1+NN.K, "black")
-            plt.legend(["best disc result", "best cont result", "final result", "pretrain"])
-        else:
-            plt.legend(["best disc result", "best cont result", "final result"])
+        for k in range(l):
+            c_fig = plt.figure(k+1+NN.K)
+            if Config.do_pretrain:
+                draw_function(x, Config.pretrain_func, k+1+NN.K, "black")
+                plt.legend(["best disc result", "best cont result", "final result", "pretrain"])
+            else:
+                plt.legend(["best disc result", "best cont result", "final result"])
 
-        if d == 1:
-            label = "x"
-        else:
-            label = "(x)^" + str(d)
-        xlabel(label, fontsize=16)
-        ylabel('u_%s' % k, fontsize=16)
-        plt.ylim([0, 1])
-        grid(True)
-        pdf.savefig(c_fig)
-        plt.close(c_fig)
+            if d == 1:
+                label = "x"
+            else:
+                label = "(x)^" + str(d)
+            xlabel(label, fontsize=16)
+            ylabel('u_%s' % k, fontsize=16)
+            plt.ylim([0, 1])
+            grid(True)
+            pdf.savefig(c_fig)
+            plt.close(c_fig)
 
     pdf.close()

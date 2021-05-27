@@ -3,7 +3,7 @@ import time
 from ModelDefinitions import add_mu_c_x, add_sigma_c_x, add_american_put, add_bermudan_max_call, binomial_trees
 from ModelDefinitions import mu_dict, payoff_dict, sigma_dict
 
-from MathematicalModel import MathematicalModel
+from MarkovBlackScholesModel import MarkovBlackScholesModel
 
 from NetDefinitions import add_am_call_default_pretrain, add_am_put_default_pretrain, add_multiplicative_lr_scheduler, pretrain_functions, lr_decay_algs, optimizers, add_step_lr_scheduler
 from NetDefinitions import Adam, relu, hardtanh, relu6, elu, selu, celu, leaky_relu, rrelu, gelu, logsigmoid, hardshrink, tanhshrink, softsign, softplus, softmin, softmax, softshrink, \
@@ -63,7 +63,7 @@ def main5():
     """
     x_plot_range_for_net_plot = [10, 50]
 
-    Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
+    Model = MarkovBlackScholesModel(T, N, d, K, delta, mu, sigma, g, xi)
     # Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, 2000, K))
     Model.set_reference_value(6.245555049146182)  # N = 2000
     Model.update_parameter_string()

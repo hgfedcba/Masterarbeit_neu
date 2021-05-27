@@ -1,9 +1,12 @@
 from ModelDefinitions import add_mu_c_x, add_sigma_c_x, add_american_put, add_bermudan_max_call, binomial_trees
+# noinspection PyUnresolvedReferences
 from ModelDefinitions import mu_dict, payoff_dict, sigma_dict
 
-from MathematicalModel import MathematicalModel
+from MarkovBlackScholesModel import MarkovBlackScholesModel
+from RobbinsModel import RobbinsModel
 
 from NetDefinitions import add_am_call_default_pretrain, add_am_put_default_pretrain, add_multiplicative_lr_scheduler, pretrain_functions, lr_decay_algs, optimizers, add_step_lr_scheduler
+# noinspection PyUnresolvedReferences
 from NetDefinitions import Adam, relu, hardtanh, relu6, elu, selu, celu, leaky_relu, rrelu, gelu, logsigmoid, hardshrink, tanhshrink, softsign, softplus, softmin, softmax, softshrink, \
     gumbel_softmax, log_softmax, hardsigmoid, tanh, sigmoid, id
 
@@ -15,7 +18,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import NN
-import copy
 
 from Util import mylog
 import time
@@ -72,7 +74,7 @@ class ConfigInitializer:
             """
             x_plot_range_for_net_plot = [10, 50]
 
-            Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
+            Model = MarkovBlackScholesModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(5.318)  # verified with my binomial trees
             Model.update_parameter_string()
 
@@ -111,7 +113,7 @@ class ConfigInitializer:
             x_plot_range_for_net_plot = [30, 190]
             angle_for_net_plot = 225
 
-            Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
+            Model = MarkovBlackScholesModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(21.344)
             Model.update_parameter_string()
 
@@ -150,7 +152,7 @@ class ConfigInitializer:
             x_plot_range_for_net_plot = [60, 200]
             angle_for_net_plot = 225
 
-            Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
+            Model = MarkovBlackScholesModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(36.763)
             Model.update_parameter_string()
             """
@@ -189,7 +191,7 @@ class ConfigInitializer:
 
             x_plot_range_for_net_plot = [10, 50]
 
-            Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
+            Model = MarkovBlackScholesModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, 200, K))
             Model.update_parameter_string()
 
@@ -230,7 +232,7 @@ class ConfigInitializer:
             """
             x_plot_range_for_net_plot = [10, 50]
 
-            Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
+            Model = MarkovBlackScholesModel(T, N, d, K, delta, mu, sigma, g, xi)
             # Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, 2000, K))
             Model.set_reference_value(6.245555049146182)  # N = 2000
             Model.update_parameter_string()
@@ -239,6 +241,25 @@ class ConfigInitializer:
             val_paths_file = "../val_paths_1.npy"
             test_paths = np.load(test_paths_file, mmap_mode="r")
             val_paths = np.load(val_paths_file, mmap_mode="r")
+
+        elif option == "R1":
+            N = 10
+            max_minutes = 3
+            train_size = 64
+            test_size = 256
+            val_size = 2048
+            x_plot_range_for_net_plot = [0, 1]
+
+            Model = RobbinsModel(N)
+            Model.set_reference_value(0.1)  # TODO:
+            Model.update_parameter_string()
+
+            # test_paths_file = "../test_paths_1.npy"
+            # val_paths_file = "../val_paths_1.npy"
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
+            # val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = Model.generate_paths(test_size)
+            val_paths = Model.generate_paths(val_size)
 
         else:
             # Model
@@ -264,7 +285,7 @@ class ConfigInitializer:
 
             x_plot_range_for_net_plot = [10, 50]
 
-            Model = MathematicalModel(T, N, d, K, delta, mu, sigma, g, xi)
+            Model = MarkovBlackScholesModel(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, N*10, K))
             Model.update_parameter_string()
 
@@ -283,9 +304,9 @@ class ConfigInitializer:
 
         dict_a = {  #
             'algorithm'                : [0, 2],
-            'internal_neurons'         : [50, 100],  # 50?
+            'internal_neurons'         : [100],  # 50?
             'hidden_layer_count'       : [3],
-            'activation_internal'      : [selu, relu],  # [tanh, relu, leaky_relu, softsign, selu]
+            'activation_internal'      : [relu],  # [tanh, relu, leaky_relu, softsign, selu]
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
             'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass

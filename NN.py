@@ -44,7 +44,7 @@ class NN:
         self.Model = Model
         self.T = Model.getT()
         self.N = Model.getN()
-        self.d = Model.getd()
+        self.path_dim = Model.getpath_dim()
         self.t = Model.t
         self.K = Model.getK()
 
@@ -82,12 +82,13 @@ class NN:
         def define_nets():
             self.u = []
             if self.algorithm == 0:
-                for _ in range(self.N):
-                    net = Net(self.d, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
+                for k in range(self.N):
+                    net = Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
                     # net.to(device)
                     self.u.append(net)
             elif self.algorithm == 2 or self.algorithm == 3:
-                net = Net(self.d+1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
+                assert np.allclose(self.path_dim, np.ones_like(self.path_dim) * self.path_dim[0])
+                net = Net(self.path_dim[0] + 1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
                 self.u.append(net)
 
         define_nets()
@@ -95,6 +96,7 @@ class NN:
 
     def optimization(self, test_paths, m_out):
         self.test_paths = test_paths
+        # TODO: This has to be a list for robbins aber mmap for black-scholes
         self.N = test_paths.shape[2]-1
 
         log = self.log
@@ -160,6 +162,7 @@ class NN:
 
         return m, self.ProminentResults, self.Memory
 
+    # TODO: pretrain deprecated
     def pretrain(self, pretrain_func, max_iterations):
         from torch.autograd import Variable
 
@@ -170,7 +173,8 @@ class NN:
             x_values[i] = np.ones(self.d) * (self.Model.getK() + i - 16)  # True
         """
         short = self.pretrain_range
-        x_values = np.reshape(np.linspace(short[0], short[1], n_sample_points), (n_sample_points, 1)) * np.ones((1, self.d))
+        # TODO: path dim deprecated
+        x_values = np.reshape(np.linspace(short[0], short[1], n_sample_points), (n_sample_points, 1)) * np.ones((1, self.path_dim))
 
         for m in range(len(self.u)):
             net = self.u[m]

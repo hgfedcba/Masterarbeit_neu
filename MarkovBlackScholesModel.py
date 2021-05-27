@@ -1,10 +1,10 @@
 import numpy as np
 from ModelDefinitions import sigma_dict, payoff_dict, mu_dict
-import scipy.stats
+from AbstractMathematicalModel import AbstractMathematicalModel
 
 
 # noinspection SpellCheckingInspection
-class MathematicalModel:
+class MarkovBlackScholesModel(AbstractMathematicalModel):
     def __init__(self, T, N, d, K, delta, mu, sigma, g, xi):
         self.__T = T  # Time Horizon
         self.__N = N
@@ -27,28 +27,6 @@ class MathematicalModel:
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
         # parameter_string = mylog(parameter_string)
         self.parameter_string = parameter_string + "\n"
-
-    def generate_bm(self):
-        # Ein Rückgabewert ist ein np.array der entsprechenden Länge, in dem die Werte über den gesamten sample path eingetragen sind
-        out = np.zeros((self.getd(), self.getN() + 1))
-        for m in range(self.getd()):
-            for n in range(self.getN()):
-                out[m, n + 1] = scipy.stats.norm.rvs(loc=out[m, n], scale=(self.t[n + 1] - self.t[n]) ** 0.5)
-
-        return out
-
-    def generate_path_from_bm(self, bm):
-        out = np.zeros((self.getd(), self.getN() + 1))
-        out[:, 0] = self.getxi()
-        for n in range(self.getN()):
-            h = out[:, n]
-            part2 = self.getmu(out[:, n]) * (self.t[n + 1] - self.t[n])
-            part3 = self.getsigma(out[:, n]) @ (bm[:, n + 1] - bm[:, n])
-            out[:, n + 1] = out[:, n] + part2 + part3
-            # out[:, n + 1] = out[:, n] * (1 + part2 + part3)
-
-        # return self.Sim_Paths_GeoBM(self.Model.getxi(), self.Model.getmu(1), self.Model.getsigma(1), self.Model.getT(), self.N)
-        return out
 
     def generate_paths(self, L, antithetic):
         bms = []
@@ -74,12 +52,13 @@ class MathematicalModel:
 
         return out
 
-    def get_time_partition(self, N, step_size=1):
-        assert N % step_size == 0  # TODO: I have to convert something here to int but am too lazy to find out what
-        out = np.zeros(int(N / step_size) + 1)
+    # Divide __T in Number steps. Skip every step_size step.
+    def get_time_partition(self, Number, step_size=1):
+        assert Number % step_size == 0  # TODO: I have to convert something here to int but am too lazy to find out what
+        out = np.zeros(int(Number / step_size) + 1)
 
-        for n in range(int(N / step_size)):
-            out[n + 1] = step_size * (n + 1) * self.__T / N
+        for n in range(int(Number / step_size)):
+            out[n + 1] = step_size * (n + 1) * self.__T / Number
             # assert out[n] != out[n + 1]
 
         return out
@@ -99,30 +78,35 @@ class MathematicalModel:
     def getdelta(self):
         return self.__delta
 
-    def getd(self):
+    # single digit
+    def getprocess_dim(self):
         return self.__d
+
+    # vector
+    def getpath_dim(self):
+        return self.__d * np.ones(self.__N, dtype=np.int)
 
     def getxi(self):
         return self.__xi
 
     def getmu(self, x):
-        self.assert_x_in_Rd(x, self.getd())
+        self.assert_x_in_Rd(x, self.getprocess_dim())
 
         out = self.__internal_mu(x)
 
-        self.assert_x_in_Rd(out, self.getd())
+        self.assert_x_in_Rd(out, self.getprocess_dim())
 
         return out
 
     def getsigma(self, x):
-        self.assert_x_in_Rd(x, self.getd())
+        self.assert_x_in_Rd(x, self.getprocess_dim())
 
         out = self.__internal_sigma(x)
 
-        if self.getd() > 1:
+        if self.getprocess_dim() > 1:
             assert type(out).__module__ == 'numpy'
-            assert out.shape[0] == self.getd()
-            assert out.shape[1] == self.getd()
+            assert out.shape[0] == self.getprocess_dim()
+            assert out.shape[1] == self.getprocess_dim()
         else:
             assert isinstance(out, (int, float)) or out.size == 1
 
@@ -130,7 +114,8 @@ class MathematicalModel:
 
     def getg(self, t, x):
         assert 0 <= t <= self.getT()
-        self.assert_x_in_Rd(x, self.getd())
+        # disabled when i changed the d
+        # self.assert_x_in_Rd(x, self.getpath_dim())
 
         out = self.__internal_g(t, x)
 
@@ -144,13 +129,6 @@ class MathematicalModel:
 
     def setsigma(self, sigma):
         self.__internal_sigma = sigma
-
-    def assert_x_in_Rd(self, x, d):
-        if d > 1:
-            assert type(x).__module__ == 'numpy'
-            assert x.size == d
-        else:
-            assert isinstance(x, (int, float)) or x.size == 1
 
     def set_reference_value(self, v):
         self.__reference_value = v
