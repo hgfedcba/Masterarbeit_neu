@@ -1,15 +1,19 @@
 import copy
 
 import numpy as np
+import pytest
+import torch
+
 from ModelDefinitions import sigma_dict, payoff_dict, mu_dict
 import scipy.stats
 import random
 from AbstractMathematicalModel import AbstractMathematicalModel
 
 
+# TODO: important note: Ich maximiere den Rang statt ihn zu minimieren. Es gibt N+1 Ränge
 class RobbinsModel(AbstractMathematicalModel):
     def __init__(self, N):
-        self.__N = N  # X_0,..., X_(N-1)
+        self.__N = N  # X_0,..., X_(N)
         self.__reference_value = None
         self.t = self.get_time_partition()
         self.parameter_string = ""
@@ -32,13 +36,13 @@ class RobbinsModel(AbstractMathematicalModel):
             #     print(l)
         """
 
-        x = np.random.uniform(low=0.0, high=1.0, size=(L, self.__N)).tolist()
+        x = np.random.uniform(low=0.0, high=1.0, size=(L, self.__N+1)).tolist()
 
         y = []
         for l in range(L):
             y.append([])
             y[l].append([x[l][0]])
-            for n in range(1, self.__N):
+            for n in range(1, self.__N+1):
                 y[l].append(copy.deepcopy(y[l][n - 1]))
                 y[l][n].append(x[l][n])
 
@@ -92,6 +96,27 @@ class RobbinsModel(AbstractMathematicalModel):
 
         # Schritt 2: Bilde das Skalarprodukt von t und z1
         return np.dot(t, z1)
+
+    def calculate_payoffs(self, U, x, g, t):
+        if isinstance(U, np.ndarray):
+            return self.getg(U, x)
+        assert torch.sum(torch.tensor(U)).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(torch.tensor(U)).item())
+
+        h = self.convert_NN_path_to_mathematical_path(x)
+
+        # Schritt 1: Ersetze in x jeden Wert mit dem entsprechenden Rang
+        # TODO: (beachte das problem von 2 identischen werten)
+        y = np.argsort(h)
+        z1 = np.ones_like(y)
+        z1[y] = np.arange(1, h.size + 1)
+        """
+        z = np.ones_like(y)
+        for k in range(y.size):
+            z[y[k]] = k+1
+        """
+
+        # Schritt 2: Bilde das Skalarprodukt von t und z1
+        return torch.matmul(U, torch.tensor(z1, dtype=torch.float))
 
     def set_reference_value(self, v):
         self.__reference_value = v

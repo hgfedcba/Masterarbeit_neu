@@ -3,6 +3,7 @@ from ProminentResults import ProminentResults
 import torch.nn as nn
 import torch.optim as optim
 import pytest
+from RobbinsModel import RobbinsModel
 
 device = torch.device("cuda:0")
 
@@ -96,8 +97,9 @@ class NN:
 
     def optimization(self, test_paths, m_out):
         self.test_paths = test_paths
-        # TODO: This has to be a list for robbins aber mmap for black-scholes
-        self.N = test_paths.shape[2]-1
+        # TODO: This doesn't work with Alg 3
+        self.N = self.Model.getN()
+        # self.N = test_paths.shape[2]-1
 
         log = self.log
         # scheduler = None
@@ -138,6 +140,9 @@ class NN:
             # validation
             if m % self.validation_frequency == 0:
                 val_start = time.time()
+
+                if m == 200:
+                    assert True
 
                 cont_payoff, disc_payoff, stopping_times = self.validate(self.test_paths)
                 log.info(
@@ -274,7 +279,7 @@ class NN:
         for j in range(self.batch_size):
             h, _ = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(training_paths[j], True)
             U[j, :] = h[:, 0]
-            individual_payoffs.append(self.calculate_payoffs(U[j, :], training_paths[j], self.Model.getg, self.t))
+            individual_payoffs.append(self.Model.calculate_payoffs(U[j, :], training_paths[j], self.Model.getg, self.t))
         average_payoff = torch.sum(torch.stack(individual_payoffs)) / len(individual_payoffs)
 
         loss = -average_payoff
@@ -299,7 +304,7 @@ class NN:
         for l in range(L):
             h, tau = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(paths[l], False)
             U[l, :] = h[:, 0]
-            cont_individual_payoffs.append(self.calculate_payoffs(U[l, :], paths[l], self.Model.getg, self.t))
+            cont_individual_payoffs.append(self.Model.calculate_payoffs(U[l, :], paths[l], self.Model.getg, self.t))
 
             # for_debugging1 = paths[l]
             # for_debugging2 = h[:, 0]
@@ -310,7 +315,7 @@ class NN:
 
             single_stopping_time = np.zeros(self.N + 1)
             single_stopping_time[tau_list[l]] = 1
-            disc_individual_payoffs.append(self.calculate_payoffs(single_stopping_time, paths[l], self.Model.getg, self.t).item())
+            disc_individual_payoffs.append(self.Model.calculate_payoffs(single_stopping_time, paths[l], self.Model.getg, self.t).item())
             # for_debugging5 = disc_individual_payoffs[-1]
             stopping_times.append(single_stopping_time)
 
@@ -342,7 +347,10 @@ class NN:
         return self.N
 
     def generate_stopping_time_factors_and_discrete_stoppoint_from_path(self, x_input, grad):
-        local_N = x_input.shape[1]
+        if isinstance(x_input, list):
+            local_N = x_input.__len__()
+        else:
+            local_N = x_input.shape[1]
         U = []
         sum = []
         x = []
@@ -357,7 +365,13 @@ class NN:
             if n < self.N:
                 t = time.time()
                 if self.algorithm == 0:
-                    x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=grad))
+                    if isinstance(x_input, list):
+                        # h = x_input[n][:]
+                        # h1 = x_input[n]
+                        # h2 = np.asarray(x_input[n])
+                        x.append(torch.tensor(x_input[n][:], dtype=torch.float32, requires_grad=grad))
+                    else:
+                        x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=grad))
                     # x[-1] = x[-1].to(device)
                     local_u.append(self.u[n](x[n]))
                 elif self.algorithm == 2 or self.algorithm == 3:
@@ -375,11 +389,14 @@ class NN:
         assert torch.sum(z).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(z).item())  # TODO: solve this better
         return z, self.generate_discrete_stopping_time_from_u(local_u)
         # return z, self.generate_discrete_stopping_time_from_U(z)
-
+    """
     def calculate_payoffs(self, U, x, g, t):
         assert torch.sum(torch.tensor(U)).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(torch.tensor(U)).item())
 
         s = torch.zeros(1)
         for n in range(self.N + 1):
+            h1 = U[n]
+            h2 = g(t[n], x[:, n])
             s += U[n] * g(t[n], x[:, n])
         return s
+    """

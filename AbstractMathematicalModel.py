@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
+
+import pytest
 import scipy.stats
 import numpy as np
+import torch
 
 
 class AbstractMathematicalModel(ABC):
@@ -64,6 +67,16 @@ class AbstractMathematicalModel(ABC):
 
         # return self.Sim_Paths_GeoBM(self.Model.getxi(), self.Model.getmu(1), self.Model.getsigma(1), self.Model.getT(), self.N)
         return out
+
+    def calculate_payoffs(self, U, x, g, t):
+        assert torch.sum(torch.tensor(U)).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(torch.tensor(U)).item())
+
+        s = torch.zeros(1)
+        for n in range(self.getN() + 1):
+            h1 = U[n]
+            h2 = g(t[n], x[:, n])
+            s += U[n] * g(t[n], x[:, n])
+        return s
 
     def getmu(self, x):
         pass

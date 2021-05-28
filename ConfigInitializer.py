@@ -243,15 +243,15 @@ class ConfigInitializer:
             val_paths = np.load(val_paths_file, mmap_mode="r")
 
         elif option == "R1":
-            N = 10
+            N = 19
             max_minutes = 3
-            train_size = 64
+            train_size = 128
             test_size = 256
             val_size = 2048
             x_plot_range_for_net_plot = [0, 1]
 
             Model = RobbinsModel(N)
-            Model.set_reference_value(0.1)  # TODO:
+            Model.set_reference_value(N-2.1)  # TODO:
             Model.update_parameter_string()
 
             # test_paths_file = "../test_paths_1.npy"
