@@ -39,6 +39,7 @@ class ConfigInitializer:
         test_paths = None
         val_paths = None
         angle_for_net_plot = None
+        max_number = 10000
 
         result_list = []
         if option == 4312:
@@ -261,6 +262,26 @@ class ConfigInitializer:
             test_paths = Model.generate_paths(test_size)
             val_paths = Model.generate_paths(val_size)
 
+        elif option == "R2":
+            N = 19
+            max_minutes = 30
+            max_number = 200
+            train_size = 512
+            test_size = 1024
+            val_size = 8192
+            x_plot_range_for_net_plot = [0, 1]
+
+            Model = RobbinsModel(N)
+            Model.set_reference_value(N-2.1)  # TODO: Find something better then the limit bounds
+            Model.update_parameter_string()
+
+            # test_paths_file = "../test_paths_1.npy"
+            # val_paths_file = "../val_paths_1.npy"
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
+            # val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = Model.generate_paths(test_size)
+            val_paths = Model.generate_paths(val_size)
+
         else:
             # Model
             r = 0.05
@@ -303,15 +324,15 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                : [0, 2],
-            'internal_neurons'         : [100],  # 50?
-            'hidden_layer_count'       : [3],
-            'activation_internal'      : [relu],  # [tanh, relu, leaky_relu, softsign, selu]
+            'algorithm'                : [0],
+            'internal_neurons'         : [50, 100],  # 50?
+            'hidden_layer_count'       : [2, 3],
+            'activation_internal'      : [relu, selu, tanh, softsign],  # [tanh, relu, leaky_relu, softsign, selu]
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
             'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
             'pretrain_iterations'      : [500],
-            'max_number_of_iterations' : [10000],
+            'max_number_of_iterations' : [max_number],
             'max_minutes_of_iterations': [max_minutes],
             'initial_lr'               : [0.02],  # 0.01 for other setting
             'lr_decay_alg'             : [2],  # 2 Information in 1 entry
