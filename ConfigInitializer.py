@@ -264,7 +264,7 @@ class ConfigInitializer:
 
         elif option == "R2":
             N = 19
-            max_minutes = 30
+            max_minutes = 40
             max_number = 200
             train_size = 512
             test_size = 1024
@@ -272,7 +272,7 @@ class ConfigInitializer:
             x_plot_range_for_net_plot = [0, 1]
 
             Model = RobbinsModel(N)
-            Model.set_reference_value(N-2.1)  # TODO: Find something better then the limit bounds
+            Model.set_reference_value(N+1-2.1)  # TODO: Find something better then the limit bounds
             Model.update_parameter_string()
 
             # test_paths_file = "../test_paths_1.npy"
