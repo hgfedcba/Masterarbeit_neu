@@ -42,7 +42,7 @@ class ProminentResults:
 
 
 class IndividualBestResult:
-    def __init__(self, path):
+    def __init__(self, file_path):
         self.test_cont_value = -1
         self.test_disc_value = -1
         self.m = 0
@@ -51,7 +51,7 @@ class IndividualBestResult:
         self.time_to_this_result = None
         self.val_cont_value = None
         self.val_disc_value = None
-        self.path = path
+        self.file_path = file_path
 
     def update(self, NN, m, cont_payoff, disc_payoff, stopping_times, time_to_this_result):
         self.m = m
@@ -62,10 +62,10 @@ class IndividualBestResult:
         dictionary = {}
         for k in range(len(NN.u)):
             dictionary["Model" + str(k)] = NN.u[k].state_dict()
-        torch.save(dictionary, self.path)
+        torch.save(dictionary, self.file_path)
 
     def load_state_dict_into_given_net(self, NN):
-        checkpoint = torch.load(self.path)
+        checkpoint = torch.load(self.file_path)
         for k in range(len(NN.u)):
             NN.u[k].load_state_dict(checkpoint["Model" + str(k)])
             NN.u[k].eval()

@@ -48,6 +48,9 @@ antitheitc variables
 5. implementiere neuen algorithmus (lerne die netze nacheinander von hinten nach vorne)
 """
 
+import torch
+
+
 if __name__ == '__main__':
     log = logging.getLogger('l')
     # logging.basicConfig(format='%(asctime)s:  %(message)s')
@@ -78,8 +81,9 @@ if __name__ == '__main__':
     log.error("this is an error message")
     log.critical("this is a critical message")
     '''
-    # 4312 = am put, 0 = test, 4411_2, 4411_5
-    CI = ConfigInitializer("R2", log)
+    # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3
+    # TODO: ersetzte Alg == 0 durch alg_type(Model.Alg)
+    CI = ConfigInitializer("R1", log)
 
     log.info("The End")
     """

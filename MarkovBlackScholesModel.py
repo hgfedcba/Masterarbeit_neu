@@ -6,23 +6,23 @@ from AbstractMathematicalModel import AbstractMathematicalModel
 # noinspection SpellCheckingInspection
 class MarkovBlackScholesModel(AbstractMathematicalModel):
     def __init__(self, T, N, d, K, delta, mu, sigma, g, xi):
-        self.__T = T  # Time Horizon
-        self.__N = N
-        self.__d = d  # Dimension of the underlying Problem
-        self.__K = K
-        self.__delta = delta
-        self.__internal_mu = mu  # drift coefficient
-        self.__internal_sigma = sigma  # standard deviation of returns
-        self.__internal_g = g  # objective function
-        self.__xi = xi  # Startwert
-        self.__reference_value = -1
+        self._T = T  # Time Horizon
+        self._N = N
+        self._d = d  # Dimension of the underlying Problem
+        self._K = K
+        self._delta = delta
+        self._internal_mu = mu  # drift coefficient
+        self._internal_sigma = sigma  # standard deviation of returns
+        self._internal_g = g  # objective function
+        self._xi = xi  # Startwert
+        self._reference_value = -1
         self.t = self.get_time_partition(N)
         self.parameter_string = ""
         self.parameter_list = []
 
     def update_parameter_string(self):
-        parameter_string = "reference_value: ", round(self.__reference_value, 3), "T: ", self.__T, "N: ", self.__N, "d: ", self.__d, "K: ", self.__K, "delta: ", self.__delta, "mu: ", mu_dict.get(self.__internal_mu), "sigma: ",\
-                           sigma_dict.get(self.__internal_sigma), "g: ", payoff_dict.get(self.__internal_g), "xi: ", self.__xi
+        parameter_string = "reference_value: ", round(self._reference_value, 3), "T: ", self._T, "N: ", self._N, "d: ", self._d, "K: ", self._K, "delta: ", self._delta, "mu: ", mu_dict.get(self._internal_mu), "sigma: ", \
+                           sigma_dict.get(self._internal_sigma), "g: ", payoff_dict.get(self._internal_g), "xi: ", self._xi
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
         # parameter_string = mylog(parameter_string)
@@ -58,41 +58,41 @@ class MarkovBlackScholesModel(AbstractMathematicalModel):
         out = np.zeros(int(Number / step_size) + 1)
 
         for n in range(int(Number / step_size)):
-            out[n + 1] = step_size * (n + 1) * self.__T / Number
+            out[n + 1] = step_size * (n + 1) * self._T / Number
             # assert out[n] != out[n + 1]
 
         return out
 
     def getT(self):
-        return self.__T
+        return self._T
 
     def getN(self):
-        return self.__N
+        return self._N
 
     def setN(self, N):
-        self.__N = N
+        self._N = N
 
     def getK(self):
-        return self.__K
+        return self._K
 
     def getdelta(self):
-        return self.__delta
+        return self._delta
 
     # single digit
     def getprocess_dim(self):
-        return self.__d
+        return self._d
 
     # vector
     def getpath_dim(self):
-        return self.__d * np.ones(self.__N, dtype=np.int)
+        return self._d * np.ones(self._N, dtype=np.int)
 
     def getxi(self):
-        return self.__xi
+        return self._xi
 
     def getmu(self, x):
         self.assert_x_in_Rd(x, self.getprocess_dim())
 
-        out = self.__internal_mu(x)
+        out = self._internal_mu(x)
 
         self.assert_x_in_Rd(out, self.getprocess_dim())
 
@@ -101,7 +101,7 @@ class MarkovBlackScholesModel(AbstractMathematicalModel):
     def getsigma(self, x):
         self.assert_x_in_Rd(x, self.getprocess_dim())
 
-        out = self.__internal_sigma(x)
+        out = self._internal_sigma(x)
 
         if self.getprocess_dim() > 1:
             assert type(out).__module__ == 'numpy'
@@ -117,7 +117,7 @@ class MarkovBlackScholesModel(AbstractMathematicalModel):
         # disabled when i changed the d
         # self.assert_x_in_Rd(x, self.getpath_dim())
 
-        out = self.__internal_g(t, x)
+        out = self._internal_g(t, x)
 
         # torch...
         # self.assert_x_in_Rd(out, 1)
@@ -125,13 +125,13 @@ class MarkovBlackScholesModel(AbstractMathematicalModel):
         return out
 
     def setmu(self, mu):
-        self.__internal_mu = mu
+        self._internal_mu = mu
 
     def setsigma(self, sigma):
-        self.__internal_sigma = sigma
+        self._internal_sigma = sigma
 
     def set_reference_value(self, v):
-        self.__reference_value = v
+        self._reference_value = v
 
     def get_reference_value(self):
-        return self.__reference_value
+        return self._reference_value

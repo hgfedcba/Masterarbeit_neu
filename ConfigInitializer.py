@@ -1,3 +1,4 @@
+import Alg10
 from ModelDefinitions import add_mu_c_x, add_sigma_c_x, add_american_put, add_bermudan_max_call, binomial_trees
 # noinspection PyUnresolvedReferences
 from ModelDefinitions import mu_dict, payoff_dict, sigma_dict
@@ -243,16 +244,20 @@ class ConfigInitializer:
             test_paths = np.load(test_paths_file, mmap_mode="r")
             val_paths = np.load(val_paths_file, mmap_mode="r")
 
-        elif option == "R1":
+        elif option == "R1" or option == "R0":
             N = 19
-            max_minutes = 3
+            if option == "R0":
+                max_minutes = 0.1
+            else:
+                max_minutes = 3
             train_size = 128
             test_size = 256
-            val_size = 2048
+            val_size = 512
             x_plot_range_for_net_plot = [0, 1]
 
             Model = RobbinsModel(N)
-            Model.set_reference_value(N-2.1)  # TODO:
+            Model.set_reference_value_lower(N + 2 - 2.329)
+            Model.set_reference_value_upper(N + 2 - 1.908)
             Model.update_parameter_string()
 
             # test_paths_file = "../test_paths_1.npy"
@@ -272,7 +277,29 @@ class ConfigInitializer:
             x_plot_range_for_net_plot = [0, 1]
 
             Model = RobbinsModel(N)
-            Model.set_reference_value(N+1-2.1)  # TODO: Find something better then the limit bounds
+            Model.set_reference_value_lower(N + 2 - 2.329)
+            Model.set_reference_value_upper(N + 2 - 1.908)
+            Model.update_parameter_string()
+
+            # test_paths_file = "../test_paths_1.npy"
+            # val_paths_file = "../val_paths_1.npy"
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
+            # val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = Model.generate_paths(test_size)
+            val_paths = Model.generate_paths(val_size)
+
+        elif option == "R3":
+            N = 39
+            max_minutes = 120
+            max_number = 300
+            train_size = 1024
+            test_size = 2028
+            val_size = 16384
+            x_plot_range_for_net_plot = [0, 1]
+
+            Model = RobbinsModel(N)
+            Model.set_reference_value_lower(N + 2 - 2.329)
+            Model.set_reference_value_upper(N + 2 - 1.908)
             Model.update_parameter_string()
 
             # test_paths_file = "../test_paths_1.npy"
@@ -325,9 +352,9 @@ class ConfigInitializer:
 
         dict_a = {  #
             'algorithm'                : [0],
-            'internal_neurons'         : [50, 100],  # 50?
-            'hidden_layer_count'       : [2, 3],
-            'activation_internal'      : [relu, selu, tanh, softsign],  # [tanh, relu, leaky_relu, softsign, selu]
+            'internal_neurons'         : [50],  # 50?
+            'hidden_layer_count'       : [2, 3],  # [2, 3]
+            'activation_internal'      : [tanh, softsign],  # [tanh, relu, leaky_relu, softsign, selu]
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
             'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
@@ -428,7 +455,9 @@ class ConfigInitializer:
                 # result enthält prominent_result klasse, memory klasse
                 optimitaion_result = [current_NN.optimization()]
             '''
-            current_NN = NN.NN(current_Config, Model, Memory, log)
+            # TODO: changed
+            # current_NN = NN.NN(current_Config, Model, Memory, log)
+            current_NN = Alg10.Alg10_NN(current_Config, Model, Memory, log)
             m_out = 0
 
             if algorithm == 3:  # later 3
@@ -552,7 +581,7 @@ class ConfigInitializer:
                    edgecolor=fig_border,
                    facecolor=fig_background_color,
                    tight_layout={'pad': 1},
-                   figsize=(10, 3)
+                   figsize=(10, 1.5+data.__len__()/4)  # figsize=(10, 3)
                    )  # Add a table at the bottom of the axes
         h = [0.1] * 5
         h.extend([0.15] * 5)

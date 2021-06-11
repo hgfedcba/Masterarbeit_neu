@@ -14,14 +14,15 @@ from AbstractMathematicalModel import AbstractMathematicalModel
 class RobbinsModel(AbstractMathematicalModel):
     def __init__(self, N):
         self.__N = N  # X_0,..., X_(N)
-        self.__reference_value = None
+        self.__reference_value_upper = None
+        self.__reference_value_lower = None
         self.t = self.get_time_partition()
         self.parameter_string = ""
         self.parameter_list = []
         self.__K = 0  # TODO: solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
 
     def update_parameter_string(self):
-        parameter_string = "reference_value: ", round(self.__reference_value, 3), "N: ", self.__N
+        parameter_string = "reference_value_lower: ", round(self.__reference_value_upper, 3), "reference_value_lower: ", round(self.__reference_value_upper, 3), "N: ", self.__N
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
 
@@ -118,11 +119,14 @@ class RobbinsModel(AbstractMathematicalModel):
         # Schritt 2: Bilde das Skalarprodukt von t und z1
         return torch.matmul(U, torch.tensor(z1, dtype=torch.float))
 
-    def set_reference_value(self, v):
-        self.__reference_value = v
+    def set_reference_value_upper(self, v):
+        self.__reference_value_upper = v
+
+    def set_reference_value_lower(self, v):
+        self.__reference_value_lower = v
 
     def get_reference_value(self):
-        return self.__reference_value
+        return self.__reference_value_lower, self.__reference_value_upper
 
 
 
