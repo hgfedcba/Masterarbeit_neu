@@ -82,18 +82,25 @@ class NN:
 
         def define_nets():
             self.u = []
-            if self.algorithm == 0:
+            if not self.single_net_algorithm():
                 for k in range(self.N):
                     net = Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
                     # net.to(device)
                     self.u.append(net)
-            elif self.algorithm == 2 or self.algorithm == 3:
+            else:
                 assert np.allclose(self.path_dim, np.ones_like(self.path_dim) * self.path_dim[0])
                 net = Net(self.path_dim[0] + 1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
                 self.u.append(net)
 
         define_nets()
         self.ProminentResults = ProminentResults(log, self)
+
+    def single_net_algorithm(self):
+        if self.algorithm == 2 or self.algorithm == 3:
+            return True
+        if self.algorithm == 0 or self.algorithm == 10:
+            return False
+        assert False
 
     def optimization(self, test_paths, m_out):
         self.test_paths = test_paths
@@ -203,11 +210,11 @@ class NN:
                 for epoch in range(1, epochs):
                     loss = []
                     y_pred = []
-                    if self.algorithm == 0:
+                    if not self.single_net_algorithm():
                         for l in range(x_train.shape[0]):
                             y_pred.append(net(x_train[l]))
                             loss.append((y_pred[l] - y_correct[l]) ** 2)
-                    elif self.algorithm == 2 or self.algorithm == 3:
+                    else:
                         for n in range(self.N):
                             into = np.append(np.ones((n_sample_points, 1)) * n, x_values, 1)
                             x_train = Variable(torch.from_numpy(into)).float()
@@ -230,7 +237,7 @@ class NN:
 
                     if losses[-1] < 0.1:
                         break
-                    if (self.algorithm == 2 or self.algorithm == 3) and losses[-1] < 0.1*self.N:
+                    if self.single_net_algorithm() and losses[-1] < 0.1*self.N:
                         break
 
                 return losses
@@ -259,9 +266,9 @@ class NN:
                 plt.close()
 
                 # pretrain endergebnis
-                if self.algorithm == 0:
+                if not self.single_net_algorithm():
                     draw_function(x_values, self.u[m])
-                elif self.algorithm == 2 or self.algorithm == 3:
+                else:
                     for k in range(self.N):
                         draw_function(x_values, self.u[0], plot_number=1+self.N+k, algorithm=2)
                 plt.xlabel("x")
@@ -271,9 +278,16 @@ class NN:
                 plt.show()
                 plt.close()
 
-    def train(self, optimizer):
-        U = torch.empty(self.batch_size, self.N + 1)
-        training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
+    def train(self, optimizer, training_paths=None):
+        if training_paths is None:
+            training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
+            U = torch.empty(self.batch_size, self.N + 1)
+        else:
+            if isinstance(training_paths[0], list):
+                local_N = training_paths[0].__len__()
+            else:
+                local_N = training_paths[0].shape[1]
+            U = torch.empty(self.batch_size, local_N)
         individual_payoffs = []
 
         for j in range(self.batch_size):
@@ -302,9 +316,12 @@ class NN:
         U = torch.empty(L, self.N + 1)
         tau_list = []
         for l in range(L):
-            h, tau = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(paths[l], False)
-            U[l, :] = h[:, 0]
+            pre_u, tau = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(paths[l], False)
+            U[l, :] = pre_u[:, 0]
             cont_individual_payoffs.append(self.Model.calculate_payoffs(U[l, :], paths[l], self.Model.getg, self.t))
+
+            # h = paths[l][19][-4:]
+            # h1 = pre_u[-4:]
 
             # for_debugging1 = paths[l]
             # for_debugging2 = h[:, 0]
@@ -351,6 +368,7 @@ class NN:
             local_N = x_input.__len__()
         else:
             local_N = x_input.shape[1]
+        assert len(self.u)+1 == local_N, "First is " + str(len(self.u)+1) + " and second is " + str(local_N)
         U = []
         sum = []
         x = []
@@ -362,9 +380,9 @@ class NN:
                 sum.append(sum[n - 1] + U[n - 1])  # 0...n-1
             else:
                 sum.append(0)
-            if n < self.N:
+            if n < local_N-1:
                 t = time.time()
-                if self.algorithm == 0:
+                if not self.single_net_algorithm():
                     if isinstance(x_input, list):
                         # h = x_input[n][:]
                         # h1 = x_input[n]
@@ -374,7 +392,7 @@ class NN:
                         x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=grad))
                     # x[-1] = x[-1].to(device)
                     local_u.append(self.u[n](x[n]))
-                elif self.algorithm == 2 or self.algorithm == 3:
+                else:
                     into = np.append(n+self.K, x_input[:, n])
                     x.append(torch.tensor(into, dtype=torch.float32, requires_grad=grad))
                     # x[-1] = x[-1].to(device)

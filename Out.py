@@ -110,7 +110,19 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     # Value over time Graph
     plot_number_value = 1
     fig1 = plt.figure(plot_number_value)
-    x = range(0, Config.validation_frequency * (len(Memory.val_discrete_value_list)), Config.validation_frequency)
+
+    # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
+    # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
+    xlabel('iteration', fontsize=16)
+    ylabel('value', fontsize=16)
+    grid(True)
+    # plt.yscale('log')
+
+    if Config.algorithm == 10:
+        x = range(0, len(Memory.val_discrete_value_list))
+        xlabel('nets trained', fontsize=16)
+    else:
+        x = range(0, Config.validation_frequency * (len(Memory.val_discrete_value_list)), Config.validation_frequency)
     x = np.array(x)
     draw_connected_points(x, Memory.val_continuous_value_list, plot_number_value)
     draw_connected_points(x, Memory.val_discrete_value_list, plot_number_value)
@@ -123,12 +135,6 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
         draw_connected_points(x, r_value[0] * np.ones_like(x), plot_number_value, 'black')
         draw_connected_points(x, r_value[1] * np.ones_like(x), plot_number_value, 'black')
         plt.legend(["cont value", "disc value", "reference upper", "reference lower"])
-    # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
-    # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
-    xlabel('iteration', fontsize=16)
-    ylabel('value', fontsize=16)
-    grid(True)
-    # plt.yscale('log')
 
     pdf.savefig(fig1)
     plt.close(fig1)
@@ -275,13 +281,25 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     xlabel('iteration', fontsize=16)
     ylabel('time', fontsize=16)
     plt.ylim([0, (time.time() - Memory.start_time)*1.05])
-    # TODO: make this a pie chart
+    # TODO: make this a pie chart     problem mit time spent in net
     plt.title('cumulative time spend')
     grid(True)
 
     pdf.savefig(fig25)
     plt.close(fig25)
+    '''
+    # Pie chart, where the slices will be ordered and plotted counter-clockwise:
+    labels = 'pretrain', 'train', 'test', 'validation'
+    sizes = [15, 30, 45, 10]
+    explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
+    fig1, ax1 = plt.subplots()
+    ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+            shadow=True, startangle=90)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+    plt.show()
+    '''
     path_dim = Model.getpath_dim()
 
     if np.allclose(path_dim, 1 * np.ones_like(path_dim)):
@@ -355,7 +373,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     else:
         d = -1
 
-    if d == 1 and (Config.algorithm == 2 or Config.algorithm == 3):
+    if d == 1 and NN.single_net_algorithm():
         # new
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
@@ -430,11 +448,11 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
             Z = np.zeros((n_sample_points, n_sample_points))
             for i in range(n_sample_points):
                 for j in range(n_sample_points):
-                    if Config.algorithm == 2 or Config.algorithm == 3:
+                    if NN.single_net_algorithm():
                         into = (k+NN.K, X[i][j], Y[i][j])
                         h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
                         Z[i][j] = NN.u[0](h)
-                    elif Config.algorithm == 0:
+                    else:
                         into = (X[i][j], Y[i][j])
                         h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
                         Z[i][j] = NN.u[k](h)
@@ -504,9 +522,9 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
 
     if d == 1 or d == 2:
         def get_net(u, k):
-            if Config.algorithm == 0:
+            if not NN.single_net_algorithm():
                 return u[k]
-            elif Config.algorithm == 2 or Config.algorithm == 3:
+            else:
                 return u[0]
 
         x = np.reshape(np.linspace(short[0], short[1], n_sample_points), (n_sample_points, 1)) * np.ones((1, d))
@@ -515,13 +533,13 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
         l = NN.N
         NN = ProminentResults.disc_best_result.load_state_dict_into_given_net(NN)
         for k in range(l):
-            draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm)
+            draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=NN.single_net_algorithm())
         NN = ProminentResults.cont_best_result.load_state_dict_into_given_net(NN)
         for k in range(l):
-            draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm)
+            draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=NN.single_net_algorithm())
         NN = ProminentResults.final_result.load_state_dict_into_given_net(NN)
         for k in range(l):
-            draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=Config.algorithm)
+            draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=NN.single_net_algorithm())
 
         for k in range(l):
             c_fig = plt.figure(k+1+NN.K)

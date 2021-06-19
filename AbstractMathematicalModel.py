@@ -79,7 +79,12 @@ class AbstractMathematicalModel(ABC):
         assert torch.sum(torch.tensor(U)).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(torch.tensor(U)).item())
 
         s = torch.zeros(1)
-        for n in range(self.getN() + 1):
+        if not isinstance(U, np.ndarray):
+            j = list(U.size())[0]  # Ich konvertiere zu einer Liste damit intern das pytorch Objekt zu einem integer konvertiert wird. Ja...
+            t = t[-j:]
+        else:
+            j = U.size
+        for n in range(j):
             h1 = U[n]
             h2 = g(t[n], x[:, n])
             s += U[n] * g(t[n], x[:, n])

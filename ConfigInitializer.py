@@ -103,7 +103,7 @@ class ConfigInitializer:
 
             add_am_call_default_pretrain(K+10, 60)
 
-            max_minutes = 60
+            max_minutes = 60*2/3
             # batch_size = 8192
             # test_size = 8192
             # val_size = 16384
@@ -351,10 +351,10 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                : [0],
-            'internal_neurons'         : [50],  # 50?
-            'hidden_layer_count'       : [2, 3],  # [2, 3]
-            'activation_internal'      : [tanh, softsign],  # [tanh, relu, leaky_relu, softsign, selu]
+            'algorithm'                : [10, 0],
+            'internal_neurons'         : [50, 100],  # 50?
+            'hidden_layer_count'       : [3, 2],  # [2, 3]
+            'activation_internal'      : [tanh, selu, softsign],  # [tanh, relu, leaky_relu, softsign, selu]
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
             'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
@@ -455,9 +455,11 @@ class ConfigInitializer:
                 # result enthält prominent_result klasse, memory klasse
                 optimitaion_result = [current_NN.optimization()]
             '''
-            # TODO: changed
-            # current_NN = NN.NN(current_Config, Model, Memory, log)
-            current_NN = Alg10.Alg10_NN(current_Config, Model, Memory, log)
+            if algorithm == 10:
+                current_NN = Alg10.Alg10_NN(current_Config, Model, Memory, log)
+            else:
+                current_NN = NN.NN(current_Config, Model, Memory, log)
+
             m_out = 0
 
             if algorithm == 3:  # later 3

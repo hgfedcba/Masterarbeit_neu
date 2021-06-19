@@ -35,9 +35,6 @@ antitheitc variables
 # TODO: lineare regression etc ausprobieren
 # TODO: random forest 10.000 sample auf einmal und dann einmal iterieren.
 
-
-# TODO: Implement variable input dimension over time
-# TODO: implement math dim vs comp dim
 # TODO: train with random origin (+/-10%) every 2nd iteration
 
 """
@@ -82,8 +79,7 @@ if __name__ == '__main__':
     log.critical("this is a critical message")
     '''
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3
-    # TODO: ersetzte Alg == 0 durch alg_type(Model.Alg)
-    CI = ConfigInitializer("R1", log)
+    CI = ConfigInitializer(4411_2, log)
 
     log.info("The End")
     """

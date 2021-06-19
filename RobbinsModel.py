@@ -116,8 +116,13 @@ class RobbinsModel(AbstractMathematicalModel):
             z[y[k]] = k+1
         """
 
+        # Dieser Schritt ist für Alg10, damit nur so viele Werte betrachtet werden wie U enthält
+        z2 = z1[-len(U):]
+
+        h = torch.matmul(U, torch.tensor(z2, dtype=torch.float))
+
         # Schritt 2: Bilde das Skalarprodukt von t und z1
-        return torch.matmul(U, torch.tensor(z1, dtype=torch.float))
+        return torch.matmul(U, torch.tensor(z2, dtype=torch.float))
 
     def set_reference_value_upper(self, v):
         self.__reference_value_upper = v
