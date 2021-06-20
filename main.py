@@ -49,6 +49,9 @@ import torch
 
 
 if __name__ == '__main__':
+    import matplotlib
+    matplotlib.use("Agg")
+
     log = logging.getLogger('l')
     # logging.basicConfig(format='%(asctime)s:  %(message)s')
     log.setLevel(logging.INFO)

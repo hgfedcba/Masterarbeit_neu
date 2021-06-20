@@ -102,6 +102,7 @@ def stopping_boundary_bars(final_result, Model, paths, stop_high_values):
 def create_graphics(Memory, ProminentResults, Model, Config, run_number, val_paths, final_val_paths, NN):
     create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_paths, final_val_paths)
     create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN)
+    plt.close('all')
 
 
 def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test_paths, val_paths):
@@ -411,7 +412,6 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
         fig.colorbar(surf, shrink=0.5, aspect=5)
 
         ax.view_init(30, 40)
-        pdf.savefig(fig)
         """
         # rotate the axes and update
         for angle in range(0, 720, 5):
@@ -421,6 +421,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
 
         fig.save("animation " + str(run_number) + ".gif", writer='imagemagick', fps=30)
         """
+        pdf.savefig(fig)
         plt.close(fig)
 
     """
@@ -475,7 +476,6 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
             # ax.view_init(30, Config.angle_for_net_plot)  # Seitenansicht
             ax.view_init(90, Config.angle_for_net_plot)  # Von oben
 
-            pdf.savefig(fig_k)
             """
             # rotate the axes and update
             for angle in range(0, 720, 5):
@@ -485,6 +485,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
     
             fig.save("animation " + str(run_number) + ".gif", writer='imagemagick', fps=30)
             """
+            pdf.savefig(fig_k)
             plt.close(fig_k)
 
         # Plot paths
