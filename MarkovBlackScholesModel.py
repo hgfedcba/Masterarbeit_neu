@@ -21,7 +21,7 @@ class MarkovBlackScholesModel(AbstractMathematicalModel):
         self.parameter_list = []
 
     def update_parameter_string(self):
-        parameter_string = "reference_value: ", round(self._reference_value, 3), "T: ", self._T, "N: ", self._N, "d: ", self._d, "K: ", self._K, "delta: ", self._delta, "mu: ", mu_dict.get(self._internal_mu), "sigma: ", \
+        parameter_string = "Black Scholes Model with reference_value: ", round(self._reference_value, 3), "T: ", self._T, "N: ", self._N, "d: ", self._d, "K: ", self._K, "delta: ", self._delta, "mu: ", mu_dict.get(self._internal_mu), "sigma: ", \
                            sigma_dict.get(self._internal_sigma), "g: ", payoff_dict.get(self._internal_g), "xi: ", self._xi
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)

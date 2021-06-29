@@ -15,14 +15,14 @@ class Net(nn.Module):
         # an affine operation: y = Wx + b
         self.fc1 = nn.Linear(d, internal_neurons)
         self.fcs = []
-        for _ in range(hidden_layer_count):
+        for _ in range(hidden_layer_count+1):
             self.fcs.append(nn.Linear(internal_neurons, internal_neurons))
             # self.fcs.append(nn.Linear(internal_neurons, internal_neurons).cuda())
         self.fcl = nn.Linear(internal_neurons, 1)
 
         self.activation_internal = activation_internal
         self.activation_final = activation_final
-        self.hidden_layer_count = hidden_layer_count
+        self.hidden_layer_count = hidden_layer_count+1
 
         self.K = K
 
@@ -368,7 +368,7 @@ class NN:
             local_N = x_input.__len__()
         else:
             local_N = x_input.shape[1]
-        assert len(self.u)+1 == local_N, "First is " + str(len(self.u)+1) + " and second is " + str(local_N)
+        assert len(self.u)+1 == local_N or self.single_net_algorithm(), "First is " + str(len(self.u)+1) + " and second is " + str(local_N)
         U = []
         sum = []
         x = []
@@ -393,7 +393,8 @@ class NN:
                     # x[-1] = x[-1].to(device)
                     local_u.append(self.u[n](x[n]))
                 else:
-                    into = np.append(n+self.K, x_input[:, n])
+                    into = np.append(n+self.K, x_input[:, n])  # Der Input ist der Zeitpunkt und der tatsächliche Aktienwert. Ich addiere self.K auf den Aktienwert da dieser Faktor später noch
+                    # abgezogen wird und ich möglichst nahe an der 0 bleiben möchte.
                     x.append(torch.tensor(into, dtype=torch.float32, requires_grad=grad))
                     # x[-1] = x[-1].to(device)
                     local_u.append(self.u[0](x[n]))

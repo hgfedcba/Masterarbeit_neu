@@ -86,6 +86,7 @@ class AbstractMathematicalModel(ABC):
             j = U.size
         for n in range(j):
             h1 = U[n]
+            h3 = x[:, n]
             h2 = g(t[n], x[:, n])
             s += U[n] * g(t[n], x[:, n])
         return s

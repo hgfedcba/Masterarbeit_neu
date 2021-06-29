@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import numpy as np
+
+import RussianOption
 from RobbinsModel import RobbinsModel
 
 from Util import *
@@ -85,7 +87,10 @@ def stopping_boundary_bars(final_result, Model, paths, stop_high_values):
                     if x > stop[0]:
                         conc.append(x)
                 v.append(np.mean(conc))
-                m.append(statistics.median(conc))
+                if len(conc) == 0:
+                    m = None
+                else:
+                    m.append(statistics.median(conc))
     return c, v, m
 
     # 1. n in N
@@ -129,7 +134,9 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     draw_connected_points(x, Memory.val_discrete_value_list, plot_number_value)
 
     r_value = Model.get_reference_value()
-    if isinstance(r_value, float):
+    if r_value == -1:
+        plt.legend(["cont value", "disc value"])
+    elif isinstance(r_value, float):
         draw_connected_points(x, r_value*np.ones_like(x), plot_number_value, 'black')
         plt.legend(["cont value", "disc value", "reference value"])
     else:
@@ -146,7 +153,9 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     x = range(0, len(Memory.average_train_payoffs))
     x = np.array(x)
     draw_connected_points(x, Memory.average_train_payoffs, plot_number_train)
-    if isinstance(r_value, float):
+    if r_value == -1:
+        plt.legend(["cont value", "disc value"])
+    elif isinstance(r_value, float):
         draw_connected_points(x, r_value * np.ones_like(x), plot_number_train, 'black')
         plt.legend(["train values", "reference value"])
     else:
@@ -199,39 +208,39 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     pdf.savefig(fig14)
     plt.close(fig14)
 
-    # bar graph of stopping boundary
-    from ModelDefinitions import payoff_dict
-    if isinstance(Model, RobbinsModel):
-        stop_high_values = True
-    else:
-        stop_high_values = "put" not in Model.parameter_string
-    c, v, m = stopping_boundary_bars(ProminentResults.final_result, Model, val_paths, stop_high_values)
+    if np.all(Model.getpath_dim() == np.ones_like(Model.getpath_dim())):
+        # bar graph of stopping boundary
+        if isinstance(Model, RobbinsModel):
+            stop_high_values = True
+        else:
+            stop_high_values = "put" not in Model.parameter_string  # TODO: Whaaaaat
+        c, v, m = stopping_boundary_bars(ProminentResults.final_result, Model, val_paths, stop_high_values)
 
-    # mean
-    plot_number_final_stopping_boundary_mean = 15
-    fig15 = plt.figure(plot_number_final_stopping_boundary_mean)
-    plt.bar(x[:len(v)], v, color=c)
-    plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
-    plt.xlabel('Time')
-    plt.ylabel('boundary mean')
-    plt.title('stopping happens roughly above these values on the validation set')
-    # plt.yscale('log')
+        # mean
+        plot_number_final_stopping_boundary_mean = 15
+        fig15 = plt.figure(plot_number_final_stopping_boundary_mean)
+        plt.bar(x[:len(v)], v, color=c)
+        plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
+        plt.xlabel('Time')
+        plt.ylabel('boundary mean')
+        plt.title('stopping happens roughly above these values on the validation set')
+        # plt.yscale('log')
 
-    pdf.savefig(fig15)
-    plt.close(fig15)
+        pdf.savefig(fig15)
+        plt.close(fig15)
 
-    # median
-    plot_number_final_stopping_boundary_mean = 16
-    fig16 = plt.figure(plot_number_final_stopping_boundary_mean)
-    plt.bar(x[:len(m)], m, color=c)
-    plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
-    plt.xlabel('Time')
-    plt.ylabel('boundary median')
-    plt.title('stopping happens roughly above these values on the validation set')
-    # plt.yscale('log')
+        # median
+        plot_number_final_stopping_boundary_mean = 16
+        fig16 = plt.figure(plot_number_final_stopping_boundary_mean)
+        plt.bar(x[:len(m)], m, color=c)
+        plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
+        plt.xlabel('Time')
+        plt.ylabel('boundary median')
+        plt.title('stopping happens roughly above these values on the validation set')
+        # plt.yscale('log')
 
-    pdf.savefig(fig16)
-    plt.close(fig16)
+        pdf.savefig(fig16)
+        plt.close(fig16)
 
     # Duration over time graph
     plot_number_duration = 2

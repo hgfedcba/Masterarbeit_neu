@@ -22,7 +22,7 @@ class RobbinsModel(AbstractMathematicalModel):
         self.__K = 0  # TODO: solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
 
     def update_parameter_string(self):
-        parameter_string = "reference_value_lower: ", round(self.__reference_value_upper, 3), "reference_value_lower: ", round(self.__reference_value_upper, 3), "N: ", self.__N
+        parameter_string = "Robbins Model with reference_value_lower: ", round(self.__reference_value_upper, 3), "reference_value_lower: ", round(self.__reference_value_upper, 3), "N: ", self.__N
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
 

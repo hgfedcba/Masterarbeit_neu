@@ -1,5 +1,6 @@
 import Alg10
-from ModelDefinitions import add_mu_c_x, add_sigma_c_x, add_american_put, add_bermudan_max_call, binomial_trees
+import RussianOption
+from ModelDefinitions import add_mu_c_x, add_sigma_c_x, add_american_put, add_russian_option, add_bermudan_max_call, binomial_trees
 # noinspection PyUnresolvedReferences
 from ModelDefinitions import mu_dict, payoff_dict, sigma_dict
 
@@ -186,7 +187,7 @@ class ConfigInitializer:
 
             add_am_put_default_pretrain(K, 16)
 
-            max_minutes = 5
+            max_minutes = 5/10
             train_size = 64
             test_size = 256
             val_size = 2048
@@ -309,6 +310,41 @@ class ConfigInitializer:
             test_paths = Model.generate_paths(test_size)
             val_paths = Model.generate_paths(val_size)
 
+        elif option == "Russ0":
+            # Model
+            r = 0.05
+            sigma_constant = 0.25  # beta
+            mu_constant = r
+            K = 40
+            xi = 40
+            T = 10
+            N = 10
+            d = 1  # dimension
+            delta = 0  # dividend rate
+            sigma = add_sigma_c_x(sigma_constant)
+            mu = add_mu_c_x(mu_constant, delta)
+            g = add_russian_option(r)
+
+            add_am_put_default_pretrain(K, 16)
+
+            max_minutes = 0.5*0.5
+            train_size = 64
+            test_size = 64
+            val_size = 256
+
+            x_plot_range_for_net_plot = [10, 50]
+
+            Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
+            Model.set_reference_value(r, sigma_constant)
+            Model.update_parameter_string()
+
+            # test_paths_file = "../test_paths_1.npy"
+            # val_paths_file = "../val_paths_1.npy"
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
+            # val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = Model.generate_paths(test_size)
+            val_paths = Model.generate_paths(val_size)
+
         else:
             # Model
             r = 0.05
@@ -351,10 +387,10 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                : [10, 0],
-            'internal_neurons'         : [50, 100],  # 50?
-            'hidden_layer_count'       : [3, 2],  # [2, 3]
-            'activation_internal'      : [tanh, selu, softsign],  # [tanh, relu, leaky_relu, softsign, selu]
+            'algorithm'                : [2, 0],
+            'internal_neurons'         : [50],  # 50, 100
+            'hidden_layer_count'       : [2],  # [2, 3]
+            'activation_internal'      : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
             'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
