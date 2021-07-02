@@ -92,6 +92,8 @@ class NN:
                 net = Net(self.path_dim[0] + 1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
                 self.u.append(net)
 
+        assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
+
         define_nets()
         self.ProminentResults = ProminentResults(log, self)
 

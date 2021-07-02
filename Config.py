@@ -47,7 +47,15 @@ class Config:
         self.x_plot_range_for_net_plot = x_plot_range_for_net_plot
         self.angle_for_net_plot = angle_for_net_plot
 
-        pl = [["algorithm", algorithm], ["internal_neurons", internal_neurons], ["hidden_layer_count", hidden_layer_count], ["activation_internal", activation_func_dict.get(activation_internal)],
+        alg_dict = {
+            0: "Paper",
+            2: "single Net",
+            3: "smaller N pretrain",
+            10: "train sequentially"
+        }
+
+        # TODO: entferne Unterstriche, verbessere Beschreibung
+        pl = [["algorithm", alg_dict.get(algorithm)], ["internal_neurons", internal_neurons], ["hidden_layer_count", hidden_layer_count], ["activation_internal", activation_func_dict.get(activation_internal)],
               ["activation_final", activation_func_dict.get(activation_final)], ["optimizer", optimizer_dict.get(optimizer)], ["do_pretrain", do_pretrain],
               ["pretrain_func", pretrain_func_dict.get(pretrain_func)], ["pretrain_iterations", pretrain_iterations], ["max_number_of_iterations", max_number_of_iterations],
               ["max_minutes_of_iterations", max_minutes_of_iterations], ["initial_lr", initial_lr], ["do_lr_decay", do_lr_decay], ["lr_decay_alg", lr_decay_dict.get(lr_decay_alg)],

@@ -78,6 +78,7 @@ class RobbinsModel(AbstractMathematicalModel):
         """
         return np.array(x[-1])
 
+    # TODO: Remember (ich glaube) ich stoppe niedrige Werte aber ordne ordne ihnen dann einen hohen Rang zu, vielleicht ist pretrain deshalb fehlgeschlagen
     def getg(self, t, x):
         # (zeitstetige) stoppzeit t, pfad x
         assert t.sum() == 1

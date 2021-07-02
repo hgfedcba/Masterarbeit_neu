@@ -27,6 +27,7 @@ import time
 from Memory import Memory as MemeClass
 
 import Out
+import pickle
 
 
 class ConfigInitializer:
@@ -261,12 +262,12 @@ class ConfigInitializer:
             Model.set_reference_value_upper(N + 2 - 1.908)
             Model.update_parameter_string()
 
-            # test_paths_file = "../test_paths_1.npy"
-            # val_paths_file = "../val_paths_1.npy"
-            # test_paths = np.load(test_paths_file, mmap_mode="r")
-            # val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = Model.generate_paths(test_size)
-            val_paths = Model.generate_paths(val_size)
+            test_paths_file = "../test_paths_R20.npy"
+            val_paths_file = "../val_paths_R20.npy"
+            with open(test_paths_file, "rb") as fp:  # Unpickling
+                test_paths = pickle.load(fp)
+            with open(val_paths_file, "rb") as fp:  # Unpickling
+                val_paths = pickle.load(fp)
 
         elif option == "R2":
             N = 19
@@ -282,16 +283,29 @@ class ConfigInitializer:
             Model.set_reference_value_upper(N + 2 - 1.908)
             Model.update_parameter_string()
 
-            # test_paths_file = "../test_paths_1.npy"
-            # val_paths_file = "../val_paths_1.npy"
-            # test_paths = np.load(test_paths_file, mmap_mode="r")
-            # val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths_file = "../test_paths_R20.npy"
+            val_paths_file = "../val_paths_R20.npy"
+            with open(test_paths_file, "rb") as fp:  # Unpickling
+                test_paths = pickle.load(fp)
+            with open(val_paths_file, "rb") as fp:  # Unpickling
+                val_paths = pickle.load(fp)
+
+            """
+            test_size = 100000
+            val_size = 100000
             test_paths = Model.generate_paths(test_size)
             val_paths = Model.generate_paths(val_size)
 
+            with open(test_paths_file, "wb") as fp:  # Pickling
+                pickle.dump(test_paths, fp)
+
+            with open(val_paths_file, "wb") as fp:  # Pickling
+                pickle.dump(val_paths, fp)
+            """
+
         elif option == "R3":
             N = 39
-            max_minutes = 120
+            max_minutes = 120/120
             max_number = 300
             train_size = 1024
             test_size = 2028
@@ -303,12 +317,12 @@ class ConfigInitializer:
             Model.set_reference_value_upper(N + 2 - 1.908)
             Model.update_parameter_string()
 
-            # test_paths_file = "../test_paths_1.npy"
-            # val_paths_file = "../val_paths_1.npy"
-            # test_paths = np.load(test_paths_file, mmap_mode="r")
-            # val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = Model.generate_paths(test_size)
-            val_paths = Model.generate_paths(val_size)
+            test_paths_file = "../test_paths_R40.npy"
+            val_paths_file = "../val_paths_R40.npy"
+            with open(test_paths_file, "rb") as fp:  # Unpickling
+                test_paths = pickle.load(fp)
+            with open(val_paths_file, "rb") as fp:  # Unpickling
+                val_paths = pickle.load(fp)
 
         elif option == "Russ0":
             # Model
@@ -332,7 +346,7 @@ class ConfigInitializer:
             test_size = 64
             val_size = 256
 
-            x_plot_range_for_net_plot = [10, 50]
+            x_plot_range_for_net_plot = [30, 80]
 
             Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
             Model.set_reference_value(r, sigma_constant)
@@ -387,9 +401,9 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                : [2, 0],
+            'algorithm'                : [0],
             'internal_neurons'         : [50],  # 50, 100
-            'hidden_layer_count'       : [2],  # [2, 3]
+            'hidden_layer_count'       : [2, 3],  # [2, 3]
             'activation_internal'      : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
@@ -585,7 +599,7 @@ class ConfigInitializer:
         title_text = title_text1 + title_text2
         title_text = title_text.replace('\t', '    ')
 
-        footer_text = 'stub'
+        # footer_text = 'stub'
         fig_background_color = 'skyblue'
         fig_border = 'steelblue'
 
@@ -595,7 +609,7 @@ class ConfigInitializer:
         data.append(['average payoff of on the validation set using the net giving the best result on the test set', 'average payoff of on the validation set using the final net',
                      'time until intermediate result', 'time total'])
         '''
-        data.append(['best disc', 'best_cont', 'final', 'iterations'] + [param[0] for param in resultlist[0][4]])
+        data.append(['best disc', 'best cont', 'final', 'iterations'] + [param[0] for param in resultlist[0][4]])
         for res in resultlist:
             data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.val_disc_value, res[0].cont_best_result.val_disc_value, res[0].final_result.val_disc_value,
                          str(res[0].disc_best_result.m) + " | "+ str(res[0].cont_best_result.m) + " | " + str(res[0].final_result.m)]
@@ -619,7 +633,7 @@ class ConfigInitializer:
                    edgecolor=fig_border,
                    facecolor=fig_background_color,
                    tight_layout={'pad': 1},
-                   figsize=(10, 1.5+data.__len__()/4)  # figsize=(10, 3)
+                   figsize=(10, 3+data.__len__()/5)  # figsize=(10, 3)   gerade 2.5 / 4
                    )  # Add a table at the bottom of the axes
         h = [0.1] * 5
         h.extend([0.15] * 5)
@@ -641,7 +655,7 @@ class ConfigInitializer:
         ax.get_yaxis().set_visible(False)  # Hide axes border
         plt.box(on=None)  # Add title
         plt.suptitle(title_text, fontsize=6)  # Add footer
-        plt.figtext(0.95, 0.05, footer_text, horizontalalignment='right', size=6, weight='light')  # Force the figure to update, so backends center objects correctly within the figure.
+        # plt.figtext(0.95, 0.05, horizontalalignment='right', size=6, weight='light')  # Force the figure to update, so backends center objects correctly within the figure.
         # Without plt.draw() here, the title will center on the axes and not the figure.
         plt.draw()  # Create image. plt.savefig ignores figure edge and face colors, so map them.
         fig = plt.gcf()

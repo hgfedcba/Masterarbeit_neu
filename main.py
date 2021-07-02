@@ -15,27 +15,35 @@ trainingsset, aber das bringt vermutlich nichts da overfitting nicht exisitiert
 antitheitc variables
 
 """
-# TODO: graphikkarte (überraschend schwer)  andere pytorch installation!
-# TODO: Saved paths are not antithetic...
-# TODO: colorcode output
-
-# TODO: Robins-problem
-# TODO: Russian option o.ä.
 
 # TODO:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # TODO: experimentiere herum mit bel startwerten bei den trainingspfaden.
 # TODO:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-# TODO: sklearn -> gradient boost, random forrest
-# TODO: catboost?
-# TODO: betrachte das Problem als ein Klassifikationsproblem
+# Options:
 
-# TODO: plotly express
+# Inhalt:
+# sklearn -> gradient boost, random forrest
+# catboost?
+# betrachte das Problem als ein Klassifikationsproblem
+# lineare regression etc ausprobieren
+# graphikkarte (überraschend schwer)  andere pytorch installation!
+# random forest 10.000 sample auf einmal und dann einmal iterieren.
 
-# TODO: lineare regression etc ausprobieren
-# TODO: random forest 10.000 sample auf einmal und dann einmal iterieren.
+# Grafik:
+# plotly express
+# colorcode output
 
 # TODO: train with random origin (+/-10%) every 2nd iteration
+
+# TODO: pretrain robbins with (0,...,0, ...)
+# TODO: finish alg 10
+
+# TODO: decide on russian parameters
+# TODO: Save paths for russian
+
+# TODO: Alle Plots überprüfen
+
 
 """
 1. implemntiere robbins klasse
@@ -82,7 +90,7 @@ if __name__ == '__main__':
     log.critical("this is a critical message")
     '''
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3, Russ0
-    CI = ConfigInitializer("Russ0", log)
+    CI = ConfigInitializer("R0", log)
 
     log.info("The End")
     """

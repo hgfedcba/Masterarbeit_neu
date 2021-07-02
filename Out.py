@@ -24,6 +24,39 @@ def stopping_boundary_bars(final_result, Model, paths, stop_high_values):
     v = []
     m = []
     stopping_times = Model.convert_vector_stopping_times_to_int(final_result.val_stopping_times)
+    for n in range(Model.getN() + 1):
+        stop = []
+        no_stop = []
+        if isinstance(Model, RobbinsModel):
+            for k in range(len(paths)):
+                if stopping_times[k] == n:
+                    stop.append(paths[k][n][0])
+                elif stopping_times[k] > n:
+                    no_stop.append(paths[k][n][0])
+        else:
+            for k in range(paths.shape[0]):
+                if stopping_times[k] == n:
+                    stop.append(paths[k][0][n])
+                elif stopping_times[k] > n:
+                    no_stop.append(paths[k][0][n])
+
+        if not stop:
+            c.append('red')
+            v.append(0)
+            m.append(0)
+        else:
+            c.append('red')
+            v.append(np.mean(stop))
+            m.append(v[-1])
+
+    return c, v, m
+
+
+def stopping_boundary_bars2(final_result, Model, paths, stop_high_values):
+    c = []
+    v = []
+    m = []
+    stopping_times = Model.convert_vector_stopping_times_to_int(final_result.val_stopping_times)
     for n in range(Model.getN()+1):
         stop = []
         no_stop = []
@@ -39,6 +72,7 @@ def stopping_boundary_bars(final_result, Model, paths, stop_high_values):
                     stop.append(paths[k][0][n])
                 elif stopping_times[k] > n:
                     no_stop.append(paths[k][0][n])
+
         if not stop:
             c.append('red')
             v.append(np.mean(no_stop))
@@ -208,12 +242,12 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     pdf.savefig(fig14)
     plt.close(fig14)
 
-    if np.all(Model.getpath_dim() == np.ones_like(Model.getpath_dim())):
+    if np.all(Model.getpath_dim() == np.ones_like(Model.getpath_dim())) or isinstance(Model, RobbinsModel):
         # bar graph of stopping boundary
         if isinstance(Model, RobbinsModel):
             stop_high_values = True
         else:
-            stop_high_values = "put" not in Model.parameter_string  # TODO: Whaaaaat
+            stop_high_values = ("put" not in Model.parameter_string)
         c, v, m = stopping_boundary_bars(ProminentResults.final_result, Model, val_paths, stop_high_values)
 
         # mean
