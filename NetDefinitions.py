@@ -50,8 +50,8 @@ def add_am_call_default_pretrain(K, slope_length):
     return f
 
 
-pretrain_functions = [False]
-pretrain_func_dict = {False: "False"}
+pretrain_functions = [False, True]
+pretrain_func_dict = {False: "False", True: "True"}
 
 
 lr_decay_algs = [False]

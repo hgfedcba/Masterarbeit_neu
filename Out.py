@@ -19,10 +19,9 @@ from Util import *
 import statistics
 
 
-def stopping_boundary_bars(final_result, Model, paths, stop_high_values):
+def average_value_stopped_at(final_result, Model, paths):
     c = []
     v = []
-    m = []
     stopping_times = Model.convert_vector_stopping_times_to_int(final_result.val_stopping_times)
     for n in range(Model.getN() + 1):
         stop = []
@@ -43,99 +42,24 @@ def stopping_boundary_bars(final_result, Model, paths, stop_high_values):
         if not stop:
             c.append('red')
             v.append(0)
-            m.append(0)
-        else:
-            c.append('red')
-            v.append(np.mean(stop))
-            m.append(v[-1])
-
-    return c, v, m
-
-
-def stopping_boundary_bars2(final_result, Model, paths, stop_high_values):
-    c = []
-    v = []
-    m = []
-    stopping_times = Model.convert_vector_stopping_times_to_int(final_result.val_stopping_times)
-    for n in range(Model.getN()+1):
-        stop = []
-        no_stop = []
-        if isinstance(Model, RobbinsModel):
-            for k in range(len(paths)):
-                if stopping_times[k] == n:
-                    stop.append(paths[k][n][0])
-                elif stopping_times[k] > n:
-                    no_stop.append(paths[k][n][0])
-        else:
-            for k in range(paths.shape[0]):
-                if stopping_times[k] == n:
-                    stop.append(paths[k][0][n])
-                elif stopping_times[k] > n:
-                    no_stop.append(paths[k][0][n])
-
-        if not stop:
-            c.append('red')
-            v.append(np.mean(no_stop))
-            m.append(statistics.median(no_stop))
-        elif not no_stop:
-            c.append('red')
-            if n == Model.getN():
-                c[-1] = 'green'
-            v.append(np.mean(stop))
-            m.append(statistics.median(stop))
-            return c, v, m
         else:
             h = len(stop)
             if isinstance(Model, RobbinsModel):
-                if h > len(paths)/Model.getN():
+                if h > len(paths) / Model.getN():
                     c.append('green')
-                elif h > len(paths)/Model.getN()/3:
+                elif h > len(paths) / Model.getN() / 3:
                     c.append('yellow')
                 else:
                     c.append('blue')
             else:
-                if h > paths.shape[0]/Model.getN():
+                if h > paths.shape[0] / Model.getN():
                     c.append('green')
-                elif h > paths.shape[0]/Model.getN()/2:
+                elif h > paths.shape[0] / Model.getN() / 2:
                     c.append('yellow')
                 else:
                     c.append('blue')
-            stop = sorted(stop)
-            no_stop = sorted(no_stop)
-
-            # Wenn stop_high_values false ist vertausche stop and not stop
-            if not stop_high_values:
-                h = stop
-                stop = no_stop
-                no_stop = h
-
-            if stop[0] > no_stop[-1]:
-                v.append((stop[0] + no_stop[-1])/2)
-                m.append(v[-1])
-            else:
-                conc = []
-                for x in stop:
-                    if x < no_stop[-1]:
-                        conc.append(x)
-                for x in no_stop:
-                    if x > stop[0]:
-                        conc.append(x)
-                v.append(np.mean(conc))
-                if len(conc) == 0:
-                    m = None
-                else:
-                    m.append(statistics.median(conc))
-    return c, v, m
-
-    # 1. n in N
-    # 2. for every path check if stopping happens then, earlier or later. Append to 2 lists
-    # 3. für colorcode merke die länge der stop lsite
-    # 4. überprüfe ob niedrigstes element aus stop größer ist als größtes element aus continue
-    # 5. falls ja gebe mittelwert zurück
-    # 6. falls nein sammle alle elemente aus beiden lsiten die zwischen den beiden werten liegen
-    # 7. gebe mittelwert zurück
-    # 8. colorcode: (infty, valsize/N), (..., 2* valsize/N), ...  grün, gelb, rot
-    pass
+            v.append(np.mean(stop))
+    return c, v
 
 
 def create_graphics(Memory, ProminentResults, Model, Config, run_number, val_paths, final_val_paths, NN):
@@ -153,6 +77,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
 
     # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
     # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
+    plt.title("value on test set over train iterations")
     xlabel('iteration', fontsize=16)
     ylabel('value', fontsize=16)
     grid(True)
@@ -198,6 +123,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
         plt.legend(["train values", "reference upper", "reference lower"])
     # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
     # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
+    plt.title("value on train batch each iteration")
     xlabel('iteration', fontsize=16)
     ylabel('value', fontsize=16)
     grid(True)
@@ -213,6 +139,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     x = np.array(x)
     draw_connected_points(x, Memory.average_test_stopping_time, plot_number_stopping_time)
     plt.legend(["average time of stopping"])
+    plt.title("average time we stop on test set")
     plt.ylim([0, Model.getN()])
     # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
     # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
@@ -244,11 +171,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
 
     if np.all(Model.getpath_dim() == np.ones_like(Model.getpath_dim())) or isinstance(Model, RobbinsModel):
         # bar graph of stopping boundary
-        if isinstance(Model, RobbinsModel):
-            stop_high_values = True
-        else:
-            stop_high_values = ("put" not in Model.parameter_string)
-        c, v, m = stopping_boundary_bars(ProminentResults.final_result, Model, val_paths, stop_high_values)
+        c, v = average_value_stopped_at(ProminentResults.final_result, Model, val_paths)
 
         # mean
         plot_number_final_stopping_boundary_mean = 15
@@ -256,25 +179,12 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
         plt.bar(x[:len(v)], v, color=c)
         plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
         plt.xlabel('Time')
-        plt.ylabel('boundary mean')
-        plt.title('stopping happens roughly above these values on the validation set')
+        plt.ylabel('average value')
+        plt.title('avg value stopped at on val set at each timestep')
         # plt.yscale('log')
 
         pdf.savefig(fig15)
         plt.close(fig15)
-
-        # median
-        plot_number_final_stopping_boundary_mean = 16
-        fig16 = plt.figure(plot_number_final_stopping_boundary_mean)
-        plt.bar(x[:len(m)], m, color=c)
-        plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
-        plt.xlabel('Time')
-        plt.ylabel('boundary median')
-        plt.title('stopping happens roughly above these values on the validation set')
-        # plt.yscale('log')
-
-        pdf.savefig(fig16)
-        plt.close(fig16)
 
     # Duration over time graph
     plot_number_duration = 2
@@ -325,7 +235,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     xlabel('iteration', fontsize=16)
     ylabel('time', fontsize=16)
     plt.ylim([0, (time.time() - Memory.start_time)*1.05])
-    # TODO: make this a pie chart     problem mit time spent in net
+    # make this a pie chart     problem mit time spent in net
     plt.title('cumulative time spend')
     grid(True)
 
@@ -346,49 +256,49 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, test
     '''
     path_dim = Model.getpath_dim()
 
-    if np.allclose(path_dim, 1 * np.ones_like(path_dim)):
+    if np.allclose(path_dim, 1 * np.ones_like(path_dim)) or isinstance(Model, RussianOption.RussianOption):
         # visualized stopping times graph
         plot_number_paths = 3
         fig3 = plt.figure(plot_number_paths)
-        create_paths_plot(test_paths, Model, ProminentResults.disc_best_result.test_stopping_times, plot_number_paths, "best disc", True)
+        create_paths_plot(test_paths, Model, Config, ProminentResults.disc_best_result.test_stopping_times, plot_number_paths, "best disc", True)
         pdf.savefig(fig3)
         plt.close(fig3)
 
         plot_number_paths = 4
         fig4 = plt.figure(plot_number_paths)
-        create_paths_plot(test_paths, Model, ProminentResults.cont_best_result.test_stopping_times, plot_number_paths, "best cont", True)
+        create_paths_plot(test_paths, Model, Config, ProminentResults.cont_best_result.test_stopping_times, plot_number_paths, "best cont", True)
         pdf.savefig(fig4)
         plt.close(fig4)
 
         plot_number_paths = 5
         fig5 = plt.figure(plot_number_paths)
-        create_paths_plot(test_paths, Model, ProminentResults.final_result.test_stopping_times, plot_number_paths, "final", True)
+        create_paths_plot(test_paths, Model, Config, ProminentResults.final_result.test_stopping_times, plot_number_paths, "final", True)
         pdf.savefig(fig5)
         plt.close(fig5)
 
         # visualized stopping times graph
         plot_number_paths = 6
         fig6 = plt.figure(plot_number_paths)
-        create_paths_plot(val_paths, Model, ProminentResults.disc_best_result.val_stopping_times, plot_number_paths, "best disc", False)
+        create_paths_plot(val_paths, Model, Config, ProminentResults.disc_best_result.val_stopping_times, plot_number_paths, "best disc", False)
         pdf.savefig(fig6)
         plt.close(fig6)
 
         plot_number_paths = 7
         fig7 = plt.figure(plot_number_paths)
-        create_paths_plot(val_paths, Model, ProminentResults.cont_best_result.val_stopping_times, plot_number_paths, "best cont", False)
+        create_paths_plot(val_paths, Model, Config, ProminentResults.cont_best_result.val_stopping_times, plot_number_paths, "best cont", False)
         pdf.savefig(fig7)
         plt.close(fig7)
 
         plot_number_paths = 8
         fig8 = plt.figure(plot_number_paths)
-        create_paths_plot(val_paths, Model, ProminentResults.final_result.val_stopping_times, plot_number_paths, "final", False)
+        create_paths_plot(val_paths, Model, Config, ProminentResults.final_result.val_stopping_times, plot_number_paths, "final", False)
         pdf.savefig(fig8)
         plt.close(fig8)
 
     pdf.close()
 
 
-def create_paths_plot(val_paths, Model, stopping_times, plot_number, title, on_testpaths):
+def create_paths_plot(val_paths, Model, Config, stopping_times, plot_number, title, on_testpaths):
     number_of_plots = min(len(val_paths), 64)
     t = np.asarray(range(0, Model.getN() + 1)) / Model.getN() * Model.getT()
     for k in range(number_of_plots):
@@ -403,7 +313,7 @@ def create_paths_plot(val_paths, Model, stopping_times, plot_number, title, on_t
         plt.title('stopped paths on test set, ' + title)
     else:
         plt.title('stopped paths on validation set, ' + title)
-    plt.ylim([20, 60])
+    plt.ylim(Config.x_plot_range_for_net_plot)
     grid(True)
 
 

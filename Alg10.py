@@ -1,6 +1,7 @@
 import copy
 import time
 
+import numpy as np
 import torch
 
 from Util import *
@@ -17,12 +18,6 @@ device = torch.device("cuda:0")
 
 
 def fake_net(x):
-    # TODO: revisit
-    '''
-    h = torch.zeros(1, requires_grad=True)
-    assert h.item() == pytest.approx(0, 0.00001)
-    return h
-    '''
     return 0
 
 
@@ -45,7 +40,6 @@ class Alg10_NN(NN):
         self.u = []
         for m in range(self.N-1, -1, -1):
             self.Memory.total_net_durations.append(0)
-            # TODO: 'pretrain'
 
             m_th_iteration_start_time = time.time()
 
@@ -79,7 +73,6 @@ class Alg10_NN(NN):
             self.u = saved_u
 
             # print(avg_list)
-        # TODO: diese Zeile ist recht sinnlos
         self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
         self.ProminentResults.set_final_net(self, m - 1, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
@@ -91,8 +84,10 @@ class Alg10_NN(NN):
         m = 0
 
         self.u.insert(0, Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK()))
-        if isinstance(self.Model, RobbinsModel):
-            self.robbins_pretrain(self.u[0], k)
+        if isinstance(self.Model, RobbinsModel) and self.do_pretrain:
+            barrier = 0.55+(self.Model.getN()-k)/self.Model.getN()/3  # klappt nicht
+            barrier = 0.65
+            self.robbins_pretrain(self.u[0], k, barrier)
             self.Memory.pretrain_duration = self.Memory.pretrain_duration + time.time() - start_time
         params = list(self.u[0].parameters())
         optimizer = self.optimizer(params, lr=self.initial_lr)
@@ -117,14 +112,15 @@ class Alg10_NN(NN):
         return avg_list
 
     # Train given net to only stop when the last value is big enough
-    def robbins_pretrain(self, net, k):
+    def robbins_pretrain(self, net, k, barrier):
         params = list(net.parameters())
         optimizer = self.optimizer(params, lr=0.1)
 
-        barrier = 0.6
-
         for m in range(100):
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
+            # training paths (0,...,0, rand) klappen deutlich besser als vollkommen random
+            training_paths = np.zeros((self.batch_size, k+1))
+            training_paths[:, -1] = np.random.random(self.batch_size)
             for j in range(len(training_paths)):
                 if isinstance(self.Model, RobbinsModel):
                     training_paths[j] = training_paths[j][k]

@@ -7,7 +7,6 @@ import torch
 
 
 class AbstractMathematicalModel(ABC):
-    # TODO: use
     def convert_vector_stopping_times_to_int(self, stopping_times):
         if not isinstance(stopping_times, np.ndarray):
             return [max(s*range(0, self.getN()+1)) for s in stopping_times]

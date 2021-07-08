@@ -324,6 +324,112 @@ class ConfigInitializer:
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
 
+        elif option == "Russ1":
+            # Model
+            r = 0.05
+            sigma_constant = 0.3  # beta
+            mu_constant = r
+            xi = 1
+            K = xi
+            T = 10
+            N = 10
+            d = 1  # dimension
+            delta = 0  # dividend rate  # TODO: check this works
+            sigma = add_sigma_c_x(sigma_constant)
+            mu = add_mu_c_x(mu_constant, delta)
+            g = add_russian_option(r)
+
+            add_am_put_default_pretrain(K, 16)
+
+            max_minutes = 3
+            train_size = 128
+            test_size = 256
+            val_size = 512
+
+            x_plot_range_for_net_plot = [0.5, 3]
+
+            Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
+            Model.set_reference_value(1.7391)
+            Model.update_parameter_string()
+
+            # test_paths_file = "../test_paths_1.npy"
+            # val_paths_file = "../val_paths_1.npy"
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
+            # val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = Model.generate_paths(test_size)
+            val_paths = Model.generate_paths(val_size)
+
+        elif option == "Russ11":
+            # Model
+            r = 0.05
+            sigma_constant = 0.3  # beta
+            mu_constant = r
+            xi = 1
+            K = xi
+            T = 10
+            N = 10
+            d = 1  # dimension
+            delta = 0.03  # dividend rate  # TODO: check this works
+            sigma = add_sigma_c_x(sigma_constant)
+            mu = add_mu_c_x(mu_constant, delta)
+            g = add_russian_option(r)
+
+            add_am_put_default_pretrain(K, 16)
+
+            max_minutes = 3
+            train_size = 128
+            test_size = 256
+            val_size = 512
+
+            x_plot_range_for_net_plot = [0.5, 3]
+
+            Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
+            Model.set_reference_value(1.5273)
+            Model.update_parameter_string()
+
+            # test_paths_file = "../test_paths_1.npy"
+            # val_paths_file = "../val_paths_1.npy"
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
+            # val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = Model.generate_paths(test_size)
+            val_paths = Model.generate_paths(val_size)
+
+        elif option == "Russ111":
+            # TODO: This is pretty stupied as it always stops at the last timestep, but it should be nice to see why my reference value is faulty
+            # Model
+            r = 0
+            sigma_constant = 0.3  # beta
+            mu_constant = r
+            xi = 1
+            K = xi
+            T = 10
+            N = 10
+            d = 1  # dimension
+            delta = 0.05  # dividend rate  # TODO: check this works
+            sigma = add_sigma_c_x(sigma_constant)
+            mu = add_mu_c_x(mu_constant, delta)
+            g = add_russian_option(r)
+
+            add_am_put_default_pretrain(K, 16)
+
+            max_minutes = 3
+            train_size = 128
+            test_size = 256
+            val_size = 512
+
+            x_plot_range_for_net_plot = [0.5, 3]
+
+            Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
+            Model.set_reference_value(1.7391)
+            Model.update_parameter_string()
+
+            # test_paths_file = "../test_paths_1.npy"
+            # val_paths_file = "../val_paths_1.npy"
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
+            # val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = Model.generate_paths(test_size)
+            val_paths = Model.generate_paths(val_size)
+
         elif option == "Russ0":
             # Model
             r = 0.05
@@ -346,10 +452,10 @@ class ConfigInitializer:
             test_size = 64
             val_size = 256
 
-            x_plot_range_for_net_plot = [30, 80]
+            x_plot_range_for_net_plot = [20, 100]
 
             Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
-            Model.set_reference_value(r, sigma_constant)
+            # Model.set_reference_value(r, sigma_constant)
             Model.update_parameter_string()
 
             # test_paths_file = "../test_paths_1.npy"
@@ -401,9 +507,9 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                : [0],
+            'algorithm'                : [0, 2],
             'internal_neurons'         : [50],  # 50, 100
-            'hidden_layer_count'       : [2, 3],  # [2, 3]
+            'hidden_layer_count'       : [2],  # [1, 2, 3]
             'activation_internal'      : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'activation_final'         : [sigmoid],
             'optimizer'                : [0],
@@ -505,8 +611,10 @@ class ConfigInitializer:
                 # result enthält prominent_result klasse, memory klasse
                 optimitaion_result = [current_NN.optimization()]
             '''
-            if algorithm == 10:
+            if algorithm == 10 or algorithm == 11:
                 current_NN = Alg10.Alg10_NN(current_Config, Model, Memory, log)
+                if algorithm == 11:
+                    current_NN.do_pretrain = True
             else:
                 current_NN = NN.NN(current_Config, Model, Memory, log)
 
@@ -588,7 +696,7 @@ class ConfigInitializer:
     # discrete final/best disc auf final daten, time until for both    -  variable parameter
     @staticmethod
     def create_outputtable(Model, current_config, list_common_parameters, resultlist):
-        # TODO: Colorcode name vs value
+        # Colorcode name vs value?
         title_text1 = "Wir optimieren für das Modell: \t" + Model.parameter_string + "\n\nFolgende Parameter sind konstant über alle Runs:\n"
         title_text2 = current_config.get_psl_wrt_list(list_common_parameters)
 

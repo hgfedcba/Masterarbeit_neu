@@ -36,11 +36,7 @@ antitheitc variables
 
 # TODO: train with random origin (+/-10%) every 2nd iteration
 
-# TODO: pretrain robbins with (0,...,0, ...)
-# TODO: finish alg 10
-
 # TODO: decide on russian parameters
-# TODO: Save paths for russian
 
 # TODO: Alle Plots überprüfen
 
@@ -90,7 +86,7 @@ if __name__ == '__main__':
     log.critical("this is a critical message")
     '''
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3, Russ0
-    CI = ConfigInitializer("R0", log)
+    CI = ConfigInitializer("Russ111", log)
 
     log.info("The End")
     """

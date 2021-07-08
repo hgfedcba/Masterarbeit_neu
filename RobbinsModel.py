@@ -19,7 +19,7 @@ class RobbinsModel(AbstractMathematicalModel):
         self.t = self.get_time_partition()
         self.parameter_string = ""
         self.parameter_list = []
-        self.__K = 0  # TODO: solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
+        self.__K = 0  # solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
 
     def update_parameter_string(self):
         parameter_string = "Robbins Model with reference_value_lower: ", round(self.__reference_value_upper, 3), "reference_value_lower: ", round(self.__reference_value_upper, 3), "N: ", self.__N
@@ -78,7 +78,6 @@ class RobbinsModel(AbstractMathematicalModel):
         """
         return np.array(x[-1])
 
-    # TODO: Remember (ich glaube) ich stoppe niedrige Werte aber ordne ordne ihnen dann einen hohen Rang zu, vielleicht ist pretrain deshalb fehlgeschlagen
     def getg(self, t, x):
         # (zeitstetige) stoppzeit t, pfad x
         assert t.sum() == 1

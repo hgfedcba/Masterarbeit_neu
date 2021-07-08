@@ -51,10 +51,11 @@ class Config:
             0: "Paper",
             2: "single Net",
             3: "smaller N pretrain",
-            10: "train sequentially"
+            10: "train sequentially",
+            11: "seq with pretrain"
         }
 
-        # TODO: entferne Unterstriche, verbessere Beschreibung
+        # TODO: entferne Unterstriche, verbessere Beschreibung:  Trivialer Ansatz geht nicht!
         pl = [["algorithm", alg_dict.get(algorithm)], ["internal_neurons", internal_neurons], ["hidden_layer_count", hidden_layer_count], ["activation_internal", activation_func_dict.get(activation_internal)],
               ["activation_final", activation_func_dict.get(activation_final)], ["optimizer", optimizer_dict.get(optimizer)], ["do_pretrain", do_pretrain],
               ["pretrain_func", pretrain_func_dict.get(pretrain_func)], ["pretrain_iterations", pretrain_iterations], ["max_number_of_iterations", max_number_of_iterations],

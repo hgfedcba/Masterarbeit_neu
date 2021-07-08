@@ -10,6 +10,9 @@ class RussianOption(MarkovBlackScholesModel):
         super().__init__(T, N, d, K, delta, mu, sigma, g, xi)
         assert payoff_dict.get(self._internal_g) == "russian option"
 
+    def update_parameter_string(self):
+        super().update_parameter_string()
+
     @staticmethod
     def path_to_russian_path(p):
         if isinstance(p, np.ndarray):
@@ -34,9 +37,10 @@ class RussianOption(MarkovBlackScholesModel):
         assert self._d == 1
         return 2 * np.ones(self._N, dtype=np.int)
 
+    """
     def set_reference_value(self, r, sigma_constant):
         pass
-        """
+        
         from scipy.integrate import quad, dblquad
         T = self._T
         lam = 0  # discount rate vs r interest rate   TODO: hä
@@ -61,7 +65,7 @@ class RussianOption(MarkovBlackScholesModel):
 
         def V(t, x):
             return math.exp(-lam*(T-t)) * F(T-t, x) + (r+lam) * quad(lambda u: math.exp(-lam*u) * G(u, x, b(t+u)), 0, (T-t))
-        """
+    """
 
 
 

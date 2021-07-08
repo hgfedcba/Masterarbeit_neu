@@ -54,7 +54,7 @@ class MarkovBlackScholesModel(AbstractMathematicalModel):
 
     # Divide __T in Number steps. Skip every step_size step.
     def get_time_partition(self, Number, step_size=1):
-        assert Number % step_size == 0  # TODO: I have to convert something here to int but am too lazy to find out what
+        assert Number % step_size == 0  # I might have to convert something here to int but am too lazy to find out what
         out = np.zeros(int(Number / step_size) + 1)
 
         for n in range(int(Number / step_size)):

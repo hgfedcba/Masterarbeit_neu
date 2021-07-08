@@ -100,15 +100,13 @@ class NN:
     def single_net_algorithm(self):
         if self.algorithm == 2 or self.algorithm == 3:
             return True
-        if self.algorithm == 0 or self.algorithm == 10:
+        if self.algorithm == 0 or self.algorithm == 10 or self.algorithm == 11:
             return False
         assert False
 
     def optimization(self, test_paths, m_out):
         self.test_paths = test_paths
-        # TODO: This doesn't work with Alg 3
         self.N = self.Model.getN()
-        # self.N = test_paths.shape[2]-1
 
         log = self.log
         # scheduler = None
@@ -407,7 +405,7 @@ class NN:
             U.append(local_u[n] * (torch.ones(1) - sum[n]))
 
         z = torch.stack(U)
-        assert torch.sum(z).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(z).item())  # TODO: solve this better
+        assert torch.sum(z).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(z).item())
         return z, self.generate_discrete_stopping_time_from_u(local_u)
         # return z, self.generate_discrete_stopping_time_from_U(z)
     """
