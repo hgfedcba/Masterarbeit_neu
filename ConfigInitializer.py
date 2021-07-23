@@ -1,3 +1,5 @@
+import math
+
 import Alg10
 import RussianOption
 from ModelDefinitions import add_mu_c_x, add_sigma_c_x, add_american_put, add_russian_option, add_bermudan_max_call, binomial_trees
@@ -331,7 +333,7 @@ class ConfigInitializer:
             mu_constant = r
             xi = 1
             K = xi
-            T = 10
+            T = 1
             N = 10
             d = 1  # dimension
             delta = 0  # dividend rate  # TODO: check this works
@@ -349,7 +351,7 @@ class ConfigInitializer:
             x_plot_range_for_net_plot = [0.5, 3]
 
             Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
-            Model.set_reference_value(1.7391)
+            Model.set_reference_value(1.2372)
             Model.update_parameter_string()
 
             # test_paths_file = "../test_paths_1.npy"
@@ -366,7 +368,7 @@ class ConfigInitializer:
             mu_constant = r
             xi = 1
             K = xi
-            T = 10
+            T = 1
             N = 10
             d = 1  # dimension
             delta = 0.03  # dividend rate  # TODO: check this works
@@ -384,7 +386,7 @@ class ConfigInitializer:
             x_plot_range_for_net_plot = [0.5, 3]
 
             Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
-            Model.set_reference_value(1.5273)
+            Model.set_reference_value(1.2188)
             Model.update_parameter_string()
 
             # test_paths_file = "../test_paths_1.npy"
@@ -395,32 +397,33 @@ class ConfigInitializer:
             val_paths = Model.generate_paths(val_size)
 
         elif option == "Russ111":
-            # TODO: This is pretty stupied as it always stops at the last timestep, but it should be nice to see why my reference value is faulty
+            # TODO: This is pretty stupid as it always stops at the last timestep, but it should be nice to see why my reference value is faulty
+            # TODO: WORKS
             # Model
             r = 0
             sigma_constant = 0.3  # beta
             mu_constant = r
             xi = 1
             K = xi
-            T = 10
+            T = 1
             N = 10
             d = 1  # dimension
-            delta = 0.05  # dividend rate  # TODO: check this works
+            delta = 0.05  # dividend rate
             sigma = add_sigma_c_x(sigma_constant)
             mu = add_mu_c_x(mu_constant, delta)
             g = add_russian_option(r)
 
             add_am_put_default_pretrain(K, 16)
 
-            max_minutes = 3
+            max_minutes = 0.5
             train_size = 128
             test_size = 256
-            val_size = 512
+            val_size = 4096
 
             x_plot_range_for_net_plot = [0.5, 3]
 
             Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
-            Model.set_reference_value(1.7391)
+            Model.set_reference_value(1.2372*math.exp(-delta*T))  # TODO: Der japanische dude sagt das die exercise boundary der beiden optionen identisch sind und ich hoffe das bedeutet das sich beim vertauschen von delta und r sie sich nur um den diskontierungsfaktor unterscheiden
             Model.update_parameter_string()
 
             # test_paths_file = "../test_paths_1.npy"
@@ -437,7 +440,7 @@ class ConfigInitializer:
             mu_constant = r
             K = 40
             xi = 40
-            T = 10
+            T = 1
             N = 10
             d = 1  # dimension
             delta = 0  # dividend rate
@@ -455,7 +458,43 @@ class ConfigInitializer:
             x_plot_range_for_net_plot = [20, 100]
 
             Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
-            # Model.set_reference_value(r, sigma_constant)
+            # Model.set_reference_value()
+            Model.update_parameter_string()
+
+            # test_paths_file = "../test_paths_1.npy"
+            # val_paths_file = "../val_paths_1.npy"
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
+            # val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = Model.generate_paths(test_size)
+            val_paths = Model.generate_paths(val_size)
+
+        elif option == "Russ2":
+            # Model
+            r = 0.05
+            sigma_constant = 0.3  # beta
+            mu_constant = r
+            xi = 1
+            K = xi
+            T = 1
+            N = 20
+            d = 1  # dimension
+            delta = 0.03  # dividend rate  # TODO: check this works
+            sigma = add_sigma_c_x(sigma_constant)
+            mu = add_mu_c_x(mu_constant, delta)
+            g = add_russian_option(r)
+
+            add_am_put_default_pretrain(K, 16)
+
+            max_minutes = 30
+            max_number = 200
+            train_size = 512
+            test_size = 1024
+            val_size = 8192
+
+            x_plot_range_for_net_plot = [0.5, 3]
+
+            Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
+            Model.set_reference_value(1.2188)
             Model.update_parameter_string()
 
             # test_paths_file = "../test_paths_1.npy"
@@ -507,7 +546,7 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                : [0, 2],
+            'algorithm'                : [0],
             'internal_neurons'         : [50],  # 50, 100
             'hidden_layer_count'       : [2],  # [1, 2, 3]
             'activation_internal'      : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
@@ -585,7 +624,7 @@ class ConfigInitializer:
                                     val_size, stop_paths_in_plot, x_plot_range_for_net_plot, angle_for_net_plot)
             if run_number == 0:
                 f = open("intermediate_results.txt", "w")
-                intro_string = "Wir optimieren für das Modell: \t" + Model.parameter_string + "Folgende Parameter sind konstant über alle runs: \t" + \
+                intro_string = "Wir optimieren \t" + Model.parameter_string + "Folgende Parameter sind konstant über alle runs: \t" + \
                               current_Config.get_psl_wrt_list(list_common_parameters) + "\nLegende: a\t(b)\t | \tc\t(d)\t" + \
                               "Vor dem Strich stehen die diskreten Werte, hinter dem Strich die stetigen. In Klammern sind die Werte aus der final validation angegeben\n\n"
                 f.write(intro_string)

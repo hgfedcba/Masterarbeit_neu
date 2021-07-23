@@ -350,11 +350,13 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
                 h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
                 Z[i][j] = NN.u[0](h)
         # Plot the surface
-        surf = ax.plot_surface(X-NN.K, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+        surf = ax.plot_surface(X-NN.K, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False, vmin=0, vmax=1)
         ax.set_xlabel("n")
         ax.set_ylabel("X")
         ax.set_zlabel("$u_n(X)$")
         ax.zaxis.set_rotate_label(False)
+        # ax.set_label("Hi ")
+        # ax.text(-5, 105, 1, 'Probability to stop')
 
         # Customize the z axis
         ax.set_zlim(0.0, 1.0)
@@ -411,11 +413,13 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
                         h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
                         Z[i][j] = NN.u[k](h)
             # Plot the surface
-            surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+            surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False, vmin=0, vmax=1)
             ax.set_xlabel("X")
             ax.set_ylabel("Y")
             # ax.set_zlabel('u_%s' % k)
             ax.zaxis.set_rotate_label(False)
+            # ax.set_label("Hi " + str(k))
+            # ax.text(-5, 105, 1, 'Probability to stop for time ' + str(k))  # TODO: probably doesn't always work. has to work somehow though
 
             # Customize the z axis
             ax.set_zlim(0.0, 1.0)
