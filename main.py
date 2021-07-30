@@ -91,7 +91,7 @@ if __name__ == '__main__':
     log.critical("this is a critical message")
     '''
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3, Russ0
-    CI = ConfigInitializer(2, log)
+    CI = ConfigInitializer(1, log)
 
     log.info("The End")
     """

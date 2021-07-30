@@ -547,7 +547,7 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                             : [0],
+            'algorithm'                             : [0, 2, 10],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
             'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
@@ -616,8 +616,6 @@ class ConfigInitializer:
             validation_frequency = params['validation frequency']
             antithetic_val = params['antithetic variables on validation set']
             antithetic_train = params['antithetic variables on train set']
-            val_size = params['number of validation paths']
-            test_size = params['number of test paths']
 
             current_Config = Config(algorithm, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer, do_pretrain, pretrain_func, pretrain_iterations,
                                     max_number_of_iterations,
@@ -680,7 +678,7 @@ class ConfigInitializer:
                 current_NN.ProminentResults.initialize_empty()
             # val_paths = val_paths[:, 0, :]  # TODO: recall this removes the unnecessary dimension
             optimitaion_result = [current_NN.optimization(val_paths, m_out)[1:]]
-            log.warning("Final test begins")
+            log.warning("Test begins")
             fvs = time.time()
             optimitaion_result[0][0].test(test_paths)
             Memory.test_duration = time.time() - fvs
