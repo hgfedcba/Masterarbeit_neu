@@ -40,7 +40,7 @@ class NN:
         self.Memory = Memory
         self.log = log
 
-        self.test_paths = None
+        self.val_paths = None
 
         self.Model = Model
         self.T = Model.getT()
@@ -104,8 +104,8 @@ class NN:
             return False
         assert False
 
-    def optimization(self, test_paths, m_out):
-        self.test_paths = test_paths
+    def optimization(self, val_paths, m_out):
+        self.val_paths = val_paths
         self.N = self.Model.getN()
 
         log = self.log
@@ -151,7 +151,7 @@ class NN:
                 if m == 200:
                     assert True
 
-                cont_payoff, disc_payoff, stopping_times = self.validate(self.test_paths)
+                cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
                 log.info(
                     "After \t%s iterations the continuous value is\t %s and the discrete value is \t%s" % (m, round(cont_payoff, 3), round(disc_payoff, 3)))
 
@@ -163,7 +163,7 @@ class NN:
                 self.Memory.val_durations.append(time.time() - val_start)
 
                 i_value = [max(s*range(0, self.N+1)) for s in stopping_times]
-                self.Memory.average_test_stopping_time.append(np.mean(i_value))
+                self.Memory.average_val_stopping_time.append(np.mean(i_value))
 
             if self.do_lr_decay:
                 scheduler.step()

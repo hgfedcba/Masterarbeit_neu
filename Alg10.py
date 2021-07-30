@@ -22,8 +22,8 @@ def fake_net(x):
 
 
 class Alg10_NN(NN):
-    def optimization(self, test_paths, m_out):
-        self.test_paths = test_paths
+    def optimization(self, val_paths, m_out):
+        self.test_paths = val_paths
         self.N = self.Model.getN()
         # self.N = test_paths.shape[2]-1
 
@@ -68,7 +68,7 @@ class Alg10_NN(NN):
             self.Memory.val_durations.append(time.time() - val_start)
 
             i_value = [max(s * range(0, self.N + 1)) for s in stopping_times]
-            self.Memory.average_test_stopping_time.append(np.mean(i_value))
+            self.Memory.average_val_stopping_time.append(np.mean(i_value))
 
             self.u = saved_u
 

@@ -7,7 +7,7 @@ class Config:
     def __init__(self, algorithm=0, internal_neurons=50, hidden_layer_count=3, activation_internal=tanh, activation_final=sigmoid, optimizer=Adam, do_pretrain=True,
                  pretrain_func=pretrain_functions[0], pretrain_iterations=800,
                  max_number_of_iterations=50, max_minutes_of_iterations=5, train_size=32, initial_lr=0.0001, do_lr_decay=False, lr_decay_alg=lr_decay_algs[0], random_seed=23343,
-                 validation_frequency=2, antithetic_val=True, antithetic_train=False, test_size=64, val_size=128, stop_paths_in_plot=False, x_plot_range_for_net_plot=None, angle_for_net_plot=40):
+                 validation_frequency=2, antithetic_val=True, antithetic_train=False, val_size=64, test_size=128, stop_paths_in_plot=False, x_plot_range_for_net_plot=None, angle_for_net_plot=40):
 
         # net
 
@@ -39,8 +39,8 @@ class Config:
         self.validation_frequency = validation_frequency
         self.antithetic_val = antithetic_val  # only in validation!
         self.antithetic_train = antithetic_train
-        self.test_size = test_size
         self.val_size = val_size
+        self.test_size = test_size
 
         self.stop_paths_in_plot = stop_paths_in_plot
 
@@ -56,12 +56,14 @@ class Config:
         }
 
         # TODO: entferne Unterstriche, verbessere Beschreibung:  Trivialer Ansatz geht nicht!
-        pl = [["algorithm", alg_dict.get(algorithm)], ["internal_neurons", internal_neurons], ["hidden_layer_count", hidden_layer_count], ["activation_internal", activation_func_dict.get(activation_internal)],
-              ["activation_final", activation_func_dict.get(activation_final)], ["optimizer", optimizer_dict.get(optimizer)], ["do_pretrain", do_pretrain],
-              ["pretrain_func", pretrain_func_dict.get(pretrain_func)], ["pretrain_iterations", pretrain_iterations], ["max_number_of_iterations", max_number_of_iterations],
-              ["max_minutes_of_iterations", max_minutes_of_iterations], ["initial_lr", initial_lr], ["do_lr_decay", do_lr_decay], ["lr_decay_alg", lr_decay_dict.get(lr_decay_alg)],
-              ["random_seed", random_seed], ["validation_frequency", validation_frequency], ["antithetic_val", antithetic_val], ["antithetic_train", antithetic_train], ["train_size", train_size],
-              ["test_size", test_size], ["val_size", val_size], ["stop_paths_in_plot", stop_paths_in_plot]]
+        pl = [["algorithm", alg_dict.get(algorithm)], ["internal neurons per layer", internal_neurons], ["hidden layer count", hidden_layer_count],
+              ["internal activation function", activation_func_dict.get(activation_internal)], ["final activation function", activation_func_dict.get(activation_final)],
+              ["optimizer", optimizer_dict.get(optimizer)], ["do pretrain", do_pretrain], ["pretrain function", pretrain_func_dict.get(pretrain_func)],
+              ["number pretrain iterations", pretrain_iterations], ["max number of iterations", max_number_of_iterations],
+              ["max minutes of iterations", max_minutes_of_iterations], ["initial lr", initial_lr], ["do lr decay", do_lr_decay], ["lr decay algorithm", lr_decay_dict.get(lr_decay_alg)],
+              ["random seed", random_seed], ["validation frequency", validation_frequency], ["antithetic variables on validation set", antithetic_val],
+              ["antithetic variables on train set", antithetic_train], ["training batch size", train_size], ["number of validation paths", val_size], ["number of test paths", test_size],
+              ["stop paths in plot", stop_paths_in_plot]]
 
         self.parameter_list = pl
 
@@ -77,31 +79,3 @@ class Config:
             if l.__contains__(s[0]):
                 out.append(s)
         return out
-
-    """
-    parameter_string = "algorithm: ", algorithm, "internal_neurons: ", internal_neurons, "activation1: ", activation_func_dict.get(activation1), "activation2: ", \
-                       activation_func_dict.get(activation2), "optimizer: ", optimizer_dict.get(optimizer), "pretrain: ", pretrain, "pretrain_func: ", pretrain_func_dict.get(pretrain_func), \
-                       "pretrain_iterations: ", pretrain_iterations, "max_number_of_iterations: ", max_number_of_iterations, "max_minutes_of_iterations: ", max_minutes_of_iterations, \
-                       "batch_size: ", batch_size, "initial_lr: ", initial_lr, "do_lr_decay: ", do_lr_decay, "lr_decay_alg: ", lr_decay_dict.get(lr_decay_alg), "random_seed: ", random_seed, \
-                       "validation_frequency: ", validation_frequency, "antithetic_variables: ", antithetic_variables, "val_size: ", val_size, "final_val_size: ", final_val_size, \
-                       "stop_paths_in_plot: ", stop_paths_in_plot
-
-    parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
-    self.parameter_string = parameter_string + "\n"
-    """
-    # Das Modell kann hier eigentlich raus, das brauche ich nur in ConfigInitializer
-    """
-    # Model
-    self.T
-    self.N
-    self.xi
-    self.d = 1  # dimension
-    self.r = 0.05  # interest rate
-    self.K = 40  # strike price
-    self.delta = 0  # dividend rate
-    self.sigma_constant = 0.25
-    self.mu_constant = self.r
-    self.sigma = self.sigma_c_x
-    self.mu = self.mu_c_x
-    self.g = self.american_put
-    """

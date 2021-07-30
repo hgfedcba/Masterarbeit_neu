@@ -41,8 +41,8 @@ class ConfigInitializer:
         start_time = time.time()
         intro_string = None
         current_Config = None
-        test_paths = None
         val_paths = None
+        test_paths = None
         angle_for_net_plot = None
         max_number = 10000
 
@@ -70,13 +70,13 @@ class ConfigInitializer:
             max_minutes = 60  # //5
             # not more, N=50!
             train_size = 256
-            test_size = 512
-            val_size = 4048
+            val_size = 512
+            test_size = 4048
             """
             # works but takes too long
             batch_size = 1024
-            test_size = 2048
-            val_size = 16384
+            val_size = 2048
+            test_size = 16384
             """
             x_plot_range_for_net_plot = [10, 50]
 
@@ -84,10 +84,10 @@ class ConfigInitializer:
             Model.set_reference_value(5.318)  # verified with my binomial trees
             Model.update_parameter_string()
 
-            test_paths_file = "../test_paths_4312.npy"
             val_paths_file = "../val_paths_4312.npy"
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            test_paths_file = "../test_paths_4312.npy"
             val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = np.load(test_paths_file, mmap_mode="r")
 
         elif option == 4411_2:
             # bermudan max call
@@ -105,16 +105,16 @@ class ConfigInitializer:
             mu = add_mu_c_x(mu_constant, delta)
             g = add_bermudan_max_call(K, r)
 
-            add_am_call_default_pretrain(K+10, 60)
+            add_am_call_default_pretrain(K + 10, 60)
 
-            max_minutes = 60*2/3
+            max_minutes = 60 * 2 / 3
             # batch_size = 8192
-            # test_size = 8192
-            # val_size = 16384
+            # val_size = 8192
+            # test_size = 16384
 
             train_size = 2048
-            test_size = 4092
-            val_size = 16384
+            val_size = 4092
+            test_size = 16384
 
             x_plot_range_for_net_plot = [30, 190]
             angle_for_net_plot = 225
@@ -123,10 +123,10 @@ class ConfigInitializer:
             Model.set_reference_value(21.344)
             Model.update_parameter_string()
 
-            test_paths_file = "../test_paths_4411_2.npy"
             val_paths_file = "../val_paths_4411_2.npy"
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            test_paths_file = "../test_paths_4411_2.npy"
             val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = np.load(test_paths_file, mmap_mode="r")
 
         elif option == 4411_5:
             # bermudan max call
@@ -144,16 +144,16 @@ class ConfigInitializer:
             mu = add_mu_c_x(mu_constant, delta)
             g = add_bermudan_max_call(K, r)
 
-            add_am_call_default_pretrain(K+10, 60)
+            add_am_call_default_pretrain(K + 10, 60)
 
             max_minutes = 90
             # batch_size = 8192
-            # test_size = 8192
-            # val_size = 16384
+            # val_size = 8192
+            # test_size = 16384
 
             train_size = 2048
-            test_size = 4092
-            val_size = 16384
+            val_size = 4092
+            test_size = 16384
 
             x_plot_range_for_net_plot = [60, 200]
             angle_for_net_plot = 225
@@ -162,16 +162,16 @@ class ConfigInitializer:
             Model.set_reference_value(36.763)
             Model.update_parameter_string()
             """
-            test_paths = Model.generate_paths(1048576, True)
             val_paths = Model.generate_paths(1048576, True)
+            test_paths = Model.generate_paths(1048576, True)
 
-            np.save("../test_paths_4411_5.npy", test_paths)
             np.save("../val_paths_4411_5.npy", val_paths)
+            np.save("../test_paths_4411_5.npy", test_paths)
             """
-            test_paths_file = "../test_paths_4411_5.npy"
             val_paths_file = "../val_paths_4411_5.npy"
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            test_paths_file = "../test_paths_4411_5.npy"
             val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = np.load(test_paths_file, mmap_mode="r")
 
         elif option == 2:
             # Model
@@ -190,10 +190,10 @@ class ConfigInitializer:
 
             add_am_put_default_pretrain(K, 16)
 
-            max_minutes = 5/10
+            max_minutes = 5 / 10
             train_size = 64
-            test_size = 256
-            val_size = 2048
+            val_size = 256
+            test_size = 2048
 
             x_plot_range_for_net_plot = [10, 50]
 
@@ -201,10 +201,10 @@ class ConfigInitializer:
             Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, 200, K))
             Model.update_parameter_string()
 
-            test_paths_file = "../test_paths_2.npy"
             val_paths_file = "../val_paths_2.npy"
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            test_paths_file = "../test_paths_2.npy"
             val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = np.load(test_paths_file, mmap_mode="r")
 
         elif option == 1:
             # Model
@@ -225,16 +225,16 @@ class ConfigInitializer:
 
             max_minutes = 3
             train_size = 64
-            test_size = 256
-            val_size = 2048
+            val_size = 256
+            test_size = 2048
 
             """
             # using 1 as an actual benchmark
             # Make new version with actual N
             max_minutes = 20
             batch_size = 512
-            test_size = 1024
-            val_size = 8192
+            val_size = 1024
+            test_size = 8192
             """
             x_plot_range_for_net_plot = [10, 50]
 
@@ -243,10 +243,10 @@ class ConfigInitializer:
             Model.set_reference_value(6.245555049146182)  # N = 2000
             Model.update_parameter_string()
 
-            test_paths_file = "../test_paths_1.npy"
             val_paths_file = "../val_paths_1.npy"
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            test_paths_file = "../test_paths_1.npy"
             val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = np.load(test_paths_file, mmap_mode="r")
 
         elif option == "R1" or option == "R0":
             N = 19
@@ -255,8 +255,8 @@ class ConfigInitializer:
             else:
                 max_minutes = 3
             train_size = 128
-            test_size = 256
-            val_size = 512
+            val_size = 256
+            test_size = 512
             x_plot_range_for_net_plot = [0, 1]
 
             Model = RobbinsModel(N)
@@ -264,20 +264,20 @@ class ConfigInitializer:
             Model.set_reference_value_upper(N + 2 - 1.908)
             Model.update_parameter_string()
 
-            test_paths_file = "../test_paths_R20.npy"
             val_paths_file = "../val_paths_R20.npy"
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            test_paths_file = "../test_paths_R20.npy"
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
+            with open(test_paths_file, "rb") as fp:  # Unpickling
+                test_paths = pickle.load(fp)
 
         elif option == "R2":
             N = 19
             max_minutes = 40
             max_number = 200
             train_size = 512
-            test_size = 1024
-            val_size = 8192
+            val_size = 1024
+            test_size = 8192
             x_plot_range_for_net_plot = [0, 1]
 
             Model = RobbinsModel(N)
@@ -285,33 +285,33 @@ class ConfigInitializer:
             Model.set_reference_value_upper(N + 2 - 1.908)
             Model.update_parameter_string()
 
-            test_paths_file = "../test_paths_R20.npy"
             val_paths_file = "../val_paths_R20.npy"
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            test_paths_file = "../test_paths_R20.npy"
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
+            with open(test_paths_file, "rb") as fp:  # Unpickling
+                test_paths = pickle.load(fp)
 
             """
-            test_size = 100000
             val_size = 100000
-            test_paths = Model.generate_paths(test_size)
+            testxxx_size = 100000
             val_paths = Model.generate_paths(val_size)
-
-            with open(test_paths_file, "wb") as fp:  # Pickling
-                pickle.dump(test_paths, fp)
+            test_paths = Model.generate_paths(test_size)
 
             with open(val_paths_file, "wb") as fp:  # Pickling
                 pickle.dump(val_paths, fp)
+
+            with open(test_paths_file, "wb") as fp:  # Pickling
+                pickle.dump(test_paths, fp)
             """
 
         elif option == "R3":
             N = 39
-            max_minutes = 120/120
+            max_minutes = 120 / 120
             max_number = 300
             train_size = 1024
-            test_size = 2028
-            val_size = 16384
+            val_size = 2028
+            test_size = 16384
             x_plot_range_for_net_plot = [0, 1]
 
             Model = RobbinsModel(N)
@@ -319,12 +319,12 @@ class ConfigInitializer:
             Model.set_reference_value_upper(N + 2 - 1.908)
             Model.update_parameter_string()
 
-            test_paths_file = "../test_paths_R40.npy"
             val_paths_file = "../val_paths_R40.npy"
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            test_paths_file = "../test_paths_R40.npy"
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
+            with open(test_paths_file, "rb") as fp:  # Unpickling
+                test_paths = pickle.load(fp)
 
         elif option == "Russ1":
             # Model
@@ -345,8 +345,8 @@ class ConfigInitializer:
 
             max_minutes = 3
             train_size = 128
-            test_size = 256
-            val_size = 512
+            val_size = 256
+            test_size = 512
 
             x_plot_range_for_net_plot = [0.5, 3]
 
@@ -354,12 +354,12 @@ class ConfigInitializer:
             Model.set_reference_value(1.2372)
             Model.update_parameter_string()
 
-            # test_paths_file = "../test_paths_1.npy"
             # val_paths_file = "../val_paths_1.npy"
-            # test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths_file = "../test_paths_1.npy"
             # val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = Model.generate_paths(test_size)
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
             val_paths = Model.generate_paths(val_size)
+            test_paths = Model.generate_paths(test_size)
 
         elif option == "Russ11":
             # Model
@@ -380,8 +380,8 @@ class ConfigInitializer:
 
             max_minutes = 3
             train_size = 128
-            test_size = 256
-            val_size = 512
+            val_size = 256
+            test_size = 512
 
             x_plot_range_for_net_plot = [0.5, 3]
 
@@ -389,12 +389,12 @@ class ConfigInitializer:
             Model.set_reference_value(1.2188)
             Model.update_parameter_string()
 
-            # test_paths_file = "../test_paths_1.npy"
             # val_paths_file = "../val_paths_1.npy"
-            # test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths_file = "../test_paths_1.npy"
             # val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = Model.generate_paths(test_size)
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
             val_paths = Model.generate_paths(val_size)
+            test_paths = Model.generate_paths(test_size)
 
         elif option == "Russ111":
             # TODO: This is pretty stupid as it always stops at the last timestep, but it should be nice to see why my reference value is faulty
@@ -417,21 +417,22 @@ class ConfigInitializer:
 
             max_minutes = 0.5
             train_size = 128
-            test_size = 256
-            val_size = 4096
+            val_size = 256
+            test_size = 4096
 
             x_plot_range_for_net_plot = [0.5, 3]
 
             Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
-            Model.set_reference_value(1.2372*math.exp(-delta*T))  # TODO: Der japanische dude sagt das die exercise boundary der beiden optionen identisch sind und ich hoffe das bedeutet das sich beim vertauschen von delta und r sie sich nur um den diskontierungsfaktor unterscheiden
+            Model.set_reference_value(1.2372 * math.exp(
+                -delta * T))  # TODO: Der japanische dude sagt das die exercise boundary der beiden optionen identisch sind und ich hoffe das bedeutet das sich beim vertauschen von delta und r sie sich nur um den diskontierungsfaktor unterscheiden
             Model.update_parameter_string()
 
-            # test_paths_file = "../test_paths_1.npy"
             # val_paths_file = "../val_paths_1.npy"
-            # test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths_file = "../test_paths_1.npy"
             # val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = Model.generate_paths(test_size)
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
             val_paths = Model.generate_paths(val_size)
+            test_paths = Model.generate_paths(test_size)
 
         elif option == "Russ0":
             # Model
@@ -450,10 +451,10 @@ class ConfigInitializer:
 
             add_am_put_default_pretrain(K, 16)
 
-            max_minutes = 0.5*0.5
+            max_minutes = 0.5 * 0.5
             train_size = 64
-            test_size = 64
-            val_size = 256
+            val_size = 64
+            test_size = 256
 
             x_plot_range_for_net_plot = [20, 100]
 
@@ -461,12 +462,12 @@ class ConfigInitializer:
             # Model.set_reference_value()
             Model.update_parameter_string()
 
-            # test_paths_file = "../test_paths_1.npy"
             # val_paths_file = "../val_paths_1.npy"
-            # test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths_file = "../test_paths_1.npy"
             # val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = Model.generate_paths(test_size)
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
             val_paths = Model.generate_paths(val_size)
+            test_paths = Model.generate_paths(test_size)
 
         elif option == "Russ2":
             # Model
@@ -488,8 +489,8 @@ class ConfigInitializer:
             max_minutes = 30
             max_number = 200
             train_size = 512
-            test_size = 1024
-            val_size = 8192
+            val_size = 1024
+            test_size = 8192
 
             x_plot_range_for_net_plot = [0.5, 3]
 
@@ -497,12 +498,12 @@ class ConfigInitializer:
             Model.set_reference_value(1.2188)
             Model.update_parameter_string()
 
-            # test_paths_file = "../test_paths_1.npy"
             # val_paths_file = "../val_paths_1.npy"
-            # test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths_file = "../test_paths_1.npy"
             # val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = Model.generate_paths(test_size)
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
             val_paths = Model.generate_paths(val_size)
+            test_paths = Model.generate_paths(test_size)
 
         else:
             # Model
@@ -521,21 +522,21 @@ class ConfigInitializer:
 
             add_am_put_default_pretrain(K, 16)
 
-            max_minutes = 0.5*0.5
+            max_minutes = 0.5 * 0.5
             train_size = 64
-            test_size = 64
-            val_size = 256
+            val_size = 64
+            test_size = 256
 
             x_plot_range_for_net_plot = [10, 50]
 
             Model = MarkovBlackScholesModel(T, N, d, K, delta, mu, sigma, g, xi)
-            Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, N*10, K))
+            Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, N * 10, K))
             Model.update_parameter_string()
 
-            test_paths_file = "../test_paths_1.npy"
             val_paths_file = "../val_paths_1.npy"
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            test_paths_file = "../test_paths_1.npy"
             val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = np.load(test_paths_file, mmap_mode="r")
 
         # Parametergrid für Netz
         # addAdam
@@ -546,39 +547,39 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                : [0],
-            'internal_neurons'         : [50],  # 50, 100
-            'hidden_layer_count'       : [2],  # [1, 2, 3]
-            'activation_internal'      : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
-            'activation_final'         : [sigmoid],
-            'optimizer'                : [0],
-            'pretrain_func'            : [False],  # 2 information in 1 entry "False" for pass
-            'pretrain_iterations'      : [500],
-            'max_number_of_iterations' : [max_number],
-            'max_minutes_of_iterations': [max_minutes],
-            'initial_lr'               : [0.02],  # 0.01 for other setting
-            'lr_decay_alg'             : [2],  # 2 Information in 1 entry
-            'random_seed'              : [1337],
-            'validation_frequency'     : [10],
-            'antithetic_val'           : [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
-            'antithetic_train'         : [False],
-            'train_size'               : [train_size],
-            'test_size'                : [test_size],  # with my current implementation this has to be constant over a programm execution
-            'val_size'                 : [val_size]  # with my current implementation this has to be constant over a programm execution
+            'algorithm'                             : [0],
+            'internal neurons per layer'            : [50],  # 50, 100
+            'hidden layer count'                    : [2],  # [1, 2, 3]
+            'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
+            'final activation function'             : [sigmoid],
+            'optimizer'                             : [0],
+            'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
+            'number pretrain iterations'            : [500],
+            'max number of iterations'              : [max_number],
+            'max minutes of iterations'             : [max_minutes],
+            'initial lr'                            : [0.02],  # 0.01 for other setting
+            'lr decay algorithm'                    : [2],  # 2 Information in 1 entry
+            'random seed'                           : [1337],
+            'validation frequency'                  : [10],
+            'antithetic variables on validation set': [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
+            'antithetic variables on train set'     : [False],
+            'training batch size'                   : [train_size],
+            'number of validation paths'            : [val_size],  # with my current implementation this has to be constant over a programm execution
+            'number of test paths'                  : [test_size]  # with my current implementation this has to be constant over a programm execution
         }
 
         for u, v in dict_a.items():
             if v.__len__() > 1:
-                if u == "pretrain_func":
+                if u == "pretrain function":
                     list_individual_parameters.append("pretrain")
-                if u == "lr_decay_alg":
-                    list_individual_parameters.append("do_lr_decay")
+                if u == "lr decay algorithm":
+                    list_individual_parameters.append("do lr decay")
                 list_individual_parameters.append(u)
             else:
-                if u == "pretrain_func":
+                if u == "pretrain function":
                     list_common_parameters.append("pretrain")
-                if u == "lr_decay_alg":
-                    list_common_parameters.append("do_lr_decay")
+                if u == "lr decay algorithm":
+                    list_common_parameters.append("do lr decay")
                 list_common_parameters.append(u)
 
         run_number = 0
@@ -589,34 +590,34 @@ class ConfigInitializer:
 
             stop_paths_in_plot = False
             algorithm = params['algorithm']
-            internal_neurons = params['internal_neurons']
-            hidden_layer_count = params['hidden_layer_count']
-            activation_internal = params['activation_internal']
-            activation_final = params['activation_final']
+            internal_neurons = params['internal neurons per layer']
+            hidden_layer_count = params['hidden layer count']
+            activation_internal = params['internal activation function']
+            activation_final = params['final activation function']
             optimizer = optimizers[params['optimizer']]
-            if params['pretrain_func'] is False:
+            if params['pretrain function'] is False:
                 do_pretrain = False
             else:
                 do_pretrain = True
-            pretrain_func = pretrain_functions[params['pretrain_func']]
-            pretrain_iterations = params['pretrain_iterations']
-            max_number_of_iterations = params['max_number_of_iterations']
-            max_minutes_of_iterations = params['max_minutes_of_iterations']
+            pretrain_func = pretrain_functions[params['pretrain function']]
+            pretrain_iterations = params['number pretrain iterations']
+            max_number_of_iterations = params['max number of iterations']
+            max_minutes_of_iterations = params['max minutes of iterations']
 
-            train_size = params['train_size']
-            initial_lr = params['initial_lr']
-            if params['lr_decay_alg'] is False:
+            train_size = params['training batch size']
+            initial_lr = params['initial lr']
+            if params['lr decay algorithm'] is False:
                 do_lr_decay = False
-                lr_decay_alg = params['lr_decay_alg']
+                lr_decay_alg = params['lr decay algorithm']
             else:
                 do_lr_decay = True
-                lr_decay_alg = lr_decay_algs[params['lr_decay_alg']]
-            random_seed = params['random_seed']
-            validation_frequency = params['validation_frequency']
-            antithetic_val = params['antithetic_val']
-            antithetic_train = params['antithetic_val']
-            test_size = params['test_size']
-            val_size = params['val_size']
+                lr_decay_alg = lr_decay_algs[params['lr decay algorithm']]
+            random_seed = params['random seed']
+            validation_frequency = params['validation frequency']
+            antithetic_val = params['antithetic variables on validation set']
+            antithetic_train = params['antithetic variables on train set']
+            val_size = params['number of validation paths']
+            test_size = params['number of test paths']
 
             current_Config = Config(algorithm, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer, do_pretrain, pretrain_func, pretrain_iterations,
                                     max_number_of_iterations,
@@ -625,17 +626,17 @@ class ConfigInitializer:
             if run_number == 0:
                 f = open("intermediate_results.txt", "w")
                 intro_string = "Wir optimieren \t" + Model.parameter_string + "Folgende Parameter sind konstant über alle runs: \t" + \
-                              current_Config.get_psl_wrt_list(list_common_parameters) + "\nLegende: a\t(b)\t | \tc\t(d)\t" + \
-                              "Vor dem Strich stehen die diskreten Werte, hinter dem Strich die stetigen. In Klammern sind die Werte aus der final validation angegeben\n\n"
+                               current_Config.get_psl_wrt_list(list_common_parameters) + "\nLegende: a\t(b)\t | \tc\t(d)\t" + \
+                               "Vor dem Strich stehen die diskreten Werte, hinter dem Strich die stetigen. In Klammern sind die Werte aus dem Test angegeben\n\n"
                 f.write(intro_string)
                 f.close()
 
                 log.warning("The reference value is: " + str(Model.get_reference_value()))
 
-                test_paths = test_paths[:test_size]
                 val_paths = val_paths[:val_size]
+                test_paths = test_paths[:test_size]
 
-            Memory.val_paths = val_paths
+            Memory.test_paths = test_paths
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
             individual_parameter_list = current_Config.get_pl_wrt_list(list_individual_parameters)
@@ -645,7 +646,7 @@ class ConfigInitializer:
             if algorithm == 3:
                 Model_copied = copy.deepcopy(Model)
                 Model.__N = 10
-                current_NN = NN.NN(current_Config, Model_copied, Memory, log, test_paths)
+                current_NN = NN.NN(current_Config, Model_copied, Memory, log, testxxx_paths)
 
                 # result enthält prominent_result klasse, memory klasse
                 optimitaion_result = [current_NN.optimization()]
@@ -665,24 +666,24 @@ class ConfigInitializer:
                     N_factor = 3
                     if N % N_factor != 0:
                         log.critical("Algorithm 3 doesn't work")
-                # shorten test paths
-                shortened_test_paths = test_paths[:, :, ::N_factor]
+                # shorten val paths
+                shortened_val_paths = val_paths[:, :, ::N_factor]
 
-                Model.setN(Model.getN()//N_factor)
+                Model.setN(Model.getN() // N_factor)
                 current_NN.M_max = 50
-                m_out = current_NN.optimization(shortened_test_paths, m_out)[0]
+                m_out = current_NN.optimization(shortened_val_paths, m_out)[0]
                 current_NN.M_max = max_number_of_iterations
-                Model.setN(Model.getN()*N_factor)
+                Model.setN(Model.getN() * N_factor)
                 log.warning("Alg 3 \"pretrain\" ends")
 
                 # deletes old Prominent Results
                 current_NN.ProminentResults.initialize_empty()
-            # test_paths = test_paths[:, 0, :]  # TODO: recall this removes the unnecessary dimension
-            optimitaion_result = [current_NN.optimization(test_paths, m_out)[1:]]
-            log.warning("Final val begins")
+            # val_paths = val_paths[:, 0, :]  # TODO: recall this removes the unnecessary dimension
+            optimitaion_result = [current_NN.optimization(val_paths, m_out)[1:]]
+            log.warning("Final test begins")
             fvs = time.time()
-            optimitaion_result[0][0].final_validation(val_paths)
-            Memory.final_val_duration = time.time() - fvs
+            optimitaion_result[0][0].test(test_paths)
+            Memory.test_duration = time.time() - fvs
             Memory.end_time = time.time()
 
             result_list.append([optimitaion_result[0][0], optimitaion_result[0][1], run_number, individual_parameter_string, individual_parameter_list])
@@ -692,17 +693,17 @@ class ConfigInitializer:
             f.write(self.result_to_resultstring(result_list[-1]))
             f.close()
 
-            Out.create_graphics(Memory, optimitaion_result[0][0], Model, current_Config, run_number, test_paths, val_paths, current_NN)
+            Out.create_graphics(Memory, optimitaion_result[0][0], Model, current_Config, run_number, val_paths, test_paths, current_NN)
 
             run_number += 1
 
-        def sort_resultlist_by_highest_disc_value_on_val_set(result_list):
+        def sort_resultlist_by_highest_disc_value_on_test_set(result_list):
             def sort_key(element):
-                # return -max(element[0].disc_best_result.val_disc_value, element[0].cont_best_result.val_disc_value, element[0].final_result.val_disc_value)
-                return -max(element[0].disc_best_result.val_disc_value, element[0].cont_best_result.val_disc_value, element[0].final_result.val_disc_value)
+                return -max(element[0].disc_best_result.test_disc_value, element[0].cont_best_result.test_disc_value, element[0].final_result.test_disc_value)
+
             result_list.sort(key=sort_key)
 
-        sort_resultlist_by_highest_disc_value_on_val_set(result_list)
+        sort_resultlist_by_highest_disc_value_on_test_set(result_list)
 
         f = open("end_result.txt", "w")
         f.write(intro_string)
@@ -715,10 +716,10 @@ class ConfigInitializer:
     @staticmethod
     def result_to_resultstring(result):
         def short_disc(a):
-            return str(round(a.test_disc_value, 5)) + " \t (" + str(round(a.val_disc_value, 5)) + ")\t"
+            return str(round(a.val_disc_value, 5)) + " \t (" + str(round(a.test_disc_value, 5)) + ")\t"
 
         def short_cont(a):
-            return str(round(a.test_cont_value, 5)) + " \t (" + str(round(a.val_cont_value, 5)) + ")\t"
+            return str(round(a.val_cont_value, 5)) + " \t (" + str(round(a.test_cont_value, 5)) + ")\t"
 
         os = mylog("\trun: ", str(result[2]),
                    "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),
@@ -727,8 +728,8 @@ class ConfigInitializer:
                    "\ttime taken until discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
                    result[1].end_time - result[1].start_time,
                    "\titerations taken until discrete/cont/final result:", result[0].disc_best_result.m, " | ", result[0].cont_best_result.m, " | ", result[0].final_result.m,
-                   "\ttime spend training:", sum(result[1].train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
-                   "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].final_val_duration,
+                   "\ttime spend training:", sum(result[1].train_durations), "time spend testxxxing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
+                   "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
                    "Parameterstring:", result[3])
         return os
 
@@ -740,7 +741,7 @@ class ConfigInitializer:
         title_text2 = current_config.get_psl_wrt_list(list_common_parameters)
 
         for k in range(1, 4):
-            index = title_text2.find("\t", 150*k)
+            index = title_text2.find("\t", 150 * k)
             title_text2 = title_text2[:index] + '\n' + title_text2[index:]
 
         title_text = title_text1 + title_text2
@@ -753,13 +754,13 @@ class ConfigInitializer:
         data = []
         # too long
         '''
-        data.append(['average payoff of on the validation set using the net giving the best result on the test set', 'average payoff of on the validation set using the final net',
+        data.append(['average payoff of on the test set using the net giving the best result on the val set', 'average payoff of on the test set using the final net',
                      'time until intermediate result', 'time total'])
         '''
         data.append(['best disc', 'best cont', 'final', 'iterations'] + [param[0] for param in resultlist[0][4]])
         for res in resultlist:
-            data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.val_disc_value, res[0].cont_best_result.val_disc_value, res[0].final_result.val_disc_value,
-                         str(res[0].disc_best_result.m) + " | "+ str(res[0].cont_best_result.m) + " | " + str(res[0].final_result.m)]
+            data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.test_disc_value, res[0].cont_best_result.test_disc_value, res[0].final_result.test_disc_value,
+                         str(res[0].disc_best_result.m) + " | " + str(res[0].cont_best_result.m) + " | " + str(res[0].final_result.m)]
                         + [str(param[1]) for param in res[4]])
 
         for i in range(1, data.__len__()):
@@ -780,7 +781,7 @@ class ConfigInitializer:
                    edgecolor=fig_border,
                    facecolor=fig_background_color,
                    tight_layout={'pad': 1},
-                   figsize=(10, 3+data.__len__()/5)  # figsize=(10, 3)   gerade 2.5 / 4
+                   figsize=(10, 3 + data.__len__() / 5)  # figsize=(10, 3)   gerade 2.5 / 4
                    )  # Add a table at the bottom of the axes
         h = [0.1] * 5
         h.extend([0.15] * 5)
