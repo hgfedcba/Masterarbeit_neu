@@ -8,6 +8,7 @@ from ModelDefinitions import mu_dict, payoff_dict, sigma_dict
 
 from MarkovBlackScholesModel import MarkovBlackScholesModel
 from RobbinsModel import RobbinsModel
+from W_RobbinsModel import W_RobbinsModel
 
 from NetDefinitions import add_am_call_default_pretrain, add_am_put_default_pretrain, add_multiplicative_lr_scheduler, pretrain_functions, lr_decay_algs, optimizers, add_step_lr_scheduler
 # noinspection PyUnresolvedReferences
@@ -30,6 +31,7 @@ from Memory import Memory as MemeClass
 
 import Out
 import pickle
+
 
 
 class ConfigInitializer:
@@ -292,22 +294,9 @@ class ConfigInitializer:
             with open(test_paths_file, "rb") as fp:  # Unpickling
                 test_paths = pickle.load(fp)
 
-            """
-            val_size = 100000
-            testxxx_size = 100000
-            val_paths = Model.generate_paths(val_size)
-            test_paths = Model.generate_paths(test_size)
-
-            with open(val_paths_file, "wb") as fp:  # Pickling
-                pickle.dump(val_paths, fp)
-
-            with open(test_paths_file, "wb") as fp:  # Pickling
-                pickle.dump(test_paths, fp)
-            """
-
         elif option == "R3":
             N = 39
-            max_minutes = 120 / 120
+            max_minutes = 40
             max_number = 300
             train_size = 1024
             val_size = 2028
@@ -325,6 +314,62 @@ class ConfigInitializer:
                 val_paths = pickle.load(fp)
             with open(test_paths_file, "rb") as fp:  # Unpickling
                 test_paths = pickle.load(fp)
+
+        elif option == "RW1" or option == "RW0":
+            N = 19
+            if option == "RW0":
+                max_minutes = 0.1
+            else:
+                max_minutes = 3
+            train_size = 128
+            val_size = 256
+            test_size = 512
+            x_plot_range_for_net_plot = [0, 1]
+
+            Model = W_RobbinsModel(N)
+            Model.set_reference_value(N + 2 - 2.3)
+            Model.update_parameter_string()
+
+            val_paths_file = "../val_paths_RW20.npy"
+            test_paths_file = "../val_paths_RW20.npy"
+            val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = np.load(test_paths_file, mmap_mode="r")
+
+        elif option == "RW2":
+            N = 19
+            max_minutes = 20
+            max_number = 200
+            train_size = 512
+            val_size = 1024
+            test_size = 8192
+            x_plot_range_for_net_plot = [0, 1]
+
+            Model = W_RobbinsModel(N)
+            Model.set_reference_value(N + 2 - 2.3)
+            Model.update_parameter_string()
+
+            val_paths_file = "../val_paths_RW20.npy"
+            test_paths_file = "../val_paths_RW20.npy"
+            val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = np.load(test_paths_file, mmap_mode="r")
+
+        elif option == "RW3":
+            N = 39
+            max_minutes = 120
+            max_number = 300
+            train_size = 1024
+            val_size = 2028
+            test_size = 16384
+            x_plot_range_for_net_plot = [0, 1]
+
+            Model = W_RobbinsModel(N)
+            Model.set_reference_value(N + 2 - 2.3)
+            Model.update_parameter_string()
+
+            val_paths_file = "../val_paths_RW20.npy"
+            test_paths_file = "../val_paths_RW20.npy"
+            val_paths = np.load(val_paths_file, mmap_mode="r")
+            test_paths = np.load(test_paths_file, mmap_mode="r")
 
         elif option == "Russ1":
             # Model
@@ -547,7 +592,7 @@ class ConfigInitializer:
         list_common_parameters = []
 
         dict_a = {  #
-            'algorithm'                             : [0, 2, 10],
+            'algorithm'                             : [10, 2, 0],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
             'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
@@ -711,6 +756,7 @@ class ConfigInitializer:
 
         self.create_outputtable(Model, current_Config, list_common_parameters, result_list)
 
+    # TODO: improve this
     @staticmethod
     def result_to_resultstring(result):
         def short_disc(a):

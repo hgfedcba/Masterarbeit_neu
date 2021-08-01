@@ -4,6 +4,7 @@ import time
 import numpy as np
 import torch
 
+import W_RobbinsModel
 from Util import *
 from ProminentResults import ProminentResults
 import torch.nn as nn
@@ -97,11 +98,16 @@ class Alg10_NN(NN):
         avg_list = []
         while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 30:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
-            for j in range(len(training_paths)):
-                if isinstance(self.Model, RobbinsModel):
-                    training_paths[j] = training_paths[j][k:]
-                else:
-                    training_paths[j] = training_paths[j][:, k:]
+            if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
+                for j in range(len(training_paths)):
+                    if isinstance(self.Model, RobbinsModel):
+                        training_paths[j] = training_paths[j][k:]
+                    else:
+                        training_paths[j] = training_paths[j][:, k:]
+            else:
+                # TODO: doesn't work jet
+                training_paths = training_paths[:, k:]
+                training_paths = training_paths.reshape(training_paths, (self.batch_size, 1, self.N+1))
             avg = self.train(optimizer, training_paths)
             avg_list.append(avg)
 

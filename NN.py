@@ -366,6 +366,9 @@ class NN:
     def generate_stopping_time_factors_and_discrete_stoppoint_from_path(self, x_input, grad):
         if isinstance(x_input, list):
             local_N = x_input.__len__()
+        elif x_input.size == x_input.shape[0]:
+            local_N = x_input.size
+            x_input = np.reshape(x_input, (1, local_N))
         else:
             local_N = x_input.shape[1]
         assert len(self.u)+1 == local_N or self.single_net_algorithm(), "First is " + str(len(self.u)+1) + " and second is " + str(local_N)

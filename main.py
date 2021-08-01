@@ -45,6 +45,8 @@ antitheitc variables
 
 # TODO: switch names for test and validation set
 
+# TODO: Initialisiere Modelle in einer anderen Datei
+
 
 """
 1. implemntiere robbins klasse
@@ -91,7 +93,7 @@ if __name__ == '__main__':
     log.critical("this is a critical message")
     '''
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3, Russ0
-    CI = ConfigInitializer(1, log)
+    CI = ConfigInitializer("RW0", log)
 
     log.info("The End")
     """

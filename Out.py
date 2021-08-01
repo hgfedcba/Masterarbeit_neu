@@ -35,9 +35,9 @@ def average_value_stopped_at(final_result, Model, paths):
         else:
             for k in range(paths.shape[0]):
                 if stopping_times[k] == n:
-                    stop.append(paths[k][0][n])
+                    stop.append(paths[k][n])
                 elif stopping_times[k] > n:
-                    no_stop.append(paths[k][0][n])
+                    no_stop.append(paths[k][n])
 
         if not stop:
             c.append('red')
@@ -69,6 +69,8 @@ def create_graphics(Memory, ProminentResults, Model, Config, run_number, val_pat
 
 
 def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_paths, test_paths):
+    if not isinstance(Model, RobbinsModel) and test_paths.shape[1] == 1:
+        test_paths = test_paths[:][0][:]
     pdf = pdfp.PdfPages("Metrics" + str(run_number) + ".pdf")
 
     # Value over time Graph
@@ -303,7 +305,7 @@ def create_paths_plot(paths, Model, Config, stopping_times, plot_number, title, 
     t = np.asarray(range(0, Model.getN() + 1)) / Model.getN() * Model.getT()
     for k in range(number_of_plots):
         stop_point = np.argmax(stopping_times[k])
-        stopped_path = paths[k][0][:stop_point + 1]
+        stopped_path = paths[k][:stop_point + 1]
         draw_connected_points(t[:stop_point + 1], stopped_path, plot_number)
         plt.scatter(t[stop_point], stopped_path[stop_point], marker='o')
 
