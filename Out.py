@@ -35,9 +35,9 @@ def average_value_stopped_at(final_result, Model, paths):
         else:
             for k in range(paths.shape[0]):
                 if stopping_times[k] == n:
-                    stop.append(paths[k][n])
+                    stop.append(paths[k][0][n])
                 elif stopping_times[k] > n:
-                    no_stop.append(paths[k][n])
+                    no_stop.append(paths[k][0][n])
 
         if not stop:
             c.append('red')
@@ -69,8 +69,6 @@ def create_graphics(Memory, ProminentResults, Model, Config, run_number, val_pat
 
 
 def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_paths, test_paths):
-    if not isinstance(Model, RobbinsModel) and test_paths.shape[1] == 1:
-        test_paths = test_paths[:][0][:]
     pdf = pdfp.PdfPages("Metrics" + str(run_number) + ".pdf")
 
     # Value over time Graph
@@ -207,14 +205,19 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     draw_connected_points(iter, vd, plot_number_duration)
     draw_connected_points(iter, tn, plot_number_duration)
     plt.legend(["train duration", "val duration", "time spend in net"])
-    xlabel('iteration', fontsize=16)
     ylabel('time', fontsize=16)
-    plt.title('time spend on ' + str(Config.validation_frequency) + ' iterations')
+    if Config.algorithm == 10:
+        plt.title("time spend to optimize each net")
+        xlabel('net', fontsize=16)
+    else:
+        plt.title('time spend on ' + str(Config.validation_frequency) + ' iterations')
+        xlabel('iteration', fontsize=16)
     grid(True)
 
     pdf.savefig(fig2)
     plt.close(fig2)
 
+    # Time spending during training
     plot_number_duration_2 = 25
     fig25 = plt.figure(plot_number_duration_2)
 
@@ -223,9 +226,9 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     tn = []
 
     for k in range(0, int(len(Memory.train_durations)/Config.validation_frequency)):
-        td.append(Memory.pretrain_duration + sum(Memory.train_durations[:Config.validation_frequency*(k)]))
-        vd.append(Memory.pretrain_duration + sum(Memory.val_durations[:(k)]))
-        tn.append(Memory.pretrain_duration + sum(Memory.total_net_durations[:Config.validation_frequency*(k)]))
+        td.append(Memory.pretrain_duration + sum(Memory.train_durations[:Config.validation_frequency*k]))
+        vd.append(Memory.pretrain_duration + sum(Memory.val_durations[:k]))
+        tn.append(Memory.pretrain_duration + sum(Memory.total_net_durations[:Config.validation_frequency*k]))
 
     draw_connected_points(iter, td, plot_number_duration_2)
     draw_connected_points(iter, vd, plot_number_duration_2)
@@ -234,7 +237,10 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     draw_connected_points(iter, (time.time() - Memory.start_time) * np.ones_like(iter), plot_number_duration_2)
     draw_connected_points(iter, (time.time() - Memory.start_time - Memory.test_duration) * np.ones_like(iter), plot_number_duration_2)
     plt.legend(["train duration", "val duration", "time spend in net", "pretrain end", "test end", "test start"])
-    xlabel('iteration', fontsize=16)
+    if Config.algorithm == 10:
+        xlabel('net', fontsize=16)
+    else:
+        xlabel('iteration', fontsize=16)
     ylabel('time', fontsize=16)
     plt.ylim([0, (time.time() - Memory.start_time)*1.05])
     # make this a pie chart     problem mit time spent in net
@@ -256,6 +262,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
 
     plt.show()
     '''
+
     path_dim = Model.getpath_dim()
 
     if np.allclose(path_dim, 1 * np.ones_like(path_dim)) or isinstance(Model, RussianOption.RussianOption):
@@ -305,7 +312,7 @@ def create_paths_plot(paths, Model, Config, stopping_times, plot_number, title, 
     t = np.asarray(range(0, Model.getN() + 1)) / Model.getN() * Model.getT()
     for k in range(number_of_plots):
         stop_point = np.argmax(stopping_times[k])
-        stopped_path = paths[k][:stop_point + 1]
+        stopped_path = paths[k][0][:stop_point + 1]
         draw_connected_points(t[:stop_point + 1], stopped_path, plot_number)
         plt.scatter(t[stop_point], stopped_path[stop_point], marker='o')
 

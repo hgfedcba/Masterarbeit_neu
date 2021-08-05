@@ -24,7 +24,7 @@ def fake_net(x):
 
 class Alg10_NN(NN):
     def optimization(self, val_paths, m_out):
-        self.test_paths = val_paths
+        self.val_paths = val_paths
         self.N = self.Model.getN()
         # self.N = test_paths.shape[2]-1
 
@@ -56,7 +56,7 @@ class Alg10_NN(NN):
                 self.u.append(fake_net)
             self.u.extend(saved_u)
 
-            cont_payoff, disc_payoff, stopping_times = self.validate(self.test_paths)
+            cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
             log.info(
                 "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (self.N-m, round(cont_payoff, 3), round(disc_payoff, 3)))
 
@@ -85,11 +85,14 @@ class Alg10_NN(NN):
         m = 0
 
         self.u.insert(0, Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK()))
+
+        # pretrain, deprecated
         if isinstance(self.Model, RobbinsModel) and self.do_pretrain:
             barrier = 0.55+(self.Model.getN()-k)/self.Model.getN()/3  # klappt nicht
             barrier = 0.65
             self.robbins_pretrain(self.u[0], k, barrier)
             self.Memory.pretrain_duration = self.Memory.pretrain_duration + time.time() - start_time
+
         params = list(self.u[0].parameters())
         optimizer = self.optimizer(params, lr=self.initial_lr)
         if self.do_lr_decay:
@@ -105,9 +108,15 @@ class Alg10_NN(NN):
                     else:
                         training_paths[j] = training_paths[j][:, k:]
             else:
-                # TODO: doesn't work jet
-                training_paths = training_paths[:, k:]
-                training_paths = training_paths.reshape(training_paths, (self.batch_size, 1, self.N+1))
+                training_paths = training_paths[:, :, k:]
+            """
+            for j in range(len(training_paths)):
+                if isinstance(self.Model, RobbinsModel):
+                    training_paths[j] = training_paths[j][k:]
+                else:
+                    h = training_paths[j]
+                    training_paths[j] = training_paths[j][:, k:]
+            """
             avg = self.train(optimizer, training_paths)
             avg_list.append(avg)
 

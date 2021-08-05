@@ -20,8 +20,8 @@ class W_RobbinsModel(AbstractMathematicalModel):
         self.parameter_list = []
         self.__K = 0  # solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
 
-    def update_parameter_string(self):
-        parameter_string = "Robbins Model learning W with reference_value: ", round(self.__reference_value, 3), "N: ", self.__N
+    def update_parameter_string(self, main_pc):
+        parameter_string = "Robbins Model learning W with reference_value: ", round(self.__reference_value, 3), "N: ", self.__N, "auf dem " + main_pc
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
 
@@ -36,8 +36,15 @@ class W_RobbinsModel(AbstractMathematicalModel):
             #     print(l)
         """
 
+        """
         x = np.random.uniform(low=0.0, high=1.0, size=(L, self.__N+1))
 
+        x = x.tolist()
+
+        for k in range(x.__len__()):
+            x[k] = np.reshape(x[k], (1, self.__N+1))
+        """
+        x = np.random.uniform(low=0.0, high=1.0, size=(L, 1, self.__N + 1))
         return x
 
     def get_time_partition(self, N=None, step_size=1):
@@ -83,7 +90,8 @@ class W_RobbinsModel(AbstractMathematicalModel):
             return self.getg(U, x)
         assert torch.sum(torch.tensor(U)).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(torch.tensor(U)).item())
 
-        h = np.reshape(x, self.getN()+1)
+        # h = np.reshape(x, self.getN()+1)
+        h = np.reshape(x, U.shape[0])
 
         # Schritt 1: Ersetze in x jeden Wert mit dem entsprechenden Rang
         # TODO: (beachte das problem von 2 identischen werten)

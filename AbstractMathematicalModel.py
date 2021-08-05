@@ -31,7 +31,7 @@ class AbstractMathematicalModel(ABC):
         pass
 
     @abstractmethod
-    def update_parameter_string(self):
+    def update_parameter_string(self, main_pc):
         pass
 
     @abstractmethod

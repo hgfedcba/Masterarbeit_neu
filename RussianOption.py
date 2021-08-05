@@ -10,8 +10,8 @@ class RussianOption(MarkovBlackScholesModel):
         super().__init__(T, N, d, K, delta, mu, sigma, g, xi)
         assert payoff_dict.get(self._internal_g) == "russian option"
 
-    def update_parameter_string(self):
-        super().update_parameter_string()
+    def update_parameter_string(self, main_pc):
+        super().update_parameter_string(main_pc)
 
     @staticmethod
     def path_to_russian_path(p):
