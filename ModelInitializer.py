@@ -18,6 +18,7 @@ np.save("../val_paths_4411_5.npy", val_paths)
 np.save("../test_paths_4411_5.npy", test_paths)
 """
 
+
 def initialize_model(option):
     val_paths = None
     test_paths = None
@@ -313,11 +314,11 @@ def initialize_model(option):
 
     elif option == "RW2":
         N = 19
-        max_minutes = 20
-        max_number = 200
-        train_size = 512
-        val_size = 1024
-        test_size = 8192
+        max_minutes = 30
+        max_number = 300
+        train_size = 1024
+        val_size = 2048
+        test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
 
         Model = W_RobbinsModel(N)
@@ -332,7 +333,7 @@ def initialize_model(option):
     elif option == "RW3":
         N = 39
         max_minutes = 120
-        max_number = 300
+        max_number = 400
         train_size = 1024
         val_size = 2028
         test_size = 16384
@@ -354,31 +355,32 @@ def initialize_model(option):
         test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == "Russ1":
+        # TODO: Recall, manche netze sind einfach bad und lernen schlecht
         # Model
         r = 0.05
         sigma_constant = 0.3  # beta
         mu_constant = r
         xi = 1
         K = xi
-        T = 1
+        T = 10
         N = 10
         d = 1  # dimension
-        delta = 0  # dividend rate  # TODO: check this works
+        delta = 0.03  # dividend rate
         sigma = add_sigma_c_x(sigma_constant)
         mu = add_mu_c_x(mu_constant, delta)
         g = add_russian_option(r)
 
         add_am_put_default_pretrain(K, 16)
 
-        max_minutes = 3
-        train_size = 128
+        max_minutes = 5
+        train_size = 256
         val_size = 256
-        test_size = 512
+        test_size = 2048
 
         x_plot_range_for_net_plot = [0.5, 3]
 
         Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
-        Model.set_reference_value(1.2372)
+        Model.set_reference_value(1.5273)
         Model.update_parameter_string(main_pc)
 
         # val_paths_file = "../val_paths_1.npy"
@@ -398,17 +400,17 @@ def initialize_model(option):
         T = 1
         N = 10
         d = 1  # dimension
-        delta = 0.03  # dividend rate  # TODO: check this works
+        delta = 0.03  # dividend rate
         sigma = add_sigma_c_x(sigma_constant)
         mu = add_mu_c_x(mu_constant, delta)
         g = add_russian_option(r)
 
         add_am_put_default_pretrain(K, 16)
 
-        max_minutes = 3
-        train_size = 128
+        max_minutes = 5
+        train_size = 256
         val_size = 256
-        test_size = 512
+        test_size = 2048
 
         x_plot_range_for_net_plot = [0.5, 3]
 
@@ -424,34 +426,31 @@ def initialize_model(option):
         test_paths = Model.generate_paths(test_size)
 
     elif option == "Russ111":
-        # TODO: This is pretty stupid as it always stops at the last timestep, but it should be nice to see why my reference value is faulty
-        # TODO: WORKS
         # Model
-        r = 0
+        r = 0.05
         sigma_constant = 0.3  # beta
         mu_constant = r
         xi = 1
         K = xi
-        T = 1
+        T = 5
         N = 10
         d = 1  # dimension
-        delta = 0.05  # dividend rate
+        delta = 0.03  # dividend rate
         sigma = add_sigma_c_x(sigma_constant)
         mu = add_mu_c_x(mu_constant, delta)
         g = add_russian_option(r)
 
         add_am_put_default_pretrain(K, 16)
 
-        max_minutes = 0.5
-        train_size = 128
+        max_minutes = 5
+        train_size = 256
         val_size = 256
         test_size = 4096
 
         x_plot_range_for_net_plot = [0.5, 3]
 
         Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
-        Model.set_reference_value(1.2372 * math.exp(-delta * T))
-        # TODO: Der japanische dude sagt das die exercise boundary der beiden optionen identisch sind und ich hoffe das bedeutet das sich beim vertauschen von delta und r sie sich nur um den diskontierungsfaktor unterscheiden
+        Model.set_reference_value(1.4288)
         Model.update_parameter_string(main_pc)
 
         # val_paths_file = "../val_paths_1.npy"
@@ -506,7 +505,7 @@ def initialize_model(option):
         T = 1
         N = 20
         d = 1  # dimension
-        delta = 0.03  # dividend rate  # TODO: check this works
+        delta = 0.03  # dividend rate
         sigma = add_sigma_c_x(sigma_constant)
         mu = add_mu_c_x(mu_constant, delta)
         g = add_russian_option(r)

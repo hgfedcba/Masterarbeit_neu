@@ -7,6 +7,10 @@ import matplotlib.backends.backend_pdf as pdfp
 import torch
 
 
+def force_5_decimal(d):
+    return f'{d:.5f}'
+
+
 def mylog(*argv):
     argv = list(argv)
     for s in range(len(argv)):

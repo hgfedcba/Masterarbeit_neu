@@ -2,6 +2,7 @@ import math
 
 import Alg10
 import ModelInitializer
+import Util
 
 from NetDefinitions import add_am_call_default_pretrain, add_am_put_default_pretrain, add_multiplicative_lr_scheduler, pretrain_functions, lr_decay_algs, optimizers, add_step_lr_scheduler
 # noinspection PyUnresolvedReferences
@@ -46,11 +47,12 @@ class ConfigInitializer:
         list_individual_parameters = []
         list_common_parameters = []
 
+        # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
-            'algorithm'                             : [10, 0],
-            'internal neurons per layer'            : [50],  # 50, 100
-            'hidden layer count'                    : [2],  # [1, 2, 3]
-            'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
+            'algorithm'                             : [2],
+            'internal neurons per layer'            : [50, 100],  # 50, 100
+            'hidden layer count'                    : [1, 2],  # [1, 2, 3]
+            'internal activation function'          : [tanh, relu, softsign],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
             'optimizer'                             : [0],
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
@@ -212,15 +214,20 @@ class ConfigInitializer:
 
         self.create_outputtable(Model, current_Config, list_common_parameters, result_list)
 
-    # TODO: improve this
     @staticmethod
     def result_to_resultstring(result):
+        def short_disc(a):
+            return Util.force_5_decimal(a.val_cont_value) + " \t (" + Util.force_5_decimal(a.test_disc_value) + ")\t"
+
+        def short_cont(a):
+            return Util.force_5_decimal(a.val_cont_value) + " \t (" + Util.force_5_decimal(a.test_cont_value) + ")\t"
+        """
         def short_disc(a):
             return str(round(a.val_disc_value, 5)) + " \t (" + str(round(a.test_disc_value, 5)) + ")\t"
 
         def short_cont(a):
             return str(round(a.val_cont_value, 5)) + " \t (" + str(round(a.test_cont_value, 5)) + ")\t"
-
+        """
         os = mylog("\trun: ", str(result[2]),
                    "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),
                    "\tbest cont result:", short_disc(result[0].cont_best_result), " | ", short_cont(result[0].cont_best_result),
@@ -237,7 +244,7 @@ class ConfigInitializer:
     @staticmethod
     def create_outputtable(Model, current_config, list_common_parameters, resultlist):
         # Colorcode name vs value?
-        title_text1 = "Wir optimieren für das Modell: \t" + Model.parameter_string + "\n\nFolgende Parameter sind konstant über alle Runs:\n"
+        title_text1 = "Wir optimieren für das Modell: \n" + Model.parameter_string + "\n\nFolgende Parameter sind konstant über alle Runs:\n"
         title_text2 = current_config.get_psl_wrt_list(list_common_parameters)
 
         for k in range(1, 4):

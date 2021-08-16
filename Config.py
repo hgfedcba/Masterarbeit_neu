@@ -55,7 +55,6 @@ class Config:
             11: "seq with pretrain"
         }
 
-        # TODO: entferne Unterstriche, verbessere Beschreibung:  Trivialer Ansatz geht nicht!
         pl = [["algorithm", alg_dict.get(algorithm)], ["internal neurons per layer", internal_neurons], ["hidden layer count", hidden_layer_count],
               ["internal activation function", activation_func_dict.get(activation_internal)], ["final activation function", activation_func_dict.get(activation_final)],
               ["optimizer", optimizer_dict.get(optimizer)], ["do pretrain", do_pretrain], ["pretrain function", pretrain_func_dict.get(pretrain_func)],

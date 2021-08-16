@@ -52,6 +52,7 @@ def add_american_put(d, K, r):
 def add_russian_option(r):
     def russian_option(t_in, x):
         return math.exp(-r * t_in) * x[1]
+        # return x[1]
     f = russian_option
     payoffs.append(f)
     payoff_dict[f] = "russian option"

@@ -41,11 +41,8 @@ antitheitc variables
 # TODO: Alle Plots überprüfen
 
 # TODO: Robbins problem idee: sortiere pfade
-# TODO: Robbins problem idee: lerne W
 
-# TODO: switch names for test and validation set
-
-# TODO: Initialisiere Modelle in einer anderen Datei
+# TODO: switch names for test and validation set (überprüfen)
 
 
 """
@@ -93,8 +90,16 @@ if __name__ == '__main__':
     log.critical("this is a critical message")
     '''
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3, Russ0, Rw0
-    CI = ConfigInitializer(0, log)
+    import os
 
+    CI = ConfigInitializer("RW2", log)
+    os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run2")
+    """
+    CI = ConfigInitializer("Russ11", log)
+    os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run3")
+
+    CI = ConfigInitializer("Russ111", log)
+    """
     log.info("The End")
     """
     from RobbinsModel import RobbinsModel
