@@ -565,7 +565,7 @@ def initialize_model(option):
         test_paths = np.load(test_paths_file, mmap_mode="r")
     else:
         return 0
-    if main_pc == "Zweitrechner":
+    if main_pc == "\tZweitrechner":
         max_minutes *= 1.3
         max_number *= 1.3
     return val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot

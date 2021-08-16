@@ -93,8 +93,8 @@ if __name__ == '__main__':
     import os
 
     CI = ConfigInitializer("RW2", log)
-    os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run2")
     """
+    os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run2")
     CI = ConfigInitializer("Russ11", log)
     os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run3")
 
