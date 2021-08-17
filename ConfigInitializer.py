@@ -49,7 +49,7 @@ class ConfigInitializer:
 
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
-            'algorithm'                             : [2],
+            'algorithm'                             : [0],
             'internal neurons per layer'            : [50, 100],  # 50, 100
             'hidden layer count'                    : [1, 2],  # [1, 2, 3]
             'internal activation function'          : [tanh, relu, softsign],  # [tanh, relu, leaky_relu, softsign, selu]

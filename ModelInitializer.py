@@ -252,11 +252,11 @@ def initialize_model(option):
 
     elif option == "R2":
         N = 19
-        max_minutes = 40
-        max_number = 200
-        train_size = 512
-        val_size = 1024
-        test_size = 8192
+        max_minutes = 30
+        max_number = 300
+        train_size = 1024
+        val_size = 2048
+        test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
 
         Model = RobbinsModel(N)
