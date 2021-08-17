@@ -252,7 +252,7 @@ def initialize_model(option):
 
     elif option == "R2":
         N = 19
-        max_minutes = 30
+        max_minutes = 25
         max_number = 300
         train_size = 1024
         val_size = 2048
