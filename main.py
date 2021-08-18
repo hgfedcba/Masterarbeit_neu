@@ -93,7 +93,7 @@ if __name__ == '__main__':
     import os
 
     # TODO: average value stopped at looks wrong
-    CI = ConfigInitializer("R2", log)
+    CI = ConfigInitializer(0, log)
     """
     os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run2")
     CI = ConfigInitializer("Russ11", log)

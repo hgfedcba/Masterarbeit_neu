@@ -22,6 +22,7 @@ import statistics
 def average_value_stopped_at(final_result, Model, paths):
     c = []
     v = []
+    p = []
     stopping_times = Model.convert_vector_stopping_times_to_int(final_result.test_stopping_times)
     for n in range(Model.getN() + 1):
         stop = []
@@ -42,24 +43,26 @@ def average_value_stopped_at(final_result, Model, paths):
         if not stop:
             c.append('red')
             v.append(0)
+            p.append(0)
         else:
-            h = len(stop)
+            l = len(stop)
+            p.append(l/(l+len(no_stop)))
             if isinstance(Model, RobbinsModel):
-                if h > len(paths) / Model.getN():
+                if l > len(paths) / Model.getN():
                     c.append('green')
-                elif h > len(paths) / Model.getN() / 3:
+                elif l > len(paths) / Model.getN() / 3:
                     c.append('yellow')
                 else:
                     c.append('blue')
             else:
-                if h > paths.shape[0] / Model.getN():
+                if l > paths.shape[0] / Model.getN():
                     c.append('green')
-                elif h > paths.shape[0] / Model.getN() / 2:
+                elif l > paths.shape[0] / Model.getN() / 2:
                     c.append('yellow')
                 else:
                     c.append('blue')
             v.append(np.mean(stop))
-    return c, v
+    return c, v, p
 
 
 def create_graphics(Memory, ProminentResults, Model, Config, run_number, val_paths, test_paths, NN):
@@ -171,7 +174,20 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
 
     if np.all(Model.getpath_dim() == np.ones_like(Model.getpath_dim())) or isinstance(Model, RobbinsModel):
         # bar graph of stopping boundary
-        c, v = average_value_stopped_at(ProminentResults.final_result, Model, test_paths)
+        c, v, p = average_value_stopped_at(ProminentResults.final_result, Model, test_paths)
+
+        # percentage to stop
+        plot_number_final_stopping_boundary_percent = 16
+        fig16 = plt.figure(plot_number_final_stopping_boundary_percent)
+        plt.bar(x[:len(p)], p)
+        plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
+        plt.xlabel('Time')
+        plt.ylabel('percentage to stop')
+        plt.title('relative percentage to stop on the test set at each timestep')
+        # plt.yscale('log')
+
+        pdf.savefig(fig16)
+        plt.close(fig16)
 
         # mean
         plot_number_final_stopping_boundary_mean = 15
