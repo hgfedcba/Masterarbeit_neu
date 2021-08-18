@@ -29,9 +29,9 @@ def average_value_stopped_at(final_result, Model, paths):
         if isinstance(Model, RobbinsModel):
             for k in range(len(paths)):
                 if stopping_times[k] == n:
-                    stop.append(paths[k][n][0])
+                    stop.append(paths[k][n][n])
                 elif stopping_times[k] > n:
-                    no_stop.append(paths[k][n][0])
+                    no_stop.append(paths[k][n][n])
         else:
             for k in range(paths.shape[0]):
                 if stopping_times[k] == n:

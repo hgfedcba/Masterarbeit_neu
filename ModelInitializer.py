@@ -232,7 +232,7 @@ def initialize_model(option):
         if option == "R0":
             max_minutes = 0.1
         else:
-            max_minutes = 3
+            max_minutes = 0.5
         train_size = 128
         val_size = 256
         test_size = 512
@@ -297,7 +297,7 @@ def initialize_model(option):
         if option == "RW0":
             max_minutes = 0.1
         else:
-            max_minutes = 3
+            max_minutes = 0.5
         train_size = 128
         val_size = 256
         test_size = 512

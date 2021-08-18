@@ -146,6 +146,8 @@ class NN:
 
             # validation
             if m % self.validation_frequency == 0:
+                if m >= 50:
+                    assert True
                 val_start = time.time()
 
                 if m == 200:
@@ -313,6 +315,7 @@ class NN:
         disc_individual_payoffs = []
         stopping_times = []
 
+        # h = []
         U = torch.empty(L, self.N + 1)
         tau_list = []
         for l in range(L):
@@ -333,6 +336,7 @@ class NN:
             single_stopping_time = np.zeros(self.N + 1)
             single_stopping_time[tau_list[l]] = 1
             disc_individual_payoffs.append(self.Model.calculate_payoffs(single_stopping_time, paths[l], self.Model.getg, self.t).item())
+            # h.append(max(paths[l][0]*single_stopping_time))
             # for_debugging5 = disc_individual_payoffs[-1]
             stopping_times.append(single_stopping_time)
 
