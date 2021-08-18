@@ -52,7 +52,8 @@ class Config:
             2: "single Net",
             3: "smaller N pretrain",
             10: "train sequentially",
-            11: "seq with pretrain"
+            11: "seq with pretrain",
+            12: "explicit stop condition given"  # doesn't run through
         }
 
         pl = [["algorithm", alg_dict.get(algorithm)], ["internal neurons per layer", internal_neurons], ["hidden layer count", hidden_layer_count],

@@ -22,6 +22,12 @@ def fake_net(x):
     return 0
 
 
+def real_fake_net(j, N):
+    def f(x):
+        return x[j] > (N-j-1)/(N-j)
+    return f
+
+
 class Alg10_NN(NN):
     def optimization(self, val_paths, m_out):
         self.val_paths = val_paths
@@ -29,36 +35,19 @@ class Alg10_NN(NN):
         # self.N = test_paths.shape[2]-1
 
         log = self.log
-        # scheduler = None
-        duration = self.T_max/self.N
-        iterations = self.M_max/4
-        '''
-        for k in range(len(self.u)):
-            # TODO: change1
-            self.u[k] = fake_net
-            # self.u[k] = Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK())
-        '''
-        self.u = []
-        for m in range(self.N-1, -1, -1):
-            self.Memory.total_net_durations.append(0)
 
-            m_th_iteration_start_time = time.time()
-
-            avg_list = self.train_net_k(m, duration, iterations)
-            self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
-            self.Memory.average_train_payoffs.extend(avg_list)
-
-            val_start = time.time()
-
-            saved_u = self.u
+        if self.algorithm == 12:
             self.u = []
-            for j in range(m):
-                self.u.append(fake_net)
-            self.u.extend(saved_u)
+            for j in range(self.N):
+                self.u.append(real_fake_net(j, self.N))
+            m = 0
+            self.Memory.total_net_durations.append(0)
+            self.Memory.train_durations.append(0)
+            val_start = time.time()
 
             cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
             log.info(
-                "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (self.N-m, round(cont_payoff, 3), round(disc_payoff, 3)))
+                "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (self.N - m, round(cont_payoff, 3), round(disc_payoff, 3)))
 
             # Prominent Result ergibt wenig sinn, da das optimale ergebnis definitiv am ende ist
             # self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
@@ -70,13 +59,56 @@ class Alg10_NN(NN):
 
             i_value = [max(s * range(0, self.N + 1)) for s in stopping_times]
             self.Memory.average_val_stopping_time.append(np.mean(i_value))
+        else:
+            # scheduler = None
+            duration = self.T_max/self.N
+            iterations = self.M_max/4
+            '''
+            for k in range(len(self.u)):
+                # TODO: change1
+                self.u[k] = fake_net
+                # self.u[k] = Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK())
+            '''
+            self.u = []
+            for m in range(self.N-1, -1, -1):
+                self.Memory.total_net_durations.append(0)
 
-            self.u = saved_u
+                m_th_iteration_start_time = time.time()
 
-            # print(avg_list)
-        self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+                avg_list = self.train_net_k(m, duration, iterations)
+                self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
+                self.Memory.average_train_payoffs.extend(avg_list)
 
-        self.ProminentResults.set_final_net(self, m - 1, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+                val_start = time.time()
+
+                saved_u = self.u
+
+                self.u = []
+                for j in range(m):
+                    self.u.append(fake_net)
+                self.u.extend(saved_u)
+
+                cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
+                log.info(
+                    "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (self.N-m, round(cont_payoff, 3), round(disc_payoff, 3)))
+
+                # Prominent Result ergibt wenig sinn, da das optimale ergebnis definitiv am ende ist
+                # self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+
+                self.Memory.val_continuous_value_list.append(cont_payoff)
+                self.Memory.val_discrete_value_list.append(disc_payoff)
+
+                self.Memory.val_durations.append(time.time() - val_start)
+
+                i_value = [max(s * range(0, self.N + 1)) for s in stopping_times]
+                self.Memory.average_val_stopping_time.append(np.mean(i_value))
+
+                self.u = saved_u
+
+                # print(avg_list)
+            self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+
+            self.ProminentResults.set_final_net(self, m - 1, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
         return m, self.ProminentResults, self.Memory
 

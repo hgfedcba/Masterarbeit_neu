@@ -100,7 +100,7 @@ class NN:
     def single_net_algorithm(self):
         if self.algorithm == 2 or self.algorithm == 3:
             return True
-        if self.algorithm == 0 or self.algorithm == 10 or self.algorithm == 11:
+        if self.algorithm == 0 or self.algorithm == 10 or self.algorithm == 11 or self.algorithm == 12:
             return False
         assert False
 

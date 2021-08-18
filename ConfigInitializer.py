@@ -49,7 +49,7 @@ class ConfigInitializer:
 
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
-            'algorithm'                             : [0],
+            'algorithm'                             : [12],
             'internal neurons per layer'            : [50, 100],  # 50, 100
             'hidden layer count'                    : [1, 2],  # [1, 2, 3]
             'internal activation function'          : [tanh, relu, softsign],  # [tanh, relu, leaky_relu, softsign, selu]
@@ -153,7 +153,7 @@ class ConfigInitializer:
                 # result enthält prominent_result klasse, memory klasse
                 optimitaion_result = [current_NN.optimization()]
             '''
-            if algorithm == 10 or algorithm == 11:
+            if algorithm == 10 or algorithm == 11 or algorithm == 12:
                 current_NN = Alg10.Alg10_NN(current_Config, Model, Memory, log)
                 if algorithm == 11:
                     current_NN.do_pretrain = True
@@ -183,7 +183,8 @@ class ConfigInitializer:
             optimitaion_result = [current_NN.optimization(val_paths, m_out)[1:]]
             log.warning("Test begins")
             fvs = time.time()
-            optimitaion_result[0][0].test(test_paths)
+            if algorithm != 12:
+                optimitaion_result[0][0].test(test_paths)
             Memory.test_duration = time.time() - fvs
             Memory.end_time = time.time()
 
