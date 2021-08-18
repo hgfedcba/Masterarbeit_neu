@@ -273,10 +273,10 @@ def initialize_model(option):
 
     elif option == "R3":
         N = 39
-        max_minutes = 40
-        max_number = 300
-        train_size = 1024
-        val_size = 2028
+        max_minutes = 120
+        max_number = 400
+        train_size = 2048
+        val_size = 4096
         test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
 
@@ -334,8 +334,8 @@ def initialize_model(option):
         N = 39
         max_minutes = 120
         max_number = 400
-        train_size = 1024
-        val_size = 2028
+        train_size = 2048
+        val_size = 4096
         test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
 
