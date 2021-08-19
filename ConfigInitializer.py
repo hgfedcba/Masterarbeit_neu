@@ -315,7 +315,7 @@ class ConfigInitializer:
         # Without plt.draw() here, the title will center on the axes and not the figure.
         plt.draw()  # Create image. plt.savefig ignores figure edge and face colors, so map them.
         fig = plt.gcf()
-        plt.savefig('pyplot-table-demo.png',
+        plt.savefig('Overview.png',
                     # bbox='tight',
                     edgecolor=fig.get_edgecolor(),
                     facecolor=fig.get_facecolor(),
