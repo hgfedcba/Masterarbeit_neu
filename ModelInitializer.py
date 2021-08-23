@@ -304,7 +304,7 @@ def initialize_model(option):
 
     elif option == "R4":
         N = 59
-        max_minutes = 120
+        max_minutes = 150
         max_number = 400
         train_size = 2048
         val_size = 4096
@@ -364,6 +364,24 @@ def initialize_model(option):
     elif option == "RW3":
         N = 39
         max_minutes = 120
+        max_number = 400
+        train_size = 2048
+        val_size = 4096
+        test_size = 16384
+        x_plot_range_for_net_plot = [0, 1]
+
+        Model = W_RobbinsModel(N)
+        Model.set_reference_value(N + 2 - 2.3)
+        Model.update_parameter_string(main_pc)
+
+        val_paths_file = "../val_paths_RW40.npy"
+        test_paths_file = "../val_paths_RW40.npy"
+        val_paths = np.load(val_paths_file, mmap_mode="r")
+        test_paths = np.load(test_paths_file, mmap_mode="r")
+
+    elif option == "RW4":
+        N = 59
+        max_minutes = 150
         max_number = 400
         train_size = 2048
         val_size = 4096

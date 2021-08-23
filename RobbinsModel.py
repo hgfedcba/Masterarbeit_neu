@@ -79,6 +79,10 @@ class RobbinsModel(AbstractMathematicalModel):
         """
         return np.array(x[-1])
 
+    def convert_multiple_NN_paths_to_mathematical_paths(self, x):
+        l = len(x[0])
+        return [np.array(y[-1]).reshape((1, l)) for y in x]
+
     def getg(self, t, x):
         # (zeitstetige) stoppzeit t, pfad x
         assert t.sum() == 1
