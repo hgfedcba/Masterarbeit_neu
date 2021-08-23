@@ -12,10 +12,20 @@ from W_RobbinsModel import W_RobbinsModel
 
 """
 val_paths = Model.generate_paths(1048576, True)
+print("1/2")
 test_paths = Model.generate_paths(1048576, True)
 
 np.save("../val_paths_4411_5.npy", val_paths)
 np.save("../test_paths_4411_5.npy", test_paths)
+"""
+
+"""
+val_paths_file = "../val_paths_R60.npy"
+test_paths_file = "../test_paths_R60.npy"
+with open(val_paths_file, 'wb') as f:
+    pickle.dump(val_paths, f)
+with open(test_paths_file, 'wb') as f:
+    pickle.dump(test_paths, f)
 """
 
 
@@ -292,6 +302,27 @@ def initialize_model(option):
         with open(test_paths_file, "rb") as fp:  # Unpickling
             test_paths = pickle.load(fp)
 
+    elif option == "R4":
+        N = 59
+        max_minutes = 120
+        max_number = 400
+        train_size = 2048
+        val_size = 4096
+        test_size = 16384
+        x_plot_range_for_net_plot = [0, 1]
+
+        Model = RobbinsModel(N)
+        Model.set_reference_value_lower(N + 2 - 2.329)
+        Model.set_reference_value_upper(N + 2 - 1.908)
+        Model.update_parameter_string(main_pc)
+
+        val_paths_file = "../val_paths_R60.npy"
+        test_paths_file = "../test_paths_R60.npy"
+        with open(val_paths_file, "rb") as fp:  # Unpickling
+            val_paths = pickle.load(fp)
+        with open(test_paths_file, "rb") as fp:  # Unpickling
+            test_paths = pickle.load(fp)
+
     elif option == "RW1" or option == "RW0":
         N = 19
         if option == "RW0":
@@ -342,13 +373,7 @@ def initialize_model(option):
         Model = W_RobbinsModel(N)
         Model.set_reference_value(N + 2 - 2.3)
         Model.update_parameter_string(main_pc)
-        """
-        val_paths = Model.generate_paths(1048576, True)
-        test_paths = Model.generate_paths(1048576, True)
 
-        np.save("../val_paths_RW40.npy", val_paths)
-        np.save("../val_paths_RW40.npy", test_paths)
-        """
         val_paths_file = "../val_paths_RW40.npy"
         test_paths_file = "../val_paths_RW40.npy"
         val_paths = np.load(val_paths_file, mmap_mode="r")
