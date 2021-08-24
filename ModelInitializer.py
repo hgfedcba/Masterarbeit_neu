@@ -308,7 +308,7 @@ def initialize_model(option):
         max_number = 400
         train_size = 2048
         val_size = 4096
-        test_size = 16384
+        test_size = 8192
         x_plot_range_for_net_plot = [0, 1]
 
         Model = RobbinsModel(N)
@@ -320,8 +320,10 @@ def initialize_model(option):
         test_paths_file = "../test_paths_R60.npy"
         with open(val_paths_file, "rb") as fp:  # Unpickling
             val_paths = pickle.load(fp)
+            val_paths = val_paths[:val_size]
         with open(test_paths_file, "rb") as fp:  # Unpickling
             test_paths = pickle.load(fp)
+            test_paths = test_paths[:test_size]
 
     elif option == "RW1" or option == "RW0":
         N = 19
@@ -385,7 +387,7 @@ def initialize_model(option):
         max_number = 400
         train_size = 2048
         val_size = 4096
-        test_size = 16384
+        test_size = 8192
         x_plot_range_for_net_plot = [0, 1]
 
         Model = W_RobbinsModel(N)

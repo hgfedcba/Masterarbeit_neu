@@ -52,7 +52,7 @@ class ConfigInitializer:
             'algorithm'                             : [0],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
-            'internal activation function'          : [tanh, relu],  # [tanh, relu, leaky_relu, softsign, selu]
+            'internal activation function'          : [relu, tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
             'optimizer'                             : [0],
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
