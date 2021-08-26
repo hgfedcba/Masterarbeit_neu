@@ -138,7 +138,6 @@ class ConfigInitializer:
                 val_paths = val_paths[:val_size]
                 test_paths = test_paths[:test_size]
 
-            Memory.test_paths = test_paths
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
             individual_parameter_list = current_Config.get_pl_wrt_list(list_individual_parameters)
@@ -183,8 +182,8 @@ class ConfigInitializer:
             optimitaion_result = [current_NN.optimization(val_paths, m_out)[1:]]
             log.warning("Test begins")
             fvs = time.time()
-            if algorithm != 12:
-                optimitaion_result[0][0].test(test_paths)
+            optimitaion_result[0][0].test(test_paths)
+            # TODO: print test results
             Memory.test_duration = time.time() - fvs
             Memory.end_time = time.time()
 

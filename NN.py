@@ -40,8 +40,6 @@ class NN:
         self.Memory = Memory
         self.log = log
 
-        self.val_paths = None
-
         self.Model = Model
         self.T = Model.getT()
         self.N = Model.getN()
@@ -105,7 +103,6 @@ class NN:
         assert False
 
     def optimization(self, val_paths, m_out):
-        self.val_paths = val_paths
         self.N = self.Model.getN()
 
         log = self.log
@@ -153,7 +150,7 @@ class NN:
                 if m == 200:
                     assert True
 
-                cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
+                cont_payoff, disc_payoff, stopping_times = self.validate(val_paths)
                 log.info(
                     "After \t%s iterations the continuous value is\t %s and the discrete value is \t%s" % (m, round(cont_payoff, 3), round(disc_payoff, 3)))
 

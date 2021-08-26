@@ -67,7 +67,7 @@ def average_value_stopped_at(final_result, Model, paths):
 
 def create_graphics(Memory, ProminentResults, Model, Config, run_number, val_paths, test_paths, NN):
     create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_paths, test_paths)
-    create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN)
+    create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test_paths)
     plt.close('all')
 
 
@@ -342,7 +342,7 @@ def create_paths_plot(paths, Model, Config, stopping_times, plot_number, title, 
     grid(True)
 
 
-def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
+def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test_paths):
     pdf = pdfp.PdfPages("net graphs " + str(run_number) + ".pdf")
     n_sample_points = 86  # 81 and half stepsize seems way more reasonable
 
@@ -476,10 +476,10 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN):
 
         number_of_paths_to_plot = 40
 
-        some_ones = np.ones_like(Memory.test_paths[0][1]) / number_of_paths_to_plot
+        some_ones = np.ones_like(test_paths[0][1]) / number_of_paths_to_plot
 
         for k in range(0, number_of_paths_to_plot):
-            ax.plot(Memory.test_paths[k][0], Memory.test_paths[k][1], some_ones * k)
+            ax.plot(test_paths[k][0], test_paths[k][1], some_ones * k)
 
         ax.set_xlabel("X")
         ax.set_ylabel("Y")

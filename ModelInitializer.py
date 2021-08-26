@@ -214,7 +214,7 @@ def initialize_model(option):
 
         max_minutes = 3
         train_size = 64
-        val_size = 256
+        val_size = 512
         test_size = 2048
 
         """

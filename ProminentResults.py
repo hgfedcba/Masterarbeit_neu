@@ -51,7 +51,7 @@ class IndividualBestResult:
         self.time_to_this_result = None
         self.test_cont_value = None
         self.test_disc_value = None
-        self.file_path = file_path
+        self.save_file_path = file_path
 
     def update(self, NN, m, cont_payoff, disc_payoff, stopping_times, time_to_this_result):
         self.m = m
@@ -62,10 +62,10 @@ class IndividualBestResult:
         dictionary = {}
         for k in range(len(NN.u)):
             dictionary["Model" + str(k)] = NN.u[k].state_dict()
-        torch.save(dictionary, self.file_path)
+        torch.save(dictionary, self.save_file_path)
 
     def load_state_dict_into_given_net(self, NN):
-        checkpoint = torch.load(self.file_path)
+        checkpoint = torch.load(self.save_file_path)
         for k in range(len(NN.u)):
             NN.u[k].load_state_dict(checkpoint["Model" + str(k)])
             NN.u[k].eval()
