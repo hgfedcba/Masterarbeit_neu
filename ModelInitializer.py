@@ -237,6 +237,39 @@ def initialize_model(option):
         val_paths = np.load(val_paths_file, mmap_mode="r")
         test_paths = np.load(test_paths_file, mmap_mode="r")
 
+    elif option == 0:
+        # Model
+        r = 0.05
+        sigma_constant = 0.25  # beta
+        mu_constant = r
+        K = 40
+        xi = 40
+        T = 10
+        N = 10
+        d = 1  # dimension
+        delta = 0  # dividend rate
+        sigma = add_sigma_c_x(sigma_constant)
+        mu = add_mu_c_x(mu_constant, delta)
+        g = add_american_put(d, K, r)
+
+        add_am_put_default_pretrain(K, 16)
+
+        max_minutes = 0.5 * 0.5
+        train_size = 64
+        val_size = 64
+        test_size = 256
+
+        x_plot_range_for_net_plot = [10, 50]
+
+        Model = MarkovBlackScholesModel(T, N, d, K, delta, mu, sigma, g, xi)
+        Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, N * 10, K))
+        Model.update_parameter_string(main_pc)
+
+        val_paths_file = "../val_paths_1.npy"
+        test_paths_file = "../test_paths_1.npy"
+        val_paths = np.load(val_paths_file, mmap_mode="r")
+        test_paths = np.load(test_paths_file, mmap_mode="r")
+
     elif option == "R1" or option == "R0":
         N = 19
         if option == "R0":
@@ -573,39 +606,6 @@ def initialize_model(option):
         # test_paths = np.load(test_paths_file, mmap_mode="r")
         val_paths = Model.generate_paths(val_size)
         test_paths = Model.generate_paths(test_size)
-
-    elif option == 0:
-        # Model
-        r = 0.05
-        sigma_constant = 0.25  # beta
-        mu_constant = r
-        K = 40
-        xi = 40
-        T = 10
-        N = 10
-        d = 1  # dimension
-        delta = 0  # dividend rate
-        sigma = add_sigma_c_x(sigma_constant)
-        mu = add_mu_c_x(mu_constant, delta)
-        g = add_american_put(d, K, r)
-
-        add_am_put_default_pretrain(K, 16)
-
-        max_minutes = 0.5 * 0.5
-        train_size = 64
-        val_size = 64
-        test_size = 256
-
-        x_plot_range_for_net_plot = [10, 50]
-
-        Model = MarkovBlackScholesModel(T, N, d, K, delta, mu, sigma, g, xi)
-        Model.set_reference_value(binomial_trees(xi, r, sigma_constant, T, N * 10, K))
-        Model.update_parameter_string(main_pc)
-
-        val_paths_file = "../val_paths_1.npy"
-        test_paths_file = "../test_paths_1.npy"
-        val_paths = np.load(val_paths_file, mmap_mode="r")
-        test_paths = np.load(test_paths_file, mmap_mode="r")
     else:
         return 0
     if main_pc == "\tZweitrechner":

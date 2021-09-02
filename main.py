@@ -44,6 +44,8 @@ antitheitc variables
 
 # TODO: switch names for test and validation set (überprüfen)
 
+# TODO: Save gif of 2d plot
+
 
 """
 1. implemntiere robbins klasse
@@ -92,10 +94,11 @@ if __name__ == '__main__':
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3, Russ0, RW0
     import os
 
-    CI = ConfigInitializer(0, log)
+    CI = ConfigInitializer(2, log)
+    """
     os.chdir("../current run2")
     CI = ConfigInitializer(1, log)
-    """
+    
     os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run3")
 
     CI = ConfigInitializer("Russ111", log)

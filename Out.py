@@ -352,7 +352,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test
     else:
         d = -1
 
-    if d == 1 and NN.single_net_algorithm():
+    if d == 1:
         # new
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
@@ -364,18 +364,32 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test
         R = np.sqrt(X ** 2 + Y ** 2)
         Z = np.sin(R)
         """
-        X = NN.K + np.arange(0, Model.getT(), Model.getT()*1.0 / n_sample_points)
         short = Config.x_plot_range_for_net_plot
         Y = np.arange(short[0], short[1], (short[1] - short[0])*1.0 / n_sample_points)
-        X, Y = np.meshgrid(X, Y)
-        Z = np.zeros((n_sample_points, n_sample_points))
-        for i in range(n_sample_points):
-            for j in range(n_sample_points):
-                into = (X[i][j], Y[i][j])
-                h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
-                Z[i][j] = NN.u[0](h)
+        if NN.single_net_algorithm():
+            X = NN.K + np.arange(0, Model.getT(), Model.getT() * 1.0 / n_sample_points)
+            X, Y = np.meshgrid(X, Y)
+            Z = np.zeros((n_sample_points, n_sample_points))
+            for i in range(n_sample_points):
+                for j in range(n_sample_points):
+                    into = (X[i][j], Y[i][j])
+                    h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
+                    Z[i][j] = NN.u[0](h)
+        else:
+            X = range(NN.N)  # Wir simulieren einen Zeitpunkt weniger, da wie bei single_net extrapolieren können, hier nicht
+            Z = np.zeros((NN.N, n_sample_points))
+            for i in range(NN.N):
+                for j in range(n_sample_points):
+                    into = Y[j]
+                    h = torch.tensor([into], dtype=torch.float32, requires_grad=False)
+                    Z[i][j] = NN.u[i](h)
+            X = np.array(X)
+            Y, X = np.meshgrid(Y, X)
         # Plot the surface
-        surf = ax.plot_surface(X-NN.K, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False, vmin=0, vmax=1)
+        if NN.single_net_algorithm():
+            surf = ax.plot_surface(X-NN.K, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False, vmin=0, vmax=1)
+        else:
+            surf = ax.plot_surface(X, Y, Z, cmap=cm.turbo, linewidth=0, antialiased=False, vmin=0, vmax=1)
         ax.set_title("Probability to stop using the final net")
         ax.set_xlabel("n")
         ax.set_ylabel("X")
@@ -439,7 +453,10 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test
                         h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
                         Z[i][j] = NN.u[k](h)
             # Plot the surface
-            surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False, vmin=0, vmax=1)
+            if NN.single_net_algorithm():
+                surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False, vmin=0, vmax=1)
+            else:
+                surf = ax.plot_surface(X, Y, Z, cmap=cm.turbo, linewidth=0, antialiased=False, vmin=0, vmax=1)
             ax.set_title('Probability to stop for time ' + str(k) + " using the final net")
             ax.set_xlabel("X")
             ax.set_ylabel("Y")
