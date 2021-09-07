@@ -44,6 +44,8 @@ antitheitc variables
 
 # TODO: switch names for test and validation set (überprüfen)
 
+# TODO: Save gif of 2d plot
+
 
 """
 1. implemntiere robbins klasse

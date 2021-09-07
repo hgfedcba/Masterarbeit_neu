@@ -131,7 +131,7 @@ class Alg10_NN(NN):
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
             scheduler.verbose = False  # prints updates
         avg_list = []
-        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 30:
+        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
             if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
                 for j in range(len(training_paths)):

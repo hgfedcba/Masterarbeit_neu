@@ -394,7 +394,7 @@ class NN:
                     # x[-1] = x[-1].to(device)
                     local_u.append(self.u[n](x[n]))
                 else:
-                    into = np.append(n+self.K, x_input[:, n])  # Der Input ist der Zeitpunkt und der tatsächliche Aktienwert. Ich addiere self.K auf den Aktienwert da dieser Faktor später noch
+                    into = np.append(n+self.K, x_input[:, n])  # Der Input ist der Zeitpunkt und der tatsächliche Aktienwert. Ich addiere self.K auf den Zeitpunkt da dieser Faktor später noch
                     # abgezogen wird und ich möglichst nahe an der 0 bleiben möchte.
                     x.append(torch.tensor(into, dtype=torch.float32, requires_grad=grad))
                     # x[-1] = x[-1].to(device)
