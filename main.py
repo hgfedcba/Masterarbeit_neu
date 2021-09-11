@@ -94,7 +94,7 @@ if __name__ == '__main__':
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3, Russ0, RW0
     import os
 
-    ConfigInitializer("R3", log)
+    ConfigInitializer(4411_2, log)
     """
     os.chdir("../current run2")
     ConfigInitializer("RW4", log)
