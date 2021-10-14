@@ -16,10 +16,6 @@ antitheitc variables
 
 """
 
-# TODO:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# TODO: experimentiere herum mit bel startwerten bei den trainingspfaden.
-# TODO:!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 # Options:
 
 # Inhalt:
@@ -40,11 +36,17 @@ antitheitc variables
 
 # TODO: Alle Plots überprüfen
 
-# TODO: Robbins problem idee: sortiere pfade
-
 # TODO: switch names for test and validation set (überprüfen)
 
 # TODO: Save gif of 2d plot
+
+#VZibglagdbölsgbunrslgubnsrlhsrbnthlsrtghöbhnuhunu
+
+# TODO: update boundary to beat
+
+# TODO: Note: RNG freeze funktioniert (tested with True/False bei sorted input ohne funktion)
+
+# TODO: don't forget sort input and alg 10
 
 
 """
@@ -94,7 +96,7 @@ if __name__ == '__main__':
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3, Russ0, RW0
     import os
 
-    ConfigInitializer(4411_2, log)
+    ConfigInitializer("R2", log)
     """
     os.chdir("../current run2")
     ConfigInitializer("RW4", log)

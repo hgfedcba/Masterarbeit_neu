@@ -25,6 +25,9 @@ from Memory import Memory as MemeClass
 
 import Out
 
+from RobbinsModel import RobbinsModel
+from W_RobbinsModel import W_RobbinsModel
+
 
 class ConfigInitializer:
     def __init__(self, option, log):
@@ -49,7 +52,8 @@ class ConfigInitializer:
 
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
-            'algorithm'                             : [0, 2],
+            'algorithm'                             : [0, 10],
+            'sort net input'                        : [True, False],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
             'internal activation function'          : [relu, tanh],  # [tanh, relu, leaky_relu, softsign, selu]
@@ -59,7 +63,7 @@ class ConfigInitializer:
             'number pretrain iterations'            : [500],
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
-            'initial lr'                            : [0.02, 0.1],  # 0.01 for other setting
+            'initial lr'                            : [0.02],  # 0.01 for other setting
             'lr decay algorithm'                    : [2],  # 2 Information in 1 entry
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
@@ -92,6 +96,9 @@ class ConfigInitializer:
 
             stop_paths_in_plot = False
             algorithm = params['algorithm']
+            sort_net_input = params['sort net input']
+            if not (isinstance(Model, RobbinsModel) or isinstance(Model, W_RobbinsModel)):
+                sort_net_input = False
             internal_neurons = params['internal neurons per layer']
             hidden_layer_count = params['hidden layer count']
             activation_internal = params['internal activation function']
@@ -121,7 +128,7 @@ class ConfigInitializer:
             antithetic_val = params['antithetic variables on validation set']
             antithetic_train = params['antithetic variables on train set']
 
-            current_Config = Config(algorithm, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer, do_pretrain, pretrain_func, pretrain_iterations,
+            current_Config = Config(algorithm, sort_net_input, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer, do_pretrain, pretrain_func, pretrain_iterations,
                                     max_number_of_iterations,
                                     max_minutes_of_iterations, train_size, initial_lr, do_lr_decay, lr_decay_alg, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size,
                                     val_size, stop_paths_in_plot, x_plot_range_for_net_plot, angle_for_net_plot)
@@ -235,7 +242,7 @@ class ConfigInitializer:
                    "\ttime taken until discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
                    result[1].end_time - result[1].start_time,
                    "\titerations taken until discrete/cont/final result:", result[0].disc_best_result.m, " | ", result[0].cont_best_result.m, " | ", result[0].final_result.m,
-                   "\ttime spend training:", sum(result[1].train_durations), "time spend testxxxing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
+                   "\ttime spend training:", sum(result[1].train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
                    "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
                    "Parameterstring:", result[3])
         return os

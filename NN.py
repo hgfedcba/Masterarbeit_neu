@@ -74,6 +74,7 @@ class NN:
         self.antithetic_train = Config.antithetic_train
 
         self.algorithm = Config.algorithm
+        self.sort_net_input = Config.sort_net_input
         self.u = []
 
         # self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -277,9 +278,20 @@ class NN:
                 plt.show()
                 plt.close()
 
+    @staticmethod
+    def sort_input_list_inplace(list):
+        for k in range(len(list)):
+            for l in range(len(list[k]) - 1):
+                h = sorted(list[k][l][0:-1])
+                h.append(list[k][l][-1])
+                list[k][l] = h
+
     def train(self, optimizer, training_paths=None):
         if training_paths is None:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
+            if self.sort_net_input:
+                self.sort_input_list_inplace(training_paths)
+
             U = torch.empty(self.batch_size, self.N + 1)
         else:
             if isinstance(training_paths[0], list):
@@ -308,6 +320,8 @@ class NN:
 
     def validate(self, paths):
         L = len(paths)
+        if self.sort_net_input:
+            self.sort_input_list_inplace(paths)
         cont_individual_payoffs = []
         disc_individual_payoffs = []
         stopping_times = []

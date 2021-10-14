@@ -156,13 +156,15 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
 
     # bar graph when stopping of final net happened on test
     plot_number_final_stopping_time = 14
+    # TODO: hier weiter
     fig14 = plt.figure(plot_number_final_stopping_time)
-    x = range(0, Model.getN()+1)
+    # TODO: There is something odd with the length of stopping times, which leads to a lot of [0:-1] in plot commands further down the line
+    x = range(1, Model.getN()+1)  # range(0, Model.getN()+1) as of before 14.10.21
     x = np.array(x)
     y = np.zeros(Model.getN()+1)
     for r in ProminentResults.final_result.test_stopping_times:
         y += r
-    plt.bar(x, y)
+    plt.bar(x, y[0:-1])
     plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
     plt.xlabel('Time')
     plt.ylabel('Amount of Stops')
@@ -179,7 +181,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         # percentage to stop
         plot_number_final_stopping_boundary_percent = 16
         fig16 = plt.figure(plot_number_final_stopping_boundary_percent)
-        plt.bar(x[:len(p)], p)
+        plt.bar(x[:len(p)], p[0:-1])
         plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
         plt.xlabel('Time')
         plt.ylabel('percentage to stop')
@@ -192,7 +194,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         # mean
         plot_number_final_stopping_boundary_mean = 15
         fig15 = plt.figure(plot_number_final_stopping_boundary_mean)
-        plt.bar(x[:len(v)], v, color=c)
+        plt.bar(x[:len(v)], v[0:-1], color=c[0:-1])
         plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
         plt.xlabel('Time')
         plt.ylabel('average value')

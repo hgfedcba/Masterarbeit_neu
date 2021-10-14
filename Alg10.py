@@ -88,6 +88,9 @@ class Alg10_NN(NN):
                     self.u.append(fake_net)
                 self.u.extend(saved_u)
 
+                if self.sort_net_input:
+                    self.sort_input_list_inplace(self.val_paths)
+
                 cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
                 log.info(
                     "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (self.N-m, round(cont_payoff, 3), round(disc_payoff, 3)))
@@ -133,6 +136,8 @@ class Alg10_NN(NN):
         avg_list = []
         while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
+            if self.sort_net_input:
+                self.sort_input_list_inplace(training_paths)
             if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
                 for j in range(len(training_paths)):
                     if isinstance(self.Model, RobbinsModel):
