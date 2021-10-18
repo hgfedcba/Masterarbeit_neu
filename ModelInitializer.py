@@ -1,4 +1,3 @@
-import math
 import pickle
 
 import numpy as np
@@ -30,8 +29,6 @@ with open(test_paths_file, 'wb') as f:
 
 
 def initialize_model(option):
-    val_paths = None
-    test_paths = None
     angle_for_net_plot = None
     max_number = 10000
 
@@ -282,8 +279,7 @@ def initialize_model(option):
         x_plot_range_for_net_plot = [0, 1]
 
         Model = RobbinsModel(N)
-        Model.set_reference_value_lower(N + 2 - 2.329)
-        Model.set_reference_value_upper(N + 2 - 1.908)
+        Model.set_reference_value()
         Model.update_parameter_string(main_pc)
 
         val_paths_file = "../val_paths_R20.npy"
@@ -303,8 +299,7 @@ def initialize_model(option):
         x_plot_range_for_net_plot = [0, 1]
 
         Model = RobbinsModel(N)
-        Model.set_reference_value_lower(N + 2 - 2.329)
-        Model.set_reference_value_upper(N + 2 - 1.908)
+        Model.set_reference_value()
         Model.update_parameter_string(main_pc)
 
         val_paths_file = "../val_paths_R20.npy"
@@ -324,8 +319,7 @@ def initialize_model(option):
         x_plot_range_for_net_plot = [0, 1]
 
         Model = RobbinsModel(N)
-        Model.set_reference_value_lower(N + 2 - 2.329)
-        Model.set_reference_value_upper(N + 2 - 1.908)
+        Model.set_reference_value()
         Model.update_parameter_string(main_pc)
 
         val_paths_file = "../val_paths_R40.npy"
@@ -345,8 +339,7 @@ def initialize_model(option):
         x_plot_range_for_net_plot = [0, 1]
 
         Model = RobbinsModel(N)
-        Model.set_reference_value_lower(N + 2 - 2.329)
-        Model.set_reference_value_upper(N + 2 - 1.908)
+        Model.set_reference_value()
         Model.update_parameter_string(main_pc)
 
         val_paths_file = "../val_paths_R60.npy"
@@ -357,6 +350,26 @@ def initialize_model(option):
         with open(test_paths_file, "rb") as fp:  # Unpickling
             test_paths = pickle.load(fp)
             test_paths = test_paths[:test_size]
+
+    elif option == "R12":
+        N = 11
+        max_minutes = 25
+        max_number = 400
+        train_size = 1024
+        val_size = 2048
+        test_size = 16384
+        x_plot_range_for_net_plot = [0, 1]
+
+        Model = RobbinsModel(N)
+        Model.set_reference_value()
+        Model.update_parameter_string(main_pc)
+
+        val_paths_file = "../val_paths_R12.npy"
+        test_paths_file = "../test_paths_R12.npy"
+        with open(val_paths_file, "rb") as fp:  # Unpickling
+            val_paths = pickle.load(fp)
+        with open(test_paths_file, "rb") as fp:  # Unpickling
+            test_paths = pickle.load(fp)
 
     elif option == "RW1" or option == "RW0":
         N = 19
@@ -370,7 +383,7 @@ def initialize_model(option):
         x_plot_range_for_net_plot = [0, 1]
 
         Model = W_RobbinsModel(N)
-        Model.set_reference_value(N + 2 - 2.3)
+        Model.set_reference_value()
         Model.update_parameter_string(main_pc)
 
         val_paths_file = "../val_paths_RW20.npy"
@@ -388,7 +401,7 @@ def initialize_model(option):
         x_plot_range_for_net_plot = [0, 1]
 
         Model = W_RobbinsModel(N)
-        Model.set_reference_value(N + 2 - 2.3)
+        Model.set_reference_value()
         Model.update_parameter_string(main_pc)
 
         val_paths_file = "../val_paths_RW20.npy"
@@ -406,7 +419,7 @@ def initialize_model(option):
         x_plot_range_for_net_plot = [0, 1]
 
         Model = W_RobbinsModel(N)
-        Model.set_reference_value(N + 2 - 2.3)
+        Model.set_reference_value()
         Model.update_parameter_string(main_pc)
 
         val_paths_file = "../val_paths_RW40.npy"
@@ -424,7 +437,7 @@ def initialize_model(option):
         x_plot_range_for_net_plot = [0, 1]
 
         Model = W_RobbinsModel(N)
-        Model.set_reference_value(N + 2 - 2.3)
+        Model.set_reference_value()
         Model.update_parameter_string(main_pc)
 
         val_paths_file = "../val_paths_RW40.npy"
@@ -433,7 +446,6 @@ def initialize_model(option):
         test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == "Russ1":
-        # TODO: Recall, manche netze sind einfach bad und lernen schlecht
         # Model
         r = 0.05
         sigma_constant = 0.3  # beta

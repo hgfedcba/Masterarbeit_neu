@@ -3,6 +3,7 @@ import copy
 import numpy as np
 import pytest
 import torch
+import Util
 
 from ModelDefinitions import sigma_dict, payoff_dict, mu_dict
 import scipy.stats
@@ -129,15 +130,10 @@ class RobbinsModel(AbstractMathematicalModel):
         # Schritt 2: Bilde das Skalarprodukt von t und z1
         return torch.matmul(U, torch.tensor(z2, dtype=torch.float))
 
-    def set_reference_value_upper(self, v):
-        self.__reference_value_upper = v
-
-    def set_reference_value_lower(self, v):
-        self.__reference_value_lower = v
-
     def set_reference_value(self):
         self.__reference_value_upper = self.getN()+2-1.908
-        self.__reference_value_lower = self.getN()+2-2.3267  # explicit threshhold function
+        # self.__reference_value_upper = self.getN()+2-Util.robbins_problem_experimental_upper_boundary(self.getN())
+        self.__reference_value_lower = self.getN()+2-Util.robbins_problem_lower_boundary(self.getN())  # explicit threshhold function
 
     def get_reference_value(self):
         return self.__reference_value_lower, self.__reference_value_upper

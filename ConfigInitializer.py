@@ -1,5 +1,3 @@
-import math
-
 import Alg10
 import ModelInitializer
 import Util
@@ -52,7 +50,7 @@ class ConfigInitializer:
 
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
-            'algorithm'                             : [10],
+            'algorithm'                             : [0],
             'sort net input'                        : [True, False],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
@@ -228,6 +226,7 @@ class ConfigInitializer:
 
         def short_cont(a):
             return Util.force_5_decimal(a.val_cont_value) + " \t (" + Util.force_5_decimal(a.test_cont_value) + ")\t"
+
         """
         def short_disc(a):
             return str(round(a.val_disc_value, 5)) + " \t (" + str(round(a.test_disc_value, 5)) + ")\t"

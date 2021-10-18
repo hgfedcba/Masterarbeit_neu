@@ -7,6 +7,7 @@ import torch
 from ModelDefinitions import sigma_dict, payoff_dict, mu_dict
 import scipy.stats
 import random
+import Util
 from AbstractMathematicalModel import AbstractMathematicalModel
 
 
@@ -112,8 +113,8 @@ class W_RobbinsModel(AbstractMathematicalModel):
         # Schritt 2: Bilde das Skalarprodukt von t und z1
         return torch.matmul(U, torch.tensor(z2, dtype=torch.float))
 
-    def set_reference_value(self, v):
-        self.__reference_value = v
+    def set_reference_value(self):
+        self.__reference_value = Util.robbins_problem_lower_boundary(self.getN())
 
     def get_reference_value(self):
         return self.__reference_value

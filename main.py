@@ -2,8 +2,7 @@ import coloredlogs
 import logging
 import time
 
-import numpy as np
-
+import matplotlib
 from ConfigInitializer import ConfigInitializer
 
 """
@@ -13,7 +12,7 @@ nutze u statt U
 u[N] = 1
 trainingsset, aber das bringt vermutlich nichts da overfitting nicht exisitiert
 antitheitc variables
-
+input sortieren
 """
 
 # Options:
@@ -42,28 +41,16 @@ antitheitc variables
 
 #VZibglagdbölsgbunrslgubnsrlhsrbnthlsrtghöbhnuhunu
 
-# TODO: update boundary to beat
+# TODO: recall conjectured upper bound
 
 # TODO: Note: RNG freeze funktioniert (tested with True/False bei sorted input ohne funktion)
 
 # TODO: don't forget sort input and alg 10
 
-#TODO: recall robbins bound has an explicit realization
-
-
-"""
-1. implemntiere robbins klasse
-2. abstrahiere aus mathematical model und robbins problem ein abstract mathematical model
-3. kriege den alten algorithmus zum laufen mit dem abstarct mathematical model
-4. kriege alg0 zum laufen mit dem robbins problem
-5. implementiere neuen algorithmus (lerne die netze nacheinander von hinten nach vorne)
-"""
-
-import torch
+# TODO: recall robbins bound from reference also has an explicit realization
 
 
 if __name__ == '__main__':
-    import matplotlib
     matplotlib.use("Agg")
 
     log = logging.getLogger('l')
@@ -95,10 +82,10 @@ if __name__ == '__main__':
     log.error("this is an error message")
     log.critical("this is a critical message")
     '''
-    # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3, Russ0, RW0, RW1, RW2, RW3
+    # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3, R4, R12, Russ0, RW0, RW1, RW2, RW3, RW4
     import os
 
-    ConfigInitializer("R2", log)
+    ConfigInitializer("R12", log)
     """
     os.chdir("../current run2")
     ConfigInitializer("RW4", log)

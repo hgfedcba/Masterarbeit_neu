@@ -7,6 +7,43 @@ import matplotlib.backends.backend_pdf as pdfp
 import torch
 
 
+def robbins_problem_lower_boundary(n):
+    if n > 12:
+        return 1 + 4*(n-1)/(3*(n+1))
+    elif n == 1:
+        return 1
+    elif n == 2:
+        return 1.25
+    elif n == 3:
+        return 1.4009
+    elif n == 4:
+        return 1.5606
+    elif n == 5:
+        return 1.5861
+    elif n == 6:
+        return 1.6490
+    elif n == 7:
+        return 1.7002
+    elif n == 8:
+        return 1.7430
+    elif n == 9:
+        return 1.7794
+    elif n == 10:
+        return 1.8109
+    elif n == 11:
+        return 1.8384
+    elif n == 12:
+        return 1.8627
+
+
+# TODO: recall this conjecture is in the paper
+def robbins_problem_experimental_upper_boundary(n):
+    out = 1.908
+    for k in range(1, n-4):
+        out += 0.048*0.615**k
+    return out
+
+
 def force_5_decimal(d):
     return f'{d:.5f}'
 
