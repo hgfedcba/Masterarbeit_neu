@@ -135,6 +135,10 @@ class RobbinsModel(AbstractMathematicalModel):
     def set_reference_value_lower(self, v):
         self.__reference_value_lower = v
 
+    def set_reference_value(self):
+        self.__reference_value_upper = self.getN()+2-1.908
+        self.__reference_value_lower = self.getN()+2-2.3267  # explicit threshhold function
+
     def get_reference_value(self):
         return self.__reference_value_lower, self.__reference_value_upper
 

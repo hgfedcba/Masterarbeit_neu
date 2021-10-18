@@ -48,6 +48,8 @@ antitheitc variables
 
 # TODO: don't forget sort input and alg 10
 
+#TODO: recall robbins bound has an explicit realization
+
 
 """
 1. implemntiere robbins klasse
@@ -93,7 +95,7 @@ if __name__ == '__main__':
     log.error("this is an error message")
     log.critical("this is a critical message")
     '''
-    # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3, Russ0, RW0
+    # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3, Russ0, RW0, RW1, RW2, RW3
     import os
 
     ConfigInitializer("R2", log)
