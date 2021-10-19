@@ -131,8 +131,11 @@ class RobbinsModel(AbstractMathematicalModel):
         return torch.matmul(U, torch.tensor(z2, dtype=torch.float))
 
     def set_reference_value(self):
-        self.__reference_value_upper = self.getN()+2-1.908
-        # self.__reference_value_upper = self.getN()+2-Util.robbins_problem_experimental_upper_boundary(self.getN())
+        if self.getN()>12:
+            self.__reference_value_upper = self.getN()+2-1.908
+        else:
+            self.__reference_value_upper = self.getN() + 2 - Util.robbins_problem_lower_boundary(self.getN())
+        # self.__reference_value_upper = self.getN()+2-Util.robbins_problem_experimental_upper_boundary(self.getN())  # TODO: remember
         self.__reference_value_lower = self.getN()+2-Util.robbins_problem_lower_boundary(self.getN())  # explicit threshhold function
 
     def get_reference_value(self):

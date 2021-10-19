@@ -44,6 +44,7 @@ class ConfigInitializer:
         # addAdam
         add_step_lr_scheduler(500)
         add_multiplicative_lr_scheduler(0.999)
+        add_multiplicative_lr_scheduler(0.994)  # this halves the learning rate compared to the one above at 150 iterations  TODO: use
 
         list_individual_parameters = []
         list_common_parameters = []
@@ -61,7 +62,7 @@ class ConfigInitializer:
             'number pretrain iterations'            : [500],
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
-            'initial lr'                            : [0.02],  # 0.01 for other setting
+            'initial lr'                            : [0.02],  # 0.01 for other setting  TODO: recall initial 0.02->0.05 on 18.10.21 for robbins
             'lr decay algorithm'                    : [2],  # 2 Information in 1 entry
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
@@ -88,7 +89,6 @@ class ConfigInitializer:
 
         run_number = 0
 
-        # ->visual indicator<-
         for params in ParameterGrid(dict_a):
             Memory = MemeClass()
 
