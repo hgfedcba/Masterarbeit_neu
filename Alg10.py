@@ -15,9 +15,6 @@ from NN import NN
 from NN import Net
 
 
-device = torch.device("cuda:0")
-
-
 def fake_net(x):
     return 0
 
@@ -136,8 +133,6 @@ class Alg10_NN(NN):
         avg_list = []
         while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
-            if self.sort_net_input:
-                self.sort_input_list_inplace(training_paths)
             if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
                 for j in range(len(training_paths)):
                     if isinstance(self.Model, RobbinsModel):
@@ -154,7 +149,7 @@ class Alg10_NN(NN):
                     h = training_paths[j]
                     training_paths[j] = training_paths[j][:, k:]
             """
-            avg = self.train(optimizer, training_paths)
+            avg = self.training_step(optimizer, training_paths)
             avg_list.append(avg)
 
             if self.do_lr_decay:

@@ -99,7 +99,7 @@ class NN:
     def single_net_algorithm(self):
         if self.algorithm == 2 or self.algorithm == 3:
             return True
-        if self.algorithm == 0 or self.algorithm == 10 or self.algorithm == 11 or self.algorithm == 12:
+        if self.algorithm == 0 or self.algorithm == 10 or self.algorithm == 11 or self.algorithm == 12 or self.algorithm == 20:
             return False
         assert False
 
@@ -138,7 +138,7 @@ class NN:
             self.Memory.total_net_durations.append(0)
             m_th_iteration_start_time = time.time()
 
-            average_payoff = self.train(optimizer)
+            average_payoff = self.training_step(optimizer)
             self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
             self.Memory.average_train_payoffs.append(average_payoff)
 
@@ -286,7 +286,7 @@ class NN:
                 h.append(list[k][l][-1])
                 list[k][l] = h
 
-    def train(self, optimizer, training_paths=None):
+    def training_step(self, optimizer, training_paths=None):
         if training_paths is None:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
             if self.sort_net_input:

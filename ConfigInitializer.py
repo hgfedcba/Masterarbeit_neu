@@ -1,4 +1,4 @@
-import Alg10
+import Alg10, Alg20
 import ModelInitializer
 import Util
 
@@ -51,7 +51,8 @@ class ConfigInitializer:
 
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
-            'algorithm'                             : [0],
+            # alg 20 is very good but also very slow
+            'algorithm'                             : [20],
             'sort net input'                        : [True, False],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
@@ -161,6 +162,8 @@ class ConfigInitializer:
                 current_NN = Alg10.Alg10_NN(current_Config, Model, Memory, log)
                 if algorithm == 11:
                     current_NN.do_pretrain = True
+            elif algorithm == 20:
+                current_NN = Alg20.Alg20_NN(current_Config, Model, Memory, log)
             else:
                 current_NN = NN.NN(current_Config, Model, Memory, log)
 

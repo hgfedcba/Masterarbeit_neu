@@ -51,110 +51,6 @@ input sortieren
 
 
 if __name__ == '__main__':
-    """
-    import torch
-    import timeit
-    import torch.utils.benchmark as benchmark
-
-    def batched_dot_mul_sum(a, b):
-        '''Computes batched dot by multiplying and summing'''
-        return a.mul(b).sum(-1)
-
-
-    def batched_dot_bmm(a, b):
-        '''Computes batched dot by reducing to bmm'''
-        a = a.reshape(-1, 1, a.shape[-1])
-        b = b.reshape(-1, b.shape[-1], 1)
-        return torch.bmm(a, b).flatten(-3)
-
-    x = torch.randn(10000, 1024, device='cuda')
-
-    t0 = timeit.Timer(
-        stmt='batched_dot_mul_sum(x, x)',
-        setup='from __main__ import batched_dot_mul_sum',
-        globals={'x': x})
-
-    t1 = timeit.Timer(
-        stmt='batched_dot_bmm(x, x)',
-        setup='from __main__ import batched_dot_bmm',
-        globals={'x': x})
-
-    # Ran each twice to show difference before/after warmup
-    print(f'mul_sum(x, x):  {t0.timeit(100) / 100 * 1e6:>5.1f} us')
-    print(f'mul_sum(x, x):  {t0.timeit(100) / 100 * 1e6:>5.1f} us')
-    print(f'bmm(x, x):      {t1.timeit(100) / 100 * 1e6:>5.1f} us')
-    print(f'bmm(x, x):      {t1.timeit(100) / 100 * 1e6:>5.1f} us')
-
-    t0 = benchmark.Timer(
-        stmt='batched_dot_mul_sum(x, x)',
-        setup='from __main__ import batched_dot_mul_sum',
-        globals={'x': x})
-
-    t1 = benchmark.Timer(
-        stmt='batched_dot_bmm(x, x)',
-        setup='from __main__ import batched_dot_bmm',
-        globals={'x': x})
-
-    # Run only once since benchmark module does warmup for us
-    print(t0.timeit(100))
-    print(t1.timeit(100))
-
-    x = torch.randn(10000, 1024, device='cpu')
-
-    t0 = timeit.Timer(
-        stmt='batched_dot_mul_sum(x, x)',
-        setup='from __main__ import batched_dot_mul_sum',
-        globals={'x': x})
-
-    t1 = timeit.Timer(
-        stmt='batched_dot_bmm(x, x)',
-        setup='from __main__ import batched_dot_bmm',
-        globals={'x': x})
-
-    # Ran each twice to show difference before/after warmup
-    print(f'mul_sum(x, x):  {t0.timeit(100) / 100 * 1e6:>5.1f} us')
-    print(f'mul_sum(x, x):  {t0.timeit(100) / 100 * 1e6:>5.1f} us')
-    print(f'bmm(x, x):      {t1.timeit(100) / 100 * 1e6:>5.1f} us')
-    print(f'bmm(x, x):      {t1.timeit(100) / 100 * 1e6:>5.1f} us')
-
-    t0 = benchmark.Timer(
-        stmt='batched_dot_mul_sum(x, x)',
-        setup='from __main__ import batched_dot_mul_sum',
-        globals={'x': x})
-
-    t1 = benchmark.Timer(
-        stmt='batched_dot_bmm(x, x)',
-        setup='from __main__ import batched_dot_bmm',
-        globals={'x': x})
-
-    x = torch.randn(10000, 1024)
-
-    t0 = timeit.Timer(
-        stmt='batched_dot_mul_sum(x, x)',
-        setup='from __main__ import batched_dot_mul_sum',
-        globals={'x': x})
-
-    t1 = timeit.Timer(
-        stmt='batched_dot_bmm(x, x)',
-        setup='from __main__ import batched_dot_bmm',
-        globals={'x': x})
-
-    # Ran each twice to show difference before/after warmup
-    print(f'mul_sum(x, x):  {t0.timeit(100) / 100 * 1e6:>5.1f} us')
-    print(f'mul_sum(x, x):  {t0.timeit(100) / 100 * 1e6:>5.1f} us')
-    print(f'bmm(x, x):      {t1.timeit(100) / 100 * 1e6:>5.1f} us')
-    print(f'bmm(x, x):      {t1.timeit(100) / 100 * 1e6:>5.1f} us')
-
-    t0 = benchmark.Timer(
-        stmt='batched_dot_mul_sum(x, x)',
-        setup='from __main__ import batched_dot_mul_sum',
-        globals={'x': x})
-
-    t1 = benchmark.Timer(
-        stmt='batched_dot_bmm(x, x)',
-        setup='from __main__ import batched_dot_bmm',
-        globals={'x': x})
-    """
     matplotlib.use("Agg")
 
     log = logging.getLogger('l')
@@ -189,7 +85,7 @@ if __name__ == '__main__':
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R3, R4, R12, Russ0, RW0, RW1, RW2, RW3, RW4
     import os
     log.warning("Start")
-    ConfigInitializer("R12", log)
+    ConfigInitializer("R2", log)
     """
     os.chdir("../current run2")
     ConfigInitializer("RW4", log)

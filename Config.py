@@ -54,7 +54,8 @@ class Config:
             3: "smaller N pretrain",
             10: "train sequentially",
             11: "seq with pretrain",
-            12: "explicit stop condition given"  # doesn't run through
+            12: "explicit stop condition given",  # doesn't run through
+            20: "learn nets front to back"
         }
 
         pl = [["algorithm", alg_dict.get(algorithm)], ["sort net input", sort_net_input], ["internal neurons per layer", internal_neurons], ["hidden layer count", hidden_layer_count],
