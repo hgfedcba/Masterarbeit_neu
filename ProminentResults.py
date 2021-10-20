@@ -38,7 +38,8 @@ class ProminentResults:
     def test(self, paths_for_test):
         self.cont_best_result.test(paths_for_test, self.NN)
         self.disc_best_result.test(paths_for_test, self.NN)
-        self.final_result.test(paths_for_test, self.NN)
+        out = self.final_result.test(paths_for_test, self.NN)
+        return out
 
 
 class IndividualBestResult:
@@ -77,3 +78,4 @@ class IndividualBestResult:
         self.test_cont_value = cont
         self.test_disc_value = disc
         self.test_stopping_times = stop
+        return disc

@@ -53,7 +53,7 @@ class ConfigInitializer:
         dict_a = {  #
             # alg 20 is very good but also very slow
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [20, 0],
+            'algorithm'                             : [20],
             'sort net input'                        : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
@@ -190,22 +190,22 @@ class ConfigInitializer:
 
                 # deletes old Prominent Results
                 current_NN.ProminentResults.initialize_empty()
-            optimitaion_result = [current_NN.optimization(val_paths, m_out)[1:]]
+            optimization_result = [current_NN.optimization(val_paths, m_out)[1:]]
             log.warning("Test begins")
             fvs = time.time()
-            optimitaion_result[0][0].test(test_paths)
-            # TODO: print test results
+            final = optimization_result[0][0].test(test_paths)
+            log.info("testing on the final net gives: " + str(final))
             Memory.test_duration = time.time() - fvs
             Memory.end_time = time.time()
 
-            result_list.append([optimitaion_result[0][0], optimitaion_result[0][1], run_number, individual_parameter_string, individual_parameter_list])
+            result_list.append([optimization_result[0][0], optimization_result[0][1], run_number, individual_parameter_string, individual_parameter_list])
 
             log.warning("Plotting begins\n\n")
             f = open("intermediate_results.txt", "a")
             f.write(self.result_to_resultstring(result_list[-1]))
             f.close()
 
-            Out.create_graphics(Memory, optimitaion_result[0][0], Model, current_Config, run_number, val_paths, test_paths, current_NN)
+            Out.create_graphics(Memory, optimization_result[0][0], Model, current_Config, run_number, val_paths, test_paths, current_NN)
 
             run_number += 1
 
@@ -276,10 +276,10 @@ class ConfigInitializer:
         data.append(['average payoff of on the test set using the net giving the best result on the val set', 'average payoff of on the test set using the final net',
                      'time until intermediate result', 'time total'])
         '''
-        data.append(['best disc', 'best cont', 'final', 'iterations'] + [param[0] for param in resultlist[0][4]])
+        data.append(['best disc', 'best cont', 'final', 'iterations', 'time'] + [param[0] for param in resultlist[0][4]])
         for res in resultlist:
             data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.test_disc_value, res[0].cont_best_result.test_disc_value, res[0].final_result.test_disc_value,
-                         str(res[0].disc_best_result.m) + " | " + str(res[0].cont_best_result.m) + " | " + str(res[0].final_result.m)]
+                         str(res[0].disc_best_result.m) + " | " + str(res[0].cont_best_result.m) + " | " + str(res[0].final_result.m), res[1].end_time-res[1].start_time]
                         + [str(param[1]) for param in res[4]])
 
         for i in range(1, data.__len__()):
@@ -302,8 +302,9 @@ class ConfigInitializer:
                    tight_layout={'pad': 1},
                    figsize=(10, 3 + data.__len__() / 5)  # figsize=(10, 3)   gerade 2.5 / 4
                    )  # Add a table at the bottom of the axes
-        h = [0.1] * 5
-        h.extend([0.15] * 5)
+        # my current guess 20.10.21: Es wird die breite der zellen angegeben von links nach recht und wenn h zu lang ist wir es zurechtgeschnitten. Warum die erste Spalte klein ist weiß ich nicht.
+        h = [0.07, 0.07, 0.07, 0.1, 0.07]
+        h.extend([0.15] * 10)
         the_table = plt.table(cellText=cell_text,
                               colWidths=h,
                               rowLabels=row_headers,

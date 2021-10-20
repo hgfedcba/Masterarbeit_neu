@@ -82,7 +82,7 @@ class Alg20_NN(NN):
         for j in range(n+1):
             self.u.append(fake_net)
 
-        net = Net(n+1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.K)
+        net = Net(n+1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.K, self.device)
         self.u[n] = net
 
         params = list(self.u[n].parameters())

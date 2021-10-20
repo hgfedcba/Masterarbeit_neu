@@ -422,9 +422,10 @@ class NN:
             else:
                 local_u.append(torch.ones(1))
                 # h[-1].to(device)
-            h1 = local_u[n]
-            h2 = (torch.ones(1) - sum[n])
-            U.append(local_u[n].to("cpu") * (torch.ones(1) - sum[n]))
+            if isinstance(local_u[n], int) or isinstance(local_u[n], float):
+                U.append(local_u[n] * (torch.ones(1) - sum[n]))
+            else:
+                U.append(local_u[n].to("cpu") * (torch.ones(1) - sum[n]))
 
         z = torch.stack(U)
         assert torch.sum(z).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(z).item())
