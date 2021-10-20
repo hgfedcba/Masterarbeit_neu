@@ -116,14 +116,16 @@ class Alg10_NN(NN):
         start_time = time.time()
         m = 0
 
-        self.u.insert(0, Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK()))
+        self.u.insert(0, Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK(), self.device))
 
         # pretrain, deprecated
-        if isinstance(self.Model, RobbinsModel) and self.do_pretrain:
+        if isinstance(self.Model, RobbinsModel) and self.algorithm == 11:
             barrier = 0.55+(self.Model.getN()-k)/self.Model.getN()/3  # klappt nicht
             barrier = 0.65
             self.robbins_pretrain(self.u[0], k, barrier)
             self.Memory.pretrain_duration = self.Memory.pretrain_duration + time.time() - start_time
+        if self.algorithm == 14:
+            self.new_pretrain(self.u[0], k)
 
         params = list(self.u[0].parameters())
         optimizer = self.optimizer(params, lr=self.initial_lr)
@@ -157,6 +159,16 @@ class Alg10_NN(NN):
             m += 1
 
         return avg_list
+
+    def new_pretrain(self, net, k, iterations):
+        saved_u = self.u
+        for n in range(len(self.u)):
+            self.u[n] = fake_net()
+        params = list(net.parameters())
+        optimizer = self.optimizer(params, lr=0.1)
+        for m in range(iterations):
+            training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
+
 
     # Train given net to only stop when the last value is big enough
     def robbins_pretrain(self, net, k, barrier):

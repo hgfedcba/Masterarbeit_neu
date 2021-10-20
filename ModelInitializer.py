@@ -351,7 +351,7 @@ def initialize_model(option):
             test_paths = pickle.load(fp)
             test_paths = test_paths[:test_size]
 
-    elif option == "R12":
+    elif option == "R12" or option == "R12l":
         N = 11
         max_minutes = 25
         max_number = 400
@@ -359,6 +359,10 @@ def initialize_model(option):
         val_size = 2048
         test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
+
+        if option == "R12l":
+            max_minutes *= 3
+            test_size *= 2
 
         Model = RobbinsModel(N)
         Model.set_reference_value()

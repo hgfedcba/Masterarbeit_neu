@@ -56,6 +56,7 @@ class Config:
             10: "train sequentially",
             11: "seq with pretrain",
             12: "explicit stop condition given",  # doesn't run through
+            14: "seq with empty pretrain",  # TODO: implement
             20: "learn nets front to back"
         }
 

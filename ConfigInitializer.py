@@ -53,11 +53,11 @@ class ConfigInitializer:
         dict_a = {  #
             # alg 20 is very good but also very slow
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [0],
+            'algorithm'                             : [20, 0],
             'sort net input'                        : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
-            'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
+            'internal activation function'          : [tanh, relu],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
             'optimizer'                             : [0],
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
@@ -161,9 +161,9 @@ class ConfigInitializer:
                 # result enthält prominent_result klasse, memory klasse
                 optimitaion_result = [current_NN.optimization()]
             '''
-            if algorithm == 10 or algorithm == 11 or algorithm == 12:
+            if algorithm == 10 or algorithm == 11 or algorithm == 12 or algorithm == 14:
                 current_NN = Alg10.Alg10_NN(current_Config, Model, Memory, log)
-                if algorithm == 11:
+                if algorithm == 11 or algorithm == 14:
                     current_NN.do_pretrain = True
             elif algorithm == 20:
                 current_NN = Alg20.Alg20_NN(current_Config, Model, Memory, log)

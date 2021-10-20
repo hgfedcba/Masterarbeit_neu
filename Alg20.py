@@ -24,11 +24,9 @@ class Alg20_NN(NN):
 
         log = self.log
 
-        # scheduler = None
-
-        # 1.1 da auch gemeinsam trainiert wird
-        duration = self.T_max/self.N/1.1
-        iterations = self.M_max/self.N/1.1
+        duration = self.T_max/self.N
+        iterations = self.M_max/self.N
+        ratio_single_to_together = 0.67
 
         # consists of fake nets. Fake nets are overridden gradually
         self.u = []
@@ -40,20 +38,15 @@ class Alg20_NN(NN):
 
             m_th_iteration_start_time = time.time()
 
-            avg_list = self.train_and_append_net_k(m, duration, iterations)
-            if m == self.N-1:
-                si = 100
-            else:
-                si = 20
-            avg_list += self.train_together(m, si)
+            avg_list = self.train_and_append_net_k(m, duration*ratio_single_to_together, iterations*ratio_single_to_together)
+
+            # Note: last is longer
+            avg_list += self.train_together(m, duration*ratio_single_to_together, iterations*ratio_single_to_together)
 
             self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
             self.Memory.average_train_payoffs.extend(avg_list)
 
             val_start = time.time()
-
-            if self.sort_net_input:
-                self.sort_input_list_inplace(self.val_paths)
 
             cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
             log.info(
@@ -118,7 +111,8 @@ class Alg20_NN(NN):
 
         return avg_list
 
-    def train_together(self, n, iterations):
+    def train_together(self, n, duration, iterations):
+        start_time = time.time()
         params = []
         for k in range(n+1):
             params += list(self.u[k].parameters())
@@ -129,7 +123,7 @@ class Alg20_NN(NN):
         avg_list = []
         m = 0
 
-        while m < iterations:
+        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < max(20, 100*(m == self.N-1)):
             avg = self.training_step(optimizer)
             avg_list.append(avg)
 
