@@ -5,20 +5,18 @@ import torch.optim as optim
 import pytest
 from RobbinsModel import RobbinsModel
 
-device = torch.device("cuda:0")
-
 
 # TODO: IMPORTANT NOTE: I subtract K from the input of the Network to ensure the learning works from the beginning on
 class Net(nn.Module):
-    def __init__(self, d, internal_neurons, hidden_layer_count, activation_internal, activation_final, K):
+    def __init__(self, d, internal_neurons, hidden_layer_count, activation_internal, activation_final, K, device):
         super(Net, self).__init__()
         # an affine operation: y = Wx + b
-        self.fc1 = nn.Linear(d, internal_neurons)
+        self.fc1 = nn.Linear(d, internal_neurons).to(device)
         self.fcs = []
         for _ in range(hidden_layer_count+1):
-            self.fcs.append(nn.Linear(internal_neurons, internal_neurons))
+            self.fcs.append(nn.Linear(internal_neurons, internal_neurons).to(device))
             # self.fcs.append(nn.Linear(internal_neurons, internal_neurons).cuda())
-        self.fcl = nn.Linear(internal_neurons, 1)
+        self.fcl = nn.Linear(internal_neurons, 1).to(device)
 
         self.activation_internal = activation_internal
         self.activation_final = activation_final
@@ -73,6 +71,7 @@ class NN:
         self.validation_frequency = Config.validation_frequency
         self.antithetic_train = Config.antithetic_train
 
+        self.device = Config.device
         self.algorithm = Config.algorithm
         self.sort_net_input = Config.sort_net_input
         self.u = []
@@ -83,18 +82,24 @@ class NN:
             self.u = []
             if not self.single_net_algorithm():
                 for k in range(self.N):
-                    net = Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
+                    net = Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK(), self.device)
+                    net.to(self.device)
                     # net.to(device)
                     self.u.append(net)
             else:
                 assert np.allclose(self.path_dim, np.ones_like(self.path_dim) * self.path_dim[0])
-                net = Net(self.path_dim[0] + 1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK())
+                net = Net(self.path_dim[0] + 1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK(), self.device)
+                net.to(self.device)
                 self.u.append(net)
 
         assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
 
         define_nets()
         self.ProminentResults = ProminentResults(log, self)
+
+    def return_net_a_at_value_b(self, a, b):
+        b = b.to(self.device)
+        return self.u[a](b)
 
     def single_net_algorithm(self):
         if self.algorithm == 2 or self.algorithm == 3:
@@ -402,22 +407,24 @@ class NN:
                         # h = x_input[n][:]
                         # h1 = x_input[n]
                         # h2 = np.asarray(x_input[n])
-                        x.append(torch.tensor(x_input[n][:], dtype=torch.float32, requires_grad=grad))
+                        x.append(torch.tensor(x_input[n][:], dtype=torch.float32, requires_grad=grad, device=self.device))
                     else:
-                        x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=grad))
+                        x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=grad, device=self.device))
                     # x[-1] = x[-1].to(device)
                     local_u.append(self.u[n](x[n]))
                 else:
                     into = np.append(n+self.K, x_input[:, n])  # Der Input ist der Zeitpunkt und der tatsächliche Aktienwert. Ich addiere self.K auf den Zeitpunkt da dieser Faktor später noch
                     # abgezogen wird und ich möglichst nahe an der 0 bleiben möchte.
-                    x.append(torch.tensor(into, dtype=torch.float32, requires_grad=grad))
+                    x.append(torch.tensor(into, dtype=torch.float32, requires_grad=grad, device=self.device))
                     # x[-1] = x[-1].to(device)
                     local_u.append(self.u[0](x[n]))
                 self.Memory.total_net_durations[-1] += time.time() - t
             else:
                 local_u.append(torch.ones(1))
                 # h[-1].to(device)
-            U.append(local_u[n] * (torch.ones(1) - sum[n]))
+            h1 = local_u[n]
+            h2 = (torch.ones(1) - sum[n])
+            U.append(local_u[n].to("cpu") * (torch.ones(1) - sum[n]))
 
         z = torch.stack(U)
         assert torch.sum(z).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(z).item())

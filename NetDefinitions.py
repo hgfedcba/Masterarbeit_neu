@@ -60,14 +60,14 @@ lr_decay_dict = {False: "False"}
 
 def add_multiplicative_lr_scheduler(factor):
     f = lr_scheduler.MultiplicativeLR, lambda epoch: factor
-    lr_decay_dict[f] = "multiplicative lr_scheduler with factor " + str(factor)
+    lr_decay_dict[f] = "lr decay *= " + str(factor)
     lr_decay_algs.append(f)
     return f
 
 
 def add_step_lr_scheduler(step_size):
     f = lr_scheduler.StepLR, step_size
-    lr_decay_dict[f] = "every " + str(step_size) + " steps divide lr by 10"
+    lr_decay_dict[f] = "every " + str(step_size) + " steps lr /= 10"
     lr_decay_algs.append(f)
     return f
 

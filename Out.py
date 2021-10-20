@@ -375,7 +375,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test
                 for j in range(n_sample_points):
                     into = (X[i][j], Y[i][j])
                     h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
-                    Z[i][j] = NN.u[0](h)
+                    Z[i][j] = NN.return_net_a_at_value_b(0, h)
         else:
             X = range(NN.N)  # Wir simulieren einen Zeitpunkt weniger, da wie bei single_net extrapolieren können, hier nicht
             Z = np.zeros((NN.N, n_sample_points))
@@ -383,7 +383,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test
                 for j in range(n_sample_points):
                     into = Y[j]
                     h = torch.tensor([into], dtype=torch.float32, requires_grad=False)
-                    Z[i][j] = NN.u[i](h)
+                    Z[i][j] = NN.return_net_a_at_value_b(i, h)
             X = np.array(X)
             Y, X = np.meshgrid(Y, X)
         # Plot the surface
@@ -448,11 +448,11 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test
                     if NN.single_net_algorithm():
                         into = (k+NN.K, X[i][j], Y[i][j])
                         h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
-                        Z[i][j] = NN.u[0](h)
+                        Z[i][j] = NN.return_net_a_at_value_b(0, h)
                     else:
                         into = (X[i][j], Y[i][j])
                         h = torch.tensor(into, dtype=torch.float32, requires_grad=False)
-                        Z[i][j] = NN.u[k](h)
+                        Z[i][j] = NN.return_net_a_at_value_b(k, h)
             # Plot the surface
             if NN.single_net_algorithm():
                 surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False, vmin=0, vmax=1)
@@ -534,6 +534,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test
         l = NN.N
         NN = ProminentResults.disc_best_result.load_state_dict_into_given_net(NN)
         for k in range(l):
+            # TODO: I have to change "draw_function" to work with .to(device), but don't want to now
             draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=NN.single_net_algorithm())
         NN = ProminentResults.cont_best_result.load_state_dict_into_given_net(NN)
         for k in range(l):

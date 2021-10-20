@@ -52,18 +52,20 @@ class ConfigInitializer:
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             # alg 20 is very good but also very slow
-            'algorithm'                             : [20],
-            'sort net input'                        : [True, False],
+            'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
+            'algorithm'                             : [0],
+            'sort net input'                        : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
-            'internal activation function'          : [relu, tanh],  # [tanh, relu, leaky_relu, softsign, selu]
+            'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
             'optimizer'                             : [0],
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
             'number pretrain iterations'            : [500],
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
-            'initial lr'                            : [0.02],  # 0.01 for other setting  TODO: recall initial 0.02->0.05 on 18.10.21 for robbins
+            # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
+            'initial lr'                            : [0.02],  # 0.01 for other setting
             'lr decay algorithm'                    : [2],  # 2 Information in 1 entry
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
@@ -93,6 +95,7 @@ class ConfigInitializer:
         for params in ParameterGrid(dict_a):
             Memory = MemeClass()
 
+            device = params['device']
             stop_paths_in_plot = False
             algorithm = params['algorithm']
             sort_net_input = params['sort net input']
@@ -127,7 +130,7 @@ class ConfigInitializer:
             antithetic_val = params['antithetic variables on validation set']
             antithetic_train = params['antithetic variables on train set']
 
-            current_Config = Config(algorithm, sort_net_input, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer, do_pretrain, pretrain_func, pretrain_iterations,
+            current_Config = Config(device, algorithm, sort_net_input, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer, do_pretrain, pretrain_func, pretrain_iterations,
                                     max_number_of_iterations,
                                     max_minutes_of_iterations, train_size, initial_lr, do_lr_decay, lr_decay_alg, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size,
                                     val_size, stop_paths_in_plot, x_plot_range_for_net_plot, angle_for_net_plot)
