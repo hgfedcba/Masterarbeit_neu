@@ -24,8 +24,9 @@ class Alg20_NN(NN):
 
         log = self.log
 
-        duration = self.T_max/self.N
-        iterations = self.M_max/self.N
+        # mindestlänge damit dieser Ansatz Sinn ergibt
+        duration = (self.T_max/self.N, 3)
+        iterations = max(self.M_max/self.N, 90)
         ratio_single_to_together = 0.67
 
         # consists of fake nets. Fake nets are overridden gradually

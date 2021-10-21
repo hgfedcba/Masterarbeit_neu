@@ -53,7 +53,7 @@ class ConfigInitializer:
         dict_a = {  #
             # alg 20 is very good but also very slow
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [20],
+            'algorithm'                             : [20, 0],
             'sort net input'                        : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
@@ -194,7 +194,7 @@ class ConfigInitializer:
             log.warning("Test begins")
             fvs = time.time()
             final = optimization_result[0][0].test(test_paths)
-            log.info("testing on the final net gives: " + str(final))
+            log.info("Testing on the final net gives: " + str(final))
             Memory.test_duration = time.time() - fvs
             Memory.end_time = time.time()
 

@@ -362,6 +362,8 @@ def initialize_model(option):
 
         if option == "R12l":
             max_minutes *= 3
+            train_size *= 2
+            val_size *= 2
             test_size *= 2
 
         Model = RobbinsModel(N)
