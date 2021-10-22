@@ -53,11 +53,11 @@ class ConfigInitializer:
         dict_a = {  #
             # alg 20 is very good but also very slow
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [20, 0],
+            'algorithm'                             : [20],
             'sort net input'                        : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
-            'internal activation function'          : [tanh, relu],  # [tanh, relu, leaky_relu, softsign, selu]
+            'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
             'optimizer'                             : [0],
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
@@ -65,8 +65,8 @@ class ConfigInitializer:
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
-            'initial lr'                            : [0.02],  # 0.01 for other setting
-            'lr decay algorithm'                    : [2],  # 2 Information in 1 entry
+            'initial lr'                            : [0.05, 0.02],  # 0.01 for other setting
+            'lr decay algorithm'                    : [3, 2],  # 2 Information in 1 entry
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
             'antithetic variables on validation set': [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
@@ -279,7 +279,7 @@ class ConfigInitializer:
         data.append(['best disc', 'best cont', 'final', 'iterations', 'time'] + [param[0] for param in resultlist[0][4]])
         for res in resultlist:
             data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.test_disc_value, res[0].cont_best_result.test_disc_value, res[0].final_result.test_disc_value,
-                         str(res[0].disc_best_result.m) + " | " + str(res[0].cont_best_result.m) + " | " + str(res[0].final_result.m), res[1].end_time-res[1].start_time]
+                         str(res[0].disc_best_result.m) + " | " + str(res[0].cont_best_result.m) + " | " + str(len(res[1].train_durations)-1), res[1].end_time-res[1].start_time]
                         + [str(param[1]) for param in res[4]])
 
         for i in range(1, data.__len__()):

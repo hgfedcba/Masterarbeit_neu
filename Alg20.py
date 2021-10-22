@@ -24,10 +24,9 @@ class Alg20_NN(NN):
 
         log = self.log
 
-        # mindestlänge damit dieser Ansatz Sinn ergibt
-        duration = (self.T_max/self.N, 3)
-        iterations = max(self.M_max/self.N, 90)
-        ratio_single_to_together = 0.67
+        duration = self.T_max/self.N
+        iterations = self.M_max/self.N
+        ratio_single_to_together = 0.75
 
         # consists of fake nets. Fake nets are overridden gradually
         self.u = []
@@ -124,7 +123,7 @@ class Alg20_NN(NN):
         avg_list = []
         m = 0
 
-        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < max(20, 100*(m == self.N-1)):
+        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < max(20, 100*(n == self.N-1)):
             avg = self.training_step(optimizer)
             avg_list.append(avg)
 

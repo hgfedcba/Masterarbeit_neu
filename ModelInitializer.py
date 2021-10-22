@@ -289,14 +289,21 @@ def initialize_model(option):
         with open(test_paths_file, "rb") as fp:  # Unpickling
             test_paths = pickle.load(fp)
 
-    elif option == "R2":
+    elif option == "R2" or option == "R2l":
         N = 19
-        max_minutes = 25
-        max_number = 300
+        max_minutes = 30
+        max_number = 400
         train_size = 1024
         val_size = 2048
         test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
+
+        if option == "R2l":
+            max_minutes *= 3
+            max_number *= 3
+            train_size *= 2
+            val_size *= 2
+            test_size *= 2
 
         Model = RobbinsModel(N)
         Model.set_reference_value()
@@ -362,6 +369,7 @@ def initialize_model(option):
 
         if option == "R12l":
             max_minutes *= 3
+            max_number *= 3
             train_size *= 2
             val_size *= 2
             test_size *= 2
@@ -627,7 +635,8 @@ def initialize_model(option):
         val_paths = Model.generate_paths(val_size)
         test_paths = Model.generate_paths(test_size)
     else:
-        return 0
+        # falsche Option eingegeben
+        assert False
     if main_pc == "\tZweitrechner":
         max_minutes *= 1.3
         max_number *= 1.3
