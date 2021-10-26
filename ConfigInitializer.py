@@ -53,20 +53,21 @@ class ConfigInitializer:
         dict_a = {  #
             # alg 20 is very good but also very slow
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [20],
+            'algorithm'                             : [0],
             'sort net input'                        : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
             'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
-            'optimizer'                             : [0],
+            'optimizer'                             : [0, 1, 2, 3, 4, 5, 6, 7, 8],
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
             'number pretrain iterations'            : [500],
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
-            'initial lr'                            : [0.05, 0.02],  # 0.01 for other setting
-            'lr decay algorithm'                    : [3, 2],  # 2 Information in 1 entry
+            'initial lr'                            : [0.02],  # 0.01 for other setting
+            'lr decay algorithm'                    : [3],  # 2 Information in 1 entry
+            'dropout rate'                          : [0],
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
             'antithetic variables on validation set': [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
@@ -123,6 +124,7 @@ class ConfigInitializer:
             else:
                 do_lr_decay = True
                 lr_decay_alg = lr_decay_algs[params['lr decay algorithm']]
+            dropout_rate = params['dropout rate']
             random_seed = params['random seed']
             validation_frequency = params['validation frequency']
             if algorithm >= 10:
@@ -132,7 +134,7 @@ class ConfigInitializer:
 
             current_Config = Config(device, algorithm, sort_net_input, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer, do_pretrain, pretrain_func, pretrain_iterations,
                                     max_number_of_iterations,
-                                    max_minutes_of_iterations, train_size, initial_lr, do_lr_decay, lr_decay_alg, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size,
+                                    max_minutes_of_iterations, train_size, initial_lr, do_lr_decay, lr_decay_alg, dropout_rate, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size,
                                     val_size, stop_paths_in_plot, x_plot_range_for_net_plot, angle_for_net_plot)
             if run_number == 0:
                 f = open("intermediate_results.txt", "w")
@@ -240,6 +242,8 @@ class ConfigInitializer:
         def short_cont(a):
             return str(round(a.val_cont_value, 5)) + " \t (" + str(round(a.test_cont_value, 5)) + ")\t"
         """
+
+        # TODO: log iterations in alg20 better
         os = mylog("\trun: ", str(result[2]),
                    "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),
                    "\tbest cont result:", short_disc(result[0].cont_best_result), " | ", short_cont(result[0].cont_best_result),
@@ -278,9 +282,12 @@ class ConfigInitializer:
         '''
         data.append(['best disc', 'best cont', 'final', 'iterations', 'time'] + [param[0] for param in resultlist[0][4]])
         for res in resultlist:
-            data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.test_disc_value, res[0].cont_best_result.test_disc_value, res[0].final_result.test_disc_value,
-                         str(res[0].disc_best_result.m) + " | " + str(res[0].cont_best_result.m) + " | " + str(len(res[1].train_durations)-1), res[1].end_time-res[1].start_time]
-                        + [str(param[1]) for param in res[4]])
+            if not (isinstance(res[0].NN, Alg10.Alg10_NN) or isinstance(res[0].NN, Alg20.Alg20_NN)):
+                data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.test_disc_value, res[0].cont_best_result.test_disc_value, res[0].final_result.test_disc_value, str(res[0].disc_best_result.m) + " | " + str(res[0].cont_best_result.m) + " | " + str(res[0].final_result.m), res[1].end_time-res[1].start_time] + [str(param[1]) for param in res[4]])
+            else:
+                data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.test_disc_value, res[0].cont_best_result.test_disc_value, res[0].final_result.test_disc_value,
+                             str(len(res[1].average_train_payoffs)), res[1].end_time - res[1].start_time]
+                            + [str(param[1]) for param in res[4]])
 
         for i in range(1, data.__len__()):
             for j in range(data[1].__len__()):

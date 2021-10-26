@@ -21,6 +21,9 @@ np.save("../test_paths_4411_5.npy", test_paths)
 """
 val_paths_file = "../val_paths_R60.npy"
 test_paths_file = "../test_paths_R60.npy"
+val_paths = Model.generate_paths(1048576, True)
+print("1/2")
+test_paths = Model.generate_paths(1048576, True)
 with open(val_paths_file, 'wb') as f:
     pickle.dump(val_paths, f)
 with open(test_paths_file, 'wb') as f:
@@ -267,6 +270,21 @@ def initialize_model(option):
         val_paths = np.load(val_paths_file, mmap_mode="r")
         test_paths = np.load(test_paths_file, mmap_mode="r")
 
+    elif option == "R00":
+        N = 5
+        max_minutes = 0.1
+        train_size = 128
+        val_size = 256
+        test_size = 512
+        x_plot_range_for_net_plot = [0, 1]
+
+        Model = RobbinsModel(N)
+        Model.set_reference_value()
+        Model.update_parameter_string(main_pc)
+
+        val_paths = Model.generate_paths(val_size, True)
+        test_paths = Model.generate_paths(test_size, True)
+
     elif option == "R1" or option == "R0":
         N = 19
         if option == "R0":
@@ -380,6 +398,34 @@ def initialize_model(option):
 
         val_paths_file = "../val_paths_R12.npy"
         test_paths_file = "../test_paths_R12.npy"
+        with open(val_paths_file, "rb") as fp:  # Unpickling
+            val_paths = pickle.load(fp)
+        with open(test_paths_file, "rb") as fp:  # Unpickling
+            test_paths = pickle.load(fp)
+
+    elif option == "R13" or option == "R13l":
+        N = 12
+        max_minutes = 25
+        max_number = 400
+        train_size = 1024
+        val_size = 2048
+        test_size = 16384
+        x_plot_range_for_net_plot = [0, 1]
+
+        if option == "R13l":
+            max_minutes *= 3
+            max_number *= 3
+            train_size *= 2
+            val_size *= 2
+            test_size *= 2
+
+        Model = RobbinsModel(N)
+        Model.set_reference_value()
+        Model.update_parameter_string(main_pc)
+
+        val_paths_file = "../val_paths_R13.npy"
+        test_paths_file = "../test_paths_R13.npy"
+
         with open(val_paths_file, "rb") as fp:  # Unpickling
             val_paths = pickle.load(fp)
         with open(test_paths_file, "rb") as fp:  # Unpickling

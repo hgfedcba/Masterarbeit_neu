@@ -45,9 +45,14 @@ input sortieren
 
 # TODO: Note: RNG freeze funktioniert (tested with True/False bei sorted input ohne funktion)
 
-# TODO: don't forget sort input and alg 10
-
 # TODO: recall robbins bound from reference also has an explicit realization
+
+# TODO: log iterations in alg20 better
+
+# TODO: test regularization, dropout
+# TODO: <- both are supposed to reduce overfitting, but as overfitting is not possible in my setting it shouldn't help (much)
+
+# TODO: andere optimierer
 
 
 if __name__ == '__main__':
@@ -85,7 +90,8 @@ if __name__ == '__main__':
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R2l, R3, R4, R12, R12l, Russ0, RW0, RW1, RW2, RW3, RW4
     import os
     log.warning("Start")
-    ConfigInitializer("R2l", log)
+    # TODO: alg20 and not robins
+    ConfigInitializer("R0", log)
     """
     os.chdir("../current run2")
     ConfigInitializer("RW4", log)

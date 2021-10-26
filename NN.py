@@ -8,7 +8,7 @@ from RobbinsModel import RobbinsModel
 
 # TODO: IMPORTANT NOTE: I subtract K from the input of the Network to ensure the learning works from the beginning on
 class Net(nn.Module):
-    def __init__(self, d, internal_neurons, hidden_layer_count, activation_internal, activation_final, K, device):
+    def __init__(self, d, internal_neurons, hidden_layer_count, activation_internal, activation_final, K, device, dropout_rate=0):
         super(Net, self).__init__()
         # an affine operation: y = Wx + b
         self.fc1 = nn.Linear(d, internal_neurons).to(device)
@@ -24,8 +24,11 @@ class Net(nn.Module):
 
         self.K = K
 
+        self.dropout = nn.Dropout(dropout_rate)
+
     def forward(self, y):
         y = y-self.K
+        y = self.dropout(y)
         y = self.activation_internal(self.fc1(y))
         for k in range(self.hidden_layer_count):
             y = self.activation_internal(self.fcs[k](y))
@@ -54,6 +57,7 @@ class NN:
         self.initial_lr = Config.initial_lr  # Lernrate
         self.lr_decay_alg = Config.lr_decay_alg
         self.do_lr_decay = Config.do_lr_decay
+        self.dropout_rate = Config.dropout_rate
 
         self.batch_size = Config.train_size
 
@@ -82,13 +86,13 @@ class NN:
             self.u = []
             if not self.single_net_algorithm():
                 for k in range(self.N):
-                    net = Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK(), self.device)
+                    net = Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK(), self.device, self.dropout_rate)
                     net.to(self.device)
                     # net.to(device)
                     self.u.append(net)
             else:
                 assert np.allclose(self.path_dim, np.ones_like(self.path_dim) * self.path_dim[0])
-                net = Net(self.path_dim[0] + 1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK(), self.device)
+                net = Net(self.path_dim[0] + 1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK(), self.device, self.dropout_rate)
                 net.to(self.device)
                 self.u.append(net)
 
@@ -304,6 +308,10 @@ class NN:
             else:
                 local_N = training_paths[0].shape[1]
             U = torch.empty(self.batch_size, local_N)
+
+        for net in self.u:
+            net.train()
+
         individual_payoffs = []
 
         for j in range(self.batch_size):
@@ -330,6 +338,9 @@ class NN:
         cont_individual_payoffs = []
         disc_individual_payoffs = []
         stopping_times = []
+
+        for net in self.u:
+            net.train(mode=False)
 
         # h = []
         U = torch.empty(L, self.N + 1)
