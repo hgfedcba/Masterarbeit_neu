@@ -1,13 +1,15 @@
 from torch.nn.functional import relu, hardtanh, relu6, elu, selu, celu, leaky_relu, rrelu, gelu, logsigmoid, hardshrink, tanhshrink, softsign, softplus, softmin, softmax, softshrink, \
     gumbel_softmax, log_softmax, hardsigmoid
 from torch import tanh, sigmoid
-from torch.optim import Adam, lr_scheduler
+from torch.optim import Adadelta, Adagrad, AdamW, Adamax, ASGD, LBFGS, RMSprop, SGD, Adam, lr_scheduler
+# TODO: why are those not found?
+# from torch.optim import NAdam, RAdam, Rpop
 
 activation_functions = [tanh, sigmoid, relu, hardtanh, relu6, elu, selu, celu, leaky_relu, rrelu, gelu, logsigmoid, hardshrink, tanhshrink, softsign, softplus, softmin, softmax, softshrink,
                         gumbel_softmax, log_softmax, hardsigmoid]
 
-optimizers = [Adam]
-optimizer_dict = {Adam: "Adam"}
+optimizers = [Adam, Adadelta, Adagrad, AdamW, Adamax, ASGD, LBFGS, RMSprop, SGD]
+optimizer_dict = {Adam: "Adam", Adadelta: "Adadelta", Adagrad: "Adagrad", AdamW: "AdamW", Adamax: "Adamax", ASGD: "ASGD", LBFGS: "LBFGS", RMSprop: "RMSprop", SGD: "SGD"}
 
 
 """

@@ -116,7 +116,7 @@ class Alg10_NN(NN):
         start_time = time.time()
         m = 0
 
-        self.u.insert(0, Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK(), self.device))
+        self.u.insert(0, Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK(), self.device, self.dropout_rate))
 
         # pretrain, deprecated
         if isinstance(self.Model, RobbinsModel) and self.algorithm == 11:

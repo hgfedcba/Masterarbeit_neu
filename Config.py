@@ -6,7 +6,7 @@ class Config:
     # Ich gebe Standardwerte an um den Datentyp zu deklarieren. Ich möchte die Standardwerte in fast allen Fällen überschreiben.
     def __init__(self, device="cpu", algorithm=0, sort_net_input=False, internal_neurons=50, hidden_layer_count=3, activation_internal=tanh, activation_final=sigmoid, optimizer=Adam, do_pretrain=True,
                  pretrain_func=pretrain_functions[0], pretrain_iterations=800,
-                 max_number_of_iterations=50, max_minutes_of_iterations=5, train_size=32, initial_lr=0.0001, do_lr_decay=False, lr_decay_alg=lr_decay_algs[0], random_seed=23343,
+                 max_number_of_iterations=50, max_minutes_of_iterations=5, train_size=32, initial_lr=0.0001, do_lr_decay=False, lr_decay_alg=lr_decay_algs[0], dropout_rate=0, random_seed=23343,
                  validation_frequency=2, antithetic_val=True, antithetic_train=False, val_size=64, test_size=128, stop_paths_in_plot=False, x_plot_range_for_net_plot=None, angle_for_net_plot=40):
 
         # net
@@ -35,6 +35,7 @@ class Config:
         self.initial_lr = initial_lr  # lernrate
         self.do_lr_decay = do_lr_decay
         self.lr_decay_alg = lr_decay_alg
+        self.dropout_rate = dropout_rate
 
         # Meta
         self.random_seed = random_seed
@@ -65,7 +66,7 @@ class Config:
               ["optimizer", optimizer_dict.get(optimizer)], ["do pretrain", do_pretrain], ["pretrain function", pretrain_func_dict.get(pretrain_func)],
               ["number pretrain iterations", pretrain_iterations], ["max number of iterations", max_number_of_iterations],
               ["max minutes of iterations", max_minutes_of_iterations], ["initial lr", initial_lr], ["do lr decay", do_lr_decay], ["lr decay algorithm", lr_decay_dict.get(lr_decay_alg)],
-              ["random seed", random_seed], ["validation frequency", validation_frequency], ["antithetic variables on validation set", antithetic_val],
+              ['dropout rate', dropout_rate], ["random seed", random_seed], ["validation frequency", validation_frequency], ["antithetic variables on validation set", antithetic_val],
               ["antithetic variables on train set", antithetic_train], ["training batch size", train_size], ["number of validation paths", val_size], ["number of test paths", test_size],
               ["stop paths in plot", stop_paths_in_plot]]
 
