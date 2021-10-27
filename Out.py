@@ -98,6 +98,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     # TODO: draw reference value, probably invert graph for this
     draw_connected_points(x, Memory.val_continuous_value_list, plot_number_value, do_scatter=do_scatter)
     draw_connected_points(x, Memory.val_discrete_value_list, plot_number_value, do_scatter=do_scatter)
+    # TODO: why doesn't his merge?
 
     r_value = Model.get_reference_value()
     if r_value == -1:
