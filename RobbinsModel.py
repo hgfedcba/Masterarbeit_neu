@@ -31,7 +31,7 @@ class RobbinsModel(AbstractMathematicalModel):
         self.parameter_string = parameter_string + "\n"
 
     # antithetic is ignored
-    def generate_paths(self, L, antithetic=None, sorted=False):
+    def generate_paths(self, L, antithetic=None, sorted=False, N=None):
         """
         for l in range(L):
             out.append(np.random.uniform(low=0.0, high=1.0, size=None))
@@ -39,13 +39,16 @@ class RobbinsModel(AbstractMathematicalModel):
             #     print(l)
         """
 
-        x = np.random.uniform(low=0.0, high=1.0, size=(L, self.__N+1)).tolist()
+        if N is None:
+            N = self.__N
+
+        x = np.random.uniform(low=0.0, high=1.0, size=(L, N+1)).tolist()
 
         y = []
         for l in range(L):
             y.append([])
             y[l].append([x[l][0]])
-            for n in range(1, self.__N+1):
+            for n in range(1, N+1):
                 y[l].append(copy.deepcopy(y[l][n - 1]))
                 y[l][n].append(x[l][n])
 
@@ -131,10 +134,8 @@ class RobbinsModel(AbstractMathematicalModel):
         return torch.matmul(U, torch.tensor(z2, dtype=torch.float))
 
     def set_reference_value(self):
-        if self.getN()>12:
-            self.__reference_value_upper = self.getN()+2-1.908
-        else:
-            self.__reference_value_upper = self.getN() + 2 - Util.robbins_problem_lower_boundary(self.getN())
+        # 1.908 ist die beste bekannte untere Grenze für V und da die V_n monoton wachsend sind ist es auch eine untere Grenze für V_n
+        self.__reference_value_upper = self.getN() + 2 - Util.robbins_problem_known_upper_boundary(self.getN())
         # self.__reference_value_upper = self.getN()+2-Util.robbins_problem_experimental_upper_boundary(self.getN())  # TODO: remember
         self.__reference_value_lower = self.getN()+2-Util.robbins_problem_lower_boundary(self.getN())  # explicit threshhold function
 

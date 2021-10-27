@@ -53,7 +53,7 @@ class ConfigInitializer:
         dict_a = {  #
             # alg 20 is very good but also very slow
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [20],
+            'algorithm'                             : [20, 21],
             'sort net input'                        : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
@@ -65,8 +65,8 @@ class ConfigInitializer:
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
-            'initial lr'                            : [0.05, 0.02],  # 0.01 for other setting
-            'lr decay algorithm'                    : [3, 2],  # 2 Information in 1 entry
+            'initial lr'                            : [0.02],  # 0.01 for other setting
+            'lr decay algorithm'                    : [3],  # 2 Information in 1 entry
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
             'antithetic variables on validation set': [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
@@ -165,7 +165,7 @@ class ConfigInitializer:
                 current_NN = Alg10.Alg10_NN(current_Config, Model, Memory, log)
                 if algorithm == 11 or algorithm == 14:
                     current_NN.do_pretrain = True
-            elif algorithm == 20:
+            elif algorithm == 20 or algorithm == 21:
                 current_NN = Alg20.Alg20_NN(current_Config, Model, Memory, log)
             else:
                 current_NN = NN.NN(current_Config, Model, Memory, log)

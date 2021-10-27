@@ -30,53 +30,110 @@ class Alg20_NN(NN):
 
         # consists of fake nets. Fake nets are overridden gradually
         self.u = []
-        for j in range(self.N):
-            self.u.append(fake_net)
+        end = self.N
 
-        for m in range(self.N):
-            self.Memory.total_net_durations.append(0)
+        if self.algorithm == 21:
+            for m in range(end):
+                self.Memory.total_net_durations.append(0)
 
-            m_th_iteration_start_time = time.time()
+                m_th_iteration_start_time = time.time()
 
-            avg_list = self.train_and_append_net_k(m, duration*ratio_single_to_together, iterations*ratio_single_to_together)
+                self.N = m+1
 
-            # Note: last is longer
-            avg_list += self.train_together(m, duration*ratio_single_to_together, iterations*ratio_single_to_together)
+                avg_list = self.train_and_append_net_k(m, duration*ratio_single_to_together, iterations*ratio_single_to_together, alg20=False)
 
-            self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
-            self.Memory.average_train_payoffs.extend(avg_list)
+                # Note: last is longer
+                avg_list += self.train_together(m, duration*ratio_single_to_together, iterations*ratio_single_to_together, alg20=False)
 
-            val_start = time.time()
+                self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
+                self.Memory.average_train_payoffs.extend(avg_list)
 
-            cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
-            log.info(
-                "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (m+1, round(cont_payoff, 3), round(disc_payoff, 3)))
+                val_start = time.time()
 
-            # Prominent Result ergibt wenig sinn, da das optimale ergebnis definitiv am ende ist
-            # self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+                temp_val_paths = []
+                for k in range(len(self.val_paths)):
+                    temp_val_paths.append(self.val_paths[k][:m+2])
 
-            self.Memory.val_continuous_value_list.append(cont_payoff)
-            self.Memory.val_discrete_value_list.append(disc_payoff)
+                cont_payoff, disc_payoff, stopping_times = self.validate(temp_val_paths)
+                """
+                log.info(
+                    "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (m+1, round(cont_payoff, 3), round(disc_payoff, 3)))
+                """
+                # Prominent Result ergibt wenig sinn, da das optimale ergebnis definitiv am ende ist
+                # self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+                # recall m+2 = self.N+1 = N
+                l = m + 3 - robbins_problem_lower_boundary(m+1)  # explicit threshhold function
 
-            self.Memory.val_durations.append(time.time() - val_start)
+                log.info("For N = " + str(m+2) + " the val-value is " + str(disc_payoff) + " and the reference value for W is " + str(l))
 
-            i_value = [max(s * range(0, self.N + 1)) for s in stopping_times]
-            self.Memory.average_val_stopping_time.append(np.mean(i_value))
+                self.Memory.val_continuous_value_list.append(cont_payoff)
+                self.Memory.val_discrete_value_list.append(disc_payoff)
 
-            # print(avg_list)
+                self.Memory.val_durations.append(time.time() - val_start)
 
-        self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+                i_value = [max(s * range(0, self.N + 1)) for s in stopping_times]
+                self.Memory.average_val_stopping_time.append(np.mean(i_value))
 
-        self.ProminentResults.set_final_net(self, m - 1, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+                # print(avg_list)
 
-        return m, self.ProminentResults, self.Memory
+            self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+
+            self.ProminentResults.set_final_net(self, m - 1, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+
+            return m, self.ProminentResults, self.Memory
+
+        elif self.algorithm == 20:
+            for j in range(self.N):
+                self.u.append(fake_net)
+            for m in range(end):
+                self.Memory.total_net_durations.append(0)
+
+                m_th_iteration_start_time = time.time()
+
+                avg_list = self.train_and_append_net_k(m, duration * ratio_single_to_together, iterations * ratio_single_to_together, alg20=True)
+
+                # Note: last is longer
+                avg_list += self.train_together(m, duration * ratio_single_to_together, iterations * ratio_single_to_together, alg20=True)
+
+                self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
+                self.Memory.average_train_payoffs.extend(avg_list)
+
+                val_start = time.time()
+
+                cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
+                log.info(
+                    "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (m+1, round(cont_payoff, 3), round(disc_payoff, 3)))
+
+                # Prominent Result ergibt wenig sinn, da das optimale ergebnis definitiv am ende ist
+                # self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+                """
+                # recall m+2 = self.N+1 = N
+                l = m + 3 - robbins_problem_lower_boundary(m + 1)  # explicit threshhold function
+                log.info("For N = " + str(m + 2) + " the val-value is " + str(disc_payoff) + " and the reference value for W is " + str(l))
+                """
+                self.Memory.val_continuous_value_list.append(cont_payoff)
+                self.Memory.val_discrete_value_list.append(disc_payoff)
+
+                self.Memory.val_durations.append(time.time() - val_start)
+
+                i_value = [max(s * range(0, self.N + 1)) for s in stopping_times]
+                self.Memory.average_val_stopping_time.append(np.mean(i_value))
+
+                # print(avg_list)
+
+            self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+
+            self.ProminentResults.set_final_net(self, m - 1, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+
+            return m, self.ProminentResults, self.Memory
 
     # m = number of previous observations
-    def train_and_append_net_k(self, n, duration, iterations):
+    def train_and_append_net_k(self, n, duration, iterations, alg20=True):
         start_time = time.time()
         saved_u = copy.deepcopy(self.u)
-        saved_N = self.N
-        self.N = n+1
+        if alg20:
+            saved_N = self.N
+            self.N = n + 1
 
         self.u = []
         for j in range(n+1):
@@ -94,9 +151,12 @@ class Alg20_NN(NN):
         avg_list = []
         m = 0
         while(m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
-            training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
-            for k in range(len(training_paths)):
-                training_paths[k] = training_paths[k][:n+2]
+            if alg20:
+                training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
+                for k in range(len(training_paths)):
+                    training_paths[k] = training_paths[k][:n + 2]
+            else:
+                training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train, N=self.N)
 
             avg = self.training_step(optimizer, training_paths)
             avg_list.append(avg)
@@ -106,12 +166,15 @@ class Alg20_NN(NN):
             m += 1
 
         self.u = saved_u
-        self.u[n] = net
-        self.N = saved_N
+        if alg20:
+            self.u[n] = net
+            self.N = saved_N
+        else:
+            self.u.append(net)
 
         return avg_list
 
-    def train_together(self, n, duration, iterations):
+    def train_together(self, n, duration, iterations, alg20=True):
         start_time = time.time()
         params = []
         for k in range(n+1):
@@ -123,8 +186,13 @@ class Alg20_NN(NN):
         avg_list = []
         m = 0
 
-        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < max(20, 100*(n == self.N-1)):
-            avg = self.training_step(optimizer)
+        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < max(10, 100*(n == self.N-1)):
+            if alg20:
+                avg = self.training_step(optimizer)
+            else:
+                training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train, N=self.N)
+
+                avg = self.training_step(optimizer, training_paths)
             avg_list.append(avg)
 
             if self.do_lr_decay:

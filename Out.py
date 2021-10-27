@@ -92,8 +92,12 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     else:
         x = range(0, Config.validation_frequency * (len(Memory.val_discrete_value_list)), Config.validation_frequency)
     x = np.array(x)
-    draw_connected_points(x, Memory.val_continuous_value_list, plot_number_value)
-    draw_connected_points(x, Memory.val_discrete_value_list, plot_number_value)
+    do_scatter = False
+    if Config.algorithm == 21:
+        do_scatter = True
+    # TODO: draw reference value, probably invert graph for this
+    draw_connected_points(x, Memory.val_continuous_value_list, plot_number_value, do_scatter=do_scatter)
+    draw_connected_points(x, Memory.val_discrete_value_list, plot_number_value, do_scatter=do_scatter)
 
     r_value = Model.get_reference_value()
     if r_value == -1:
@@ -103,8 +107,8 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         plt.legend(["cont value", "disc value", "reference value"])
     else:
         draw_connected_points(x, r_value[0] * np.ones_like(x), plot_number_value, 'black')
-        draw_connected_points(x, r_value[1] * np.ones_like(x), plot_number_value, 'black')
-        plt.legend(["cont value", "disc value", "reference upper", "reference lower"])
+        draw_connected_points(x, r_value[1] * np.ones_like(x), plot_number_value, 'gray')
+        plt.legend(["W_n", "V", "cont value", "disc value"])
 
     pdf.savefig(fig1)
     plt.close(fig1)
@@ -122,8 +126,8 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         plt.legend(["train values", "reference value"])
     else:
         draw_connected_points(x, r_value[0] * np.ones_like(x), plot_number_train, 'black')
-        draw_connected_points(x, r_value[1] * np.ones_like(x), plot_number_train, 'black')
-        plt.legend(["train values", "reference upper", "reference lower"])
+        draw_connected_points(x, r_value[1] * np.ones_like(x), plot_number_train, 'gray')
+        plt.legend(["train values", "W_n", "V"])
     # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
     # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
     plt.title("value on train batch each iteration")
