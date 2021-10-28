@@ -43,6 +43,9 @@ class Alg20_NN(NN):
                 avg_list = self.train_and_append_net_k(m, duration*ratio_single_to_together, iterations*ratio_single_to_together, alg20=False)
 
                 # Note: last is longer
+                if m == end-1:
+                    iterations = max(100/ratio_single_to_together, iterations*3)
+                    duration = duration * 3
                 avg_list += self.train_together(m, duration*ratio_single_to_together, iterations*ratio_single_to_together, alg20=False)
 
                 self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
@@ -52,7 +55,11 @@ class Alg20_NN(NN):
 
                 temp_val_paths = []
                 for k in range(len(self.val_paths)):
-                    temp_val_paths.append(self.val_paths[k][:m+2])
+                    temp_val_paths.append(self.val_paths[k][:m + 2])
+                    # temp_val_paths.append(copy.deepcopy(self.val_paths[k][:m+2]))  # deepcopy doesn't seem to be necessary
+
+                if m >= 2:
+                    assert True
 
                 cont_payoff, disc_payoff, stopping_times = self.validate(temp_val_paths)
                 """
@@ -61,10 +68,11 @@ class Alg20_NN(NN):
                 """
                 # Prominent Result ergibt wenig sinn, da das optimale ergebnis definitiv am ende ist
                 # self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
-                # recall m+2 = self.N+1 = N
-                l = m + 3 - robbins_problem_lower_boundary(m+1)  # explicit threshhold function
 
-                log.info("For N = " + str(m+2) + " the val-value is " + str(disc_payoff) + " and the reference value for W is " + str(l))
+                # recall m+2 = self.N+1 = N
+                l = m + 3 - robbins_problem_lower_boundary(m + 1)  # explicit threshhold function
+
+                log.info("For N = " + str(m+2) + " the val-value is " + str(disc_payoff) + " and the reference value for W_" + str(m+2) + " is " + str(l))
 
                 self.Memory.val_continuous_value_list.append(cont_payoff)
                 self.Memory.val_discrete_value_list.append(disc_payoff)
@@ -80,11 +88,16 @@ class Alg20_NN(NN):
 
             self.ProminentResults.set_final_net(self, m - 1, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
+            # TODO: change m
             return m, self.ProminentResults, self.Memory
 
         elif self.algorithm == 20:
             for j in range(self.N):
                 self.u.append(fake_net)
+
+            # recall m+2 = self.N+1 = N
+            l = self.N + 2 - robbins_problem_lower_boundary(self.N)  # explicit threshhold function
+
             for m in range(end):
                 self.Memory.total_net_durations.append(0)
 
@@ -93,6 +106,9 @@ class Alg20_NN(NN):
                 avg_list = self.train_and_append_net_k(m, duration * ratio_single_to_together, iterations * ratio_single_to_together, alg20=True)
 
                 # Note: last is longer
+                if m == end-1:
+                    iterations = max(100/ratio_single_to_together, iterations*3)
+                    duration = duration * 3
                 avg_list += self.train_together(m, duration * ratio_single_to_together, iterations * ratio_single_to_together, alg20=True)
 
                 self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
@@ -101,16 +117,15 @@ class Alg20_NN(NN):
                 val_start = time.time()
 
                 cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
+                """
                 log.info(
                     "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (m+1, round(cont_payoff, 3), round(disc_payoff, 3)))
-
+                """
                 # Prominent Result ergibt wenig sinn, da das optimale ergebnis definitiv am ende ist
                 # self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
-                """
-                # recall m+2 = self.N+1 = N
-                l = m + 3 - robbins_problem_lower_boundary(m + 1)  # explicit threshhold function
-                log.info("For N = " + str(m + 2) + " the val-value is " + str(disc_payoff) + " and the reference value for W is " + str(l))
-                """
+
+                log.info("For N = " + str(m+2) + " the val-value is " + str(disc_payoff) + " and the reference value for W_N is " + str(l))
+
                 self.Memory.val_continuous_value_list.append(cont_payoff)
                 self.Memory.val_discrete_value_list.append(disc_payoff)
 
@@ -124,7 +139,6 @@ class Alg20_NN(NN):
             self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
             self.ProminentResults.set_final_net(self, m - 1, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
-
             return m, self.ProminentResults, self.Memory
 
     # m = number of previous observations
@@ -150,7 +164,7 @@ class Alg20_NN(NN):
 
         avg_list = []
         m = 0
-        while(m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
+        while(m < iterations and (time.time() - start_time) / 60 < duration) or m < 40:
             if alg20:
                 training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
                 for k in range(len(training_paths)):
@@ -186,7 +200,7 @@ class Alg20_NN(NN):
         avg_list = []
         m = 0
 
-        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < max(10, 100*(n == self.N-1)):
+        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
             if alg20:
                 avg = self.training_step(optimizer)
             else:

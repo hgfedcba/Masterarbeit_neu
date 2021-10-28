@@ -58,7 +58,8 @@ class Config:
             11: "seq with pretrain",
             12: "explicit stop condition given",  # doesn't run through
             14: "seq with empty pretrain",  # TODO: implement
-            20: "learn nets front to back"
+            20: "learn NN front to back N=const",
+            21: "learn NN front to back N=inc"
         }
 
         pl = [["device", device], ["algorithm", alg_dict.get(algorithm)], ["sort net input", sort_net_input], ["internal neurons per layer", internal_neurons], ["hidden layer count", hidden_layer_count],

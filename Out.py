@@ -93,12 +93,12 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         x = range(0, Config.validation_frequency * (len(Memory.val_discrete_value_list)), Config.validation_frequency)
     x = np.array(x)
     do_scatter = False
-    if Config.algorithm == 21:
-        do_scatter = True
     # TODO: draw reference value, probably invert graph for this
-    draw_connected_points(x, Memory.val_continuous_value_list, plot_number_value, do_scatter=do_scatter)
+    if not Config.algorithm == 21:
+        draw_connected_points(x, Memory.val_continuous_value_list, plot_number_value, do_scatter=do_scatter)
+    else:
+        do_scatter = True
     draw_connected_points(x, Memory.val_discrete_value_list, plot_number_value, do_scatter=do_scatter)
-    # TODO: why doesn't his merge?
 
     r_value = Model.get_reference_value()
     if r_value == -1:
@@ -106,10 +106,18 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     elif isinstance(r_value, float):
         draw_connected_points(x, r_value*np.ones_like(x), plot_number_value, 'black')
         plt.legend(["cont value", "disc value", "reference value"])
+    elif Config.algorithm == 21:
+        o = [[], []]
+        for m in range(x.size):
+            o[0].append(m + 3 - robbins_problem_lower_boundary(m + 1))
+            o[1].append(m + 3 - robbins_problem_known_upper_boundary(m))
+        draw_connected_points(x, o[0], plot_number_value, 'black', do_scatter=do_scatter)
+        draw_connected_points(x, o[1], plot_number_value, 'gray', do_scatter=do_scatter)
+        plt.legend(["disc value", "W_n", "V barrier"])
     else:
         draw_connected_points(x, r_value[0] * np.ones_like(x), plot_number_value, 'black')
         draw_connected_points(x, r_value[1] * np.ones_like(x), plot_number_value, 'gray')
-        plt.legend(["W_n", "V", "cont value", "disc value"])
+        plt.legend(["cont value", "disc value", "W_n", "V barrier"])
 
     pdf.savefig(fig1)
     plt.close(fig1)
@@ -128,7 +136,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     else:
         draw_connected_points(x, r_value[0] * np.ones_like(x), plot_number_train, 'black')
         draw_connected_points(x, r_value[1] * np.ones_like(x), plot_number_train, 'gray')
-        plt.legend(["train values", "W_n", "V"])
+        plt.legend(["train values", "W_n", "V barrier"])
     # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
     # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
     plt.title("value on train batch each iteration")

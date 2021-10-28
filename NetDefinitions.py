@@ -8,7 +8,8 @@ from torch.optim import Adadelta, Adagrad, AdamW, Adamax, ASGD, LBFGS, RMSprop, 
 activation_functions = [tanh, sigmoid, relu, hardtanh, relu6, elu, selu, celu, leaky_relu, rrelu, gelu, logsigmoid, hardshrink, tanhshrink, softsign, softplus, softmin, softmax, softshrink,
                         gumbel_softmax, log_softmax, hardsigmoid]
 
-optimizers = [Adam, Adadelta, Adagrad, AdamW, Adamax, ASGD, LBFGS, RMSprop, SGD]
+# TODO: LBFGS needs "closure"
+optimizers = [Adam, Adadelta, Adagrad, AdamW, Adamax, ASGD, RMSprop, SGD]
 optimizer_dict = {Adam: "Adam", Adadelta: "Adadelta", Adagrad: "Adagrad", AdamW: "AdamW", Adamax: "Adamax", ASGD: "ASGD", LBFGS: "LBFGS", RMSprop: "RMSprop", SGD: "SGD"}
 
 

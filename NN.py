@@ -309,8 +309,11 @@ class NN:
                 local_N = training_paths[0].shape[1]
             U = torch.empty(self.batch_size, local_N)
 
+        """
+        breaks alg20
         for net in self.u:
             net.train()
+        """
 
         individual_payoffs = []
 
@@ -339,8 +342,11 @@ class NN:
         disc_individual_payoffs = []
         stopping_times = []
 
+        """
+        breaks alg20
         for net in self.u:
             net.train(mode=False)
+        """
 
         # h = []
         U = torch.empty(L, self.N + 1)
