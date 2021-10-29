@@ -53,13 +53,13 @@ class ConfigInitializer:
         dict_a = {  #
             # alg 20 is very good but also very slow
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [20, 21],
+            'algorithm'                             : [21, 20],  # TODO: I think 21 always has to go first as the inplace-sorting breaks it otherwise
             'sort net input'                        : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
-            'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
+            'internal activation function'          : [tanh, relu],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
-            'optimizer'                             : [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            'optimizer'                             : [2],  # [0, 2, 3, 4, 6] ... 1, 5, 7 scheinen schlechter, 6 besonders gut. # TODO: Es gibt weiter optimierer und weitere einstellungen
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
             'number pretrain iterations'            : [500],
             'max number of iterations'              : [max_number],
@@ -67,7 +67,7 @@ class ConfigInitializer:
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
             'initial lr'                            : [0.02],  # 0.01 for other setting
             'lr decay algorithm'                    : [3],  # 2 Information in 1 entry
-            'dropout rate'                          : [0],
+            'dropout rate'                          : [0],  # only 0, breaks alg20
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
             'antithetic variables on validation set': [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
@@ -204,7 +204,7 @@ class ConfigInitializer:
 
             log.warning("Plotting begins\n\n")
             f = open("intermediate_results.txt", "a")
-            f.write(self.result_to_resultstring(result_list[-1]))
+            f.write(self.result_to_resultstring(result_list[-1], algorithm))
             f.close()
 
             Out.create_graphics(Memory, optimization_result[0][0], Model, current_Config, run_number, val_paths, test_paths, current_NN)
@@ -222,13 +222,13 @@ class ConfigInitializer:
         f = open("end_result.txt", "w")
         f.write(intro_string)
         for res in result_list:
-            f.write(self.result_to_resultstring(res))
+            f.write(self.result_to_resultstring(res, algorithm))
         f.close()
 
         self.create_outputtable(Model, current_Config, list_common_parameters, result_list)
 
     @staticmethod
-    def result_to_resultstring(result):
+    def result_to_resultstring(result, alg):
         def short_disc(a):
             return Util.force_5_decimal(a.val_cont_value) + " \t (" + Util.force_5_decimal(a.test_disc_value) + ")\t"
 
@@ -244,16 +244,30 @@ class ConfigInitializer:
         """
 
         # TODO: log iterations in alg20 better
-        os = mylog("\trun: ", str(result[2]),
-                   "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),
-                   "\tbest cont result:", short_disc(result[0].cont_best_result), " | ", short_cont(result[0].cont_best_result),
-                   "\tfinal result:", short_disc(result[0].final_result), " | ", short_cont(result[0].final_result),
-                   "\ttime taken until discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
-                   result[1].end_time - result[1].start_time,
-                   "\titerations taken until discrete/cont/final result:", result[0].disc_best_result.m, " | ", result[0].cont_best_result.m, " | ", result[0].final_result.m,
-                   "\ttime spend training:", sum(result[1].train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
-                   "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
-                   "Parameterstring:", result[3])
+        # TODO: use ljust more
+        if alg == 20 or alg == 21:
+            os = mylog("\trun: ", str(result[2]),
+                       "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),
+                       "\tbest cont result:", short_disc(result[0].cont_best_result), " | ", short_cont(result[0].cont_best_result),
+                       "\tfinal result:", short_disc(result[0].final_result), " | ", short_cont(result[0].final_result),
+                       "\ttime taken until discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
+                       result[1].end_time - result[1].start_time,
+                       "\titerations taken until discrete/cont/final result:", str(len(result[1].average_train_payoffs)).ljust(30, " "),
+                       "\ttime spend training:", sum(result[1].train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
+                       "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
+                       "Parameterstring:", result[3])
+        else:
+            os = mylog("\trun: ", str(result[2]),
+                       "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),
+                       "\tbest cont result:", short_disc(result[0].cont_best_result), " | ", short_cont(result[0].cont_best_result),
+                       "\tfinal result:", short_disc(result[0].final_result), " | ", short_cont(result[0].final_result),
+                       "\ttime taken until discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
+                       result[1].end_time - result[1].start_time,
+                       "\titerations taken until discrete/cont/final result:", result[0].disc_best_result.m, " | ", result[0].cont_best_result.m, " | ", result[0].final_result.m,
+                       "\ttime spend training:", sum(result[1].train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
+                       "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
+                       "Parameterstring:", result[3])
+
         return os
 
     # discrete final/best disc auf final daten, time until for both    -  variable parameter

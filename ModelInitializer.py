@@ -213,9 +213,9 @@ def initialize_model(option):
         add_am_put_default_pretrain(K, 16)
 
         max_minutes = 3
-        train_size = 64
-        val_size = 512
-        test_size = 2048
+        train_size = 64*2
+        val_size = 512*2
+        test_size = 2048*2
 
         """
         # using 1 as an actual benchmark
