@@ -54,6 +54,8 @@ input sortieren
 
 # TODO: andere optimierer
 
+# TODO: übergebe nicht alle sortierten werte, sondern nur die letzten (n-2)*ln(n-3-x)/ln(n-3)
+
 
 if __name__ == '__main__':
     matplotlib.use("Agg")
