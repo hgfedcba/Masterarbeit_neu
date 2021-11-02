@@ -39,16 +39,16 @@ class ProminentResults:
         out = self.final_result.test(paths_for_test, self.NN)
 
         if self.final_result.m == self.cont_best_result.m:
-            self.cont_best_result.test_cont_value = self.final_result.cont
-            self.cont_best_result.test_disc_value = self.final_result.disc
-            self.cont_best_result.test_stopping_times = self.final_result.stop
+            self.cont_best_result.test_cont_value = self.final_result.test_cont_value
+            self.cont_best_result.test_disc_value = self.final_result.test_disc_value
+            self.cont_best_result.test_stopping_times = self.final_result.test_stopping_times
         else:
             self.cont_best_result.test(paths_for_test, self.NN)
 
         if self.final_result.m == self.disc_best_result.m:
-            self.disc_best_result.test_cont_value = self.final_result.cont
-            self.disc_best_result.test_disc_value = self.final_result.disc
-            self.disc_best_result.test_stopping_times = self.final_result.stop
+            self.disc_best_result.test_cont_value = self.final_result.test_cont_value
+            self.disc_best_result.test_disc_value = self.final_result.test_disc_value
+            self.disc_best_result.test_stopping_times = self.final_result.test_stopping_times
         else:
             self.disc_best_result.test(paths_for_test, self.NN)
 

@@ -57,7 +57,7 @@ class ConfigInitializer:
             'sort net input'                        : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
-            'internal activation function'          : [tanh, relu],  # [tanh, relu, leaky_relu, softsign, selu]
+            'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
             'optimizer'                             : [2],  # [0, 2, 3, 4, 6] ... 1, 5, 7 scheinen schlechter, 6 besonders gut. # TODO: Es gibt weiter optimierer und weitere einstellungen
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
@@ -243,8 +243,8 @@ class ConfigInitializer:
             return str(round(a.val_cont_value, 5)) + " \t (" + str(round(a.test_cont_value, 5)) + ")\t"
         """
 
-        # TODO: log iterations in alg20 better
         # TODO: use ljust more
+        # TODO: log the number of times steps where we never stop
         if alg == 20 or alg == 21:
             os = mylog("\trun: ", str(result[2]),
                        "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),

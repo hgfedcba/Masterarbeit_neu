@@ -24,6 +24,7 @@ class Alg20_NN(NN):
 
         log = self.log
 
+        # TODO: fix time cheating as it turns out that relativly few iterations give decent results.
         duration = self.T_max/self.N
         iterations = self.M_max/self.N
         ratio_single_to_together = 0.75
@@ -84,12 +85,11 @@ class Alg20_NN(NN):
 
                 # print(avg_list)
 
-            self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+            self.ProminentResults.process_current_iteration(self, len(self.Memory.average_train_payoffs), cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
-            self.ProminentResults.set_final_net(self, m - 1, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+            self.ProminentResults.set_final_net(self, len(self.Memory.average_train_payoffs), cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
-            # TODO: change m
-            return m, self.ProminentResults, self.Memory
+            return len(self.Memory.average_train_payoffs), self.ProminentResults, self.Memory
 
         elif self.algorithm == 20:
             for j in range(self.N):
@@ -136,10 +136,10 @@ class Alg20_NN(NN):
 
                 # print(avg_list)
 
-            self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+            self.ProminentResults.process_current_iteration(self, len(self.Memory.average_train_payoffs), cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
-            self.ProminentResults.set_final_net(self, m - 1, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
-            return m, self.ProminentResults, self.Memory
+            self.ProminentResults.set_final_net(self, len(self.Memory.average_train_payoffs), cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+            return len(self.Memory.average_train_payoffs), self.ProminentResults, self.Memory
 
     # m = number of previous observations
     def train_and_append_net_k(self, n, duration, iterations, alg20=True):
