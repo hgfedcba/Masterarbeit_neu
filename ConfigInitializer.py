@@ -44,7 +44,7 @@ class ConfigInitializer:
         # addAdam
         add_step_lr_scheduler(500)
         add_multiplicative_lr_scheduler(0.999)
-        add_multiplicative_lr_scheduler(0.994)  # this halves the learning rate compared to the one above at 150 iterations  TODO: use
+        add_multiplicative_lr_scheduler(0.994)  # this halves the learning rate compared to the one above at 150 iterations
 
         list_individual_parameters = []
         list_common_parameters = []
@@ -247,6 +247,7 @@ class ConfigInitializer:
         # TODO: use ljust more
         if alg == 20 or alg == 21:
             os = mylog("\trun: ", str(result[2]),
+                       "\tamount of times without stopping:", result[0].final_result.amount_of_times_where_no_stopping_happens,
                        "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),
                        "\tbest cont result:", short_disc(result[0].cont_best_result), " | ", short_cont(result[0].cont_best_result),
                        "\tfinal result:", short_disc(result[0].final_result), " | ", short_cont(result[0].final_result),
@@ -258,6 +259,7 @@ class ConfigInitializer:
                        "Parameterstring:", result[3])
         else:
             os = mylog("\trun: ", str(result[2]),
+                       "\tamount of times without stopping:", result[0].final_result.amount_of_times_where_no_stopping_happens,
                        "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),
                        "\tbest cont result:", short_disc(result[0].cont_best_result), " | ", short_cont(result[0].cont_best_result),
                        "\tfinal result:", short_disc(result[0].final_result), " | ", short_cont(result[0].final_result),

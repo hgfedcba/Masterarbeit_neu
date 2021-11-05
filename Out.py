@@ -93,7 +93,6 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         x = range(0, Config.validation_frequency * (len(Memory.val_discrete_value_list)), Config.validation_frequency)
     x = np.array(x)
     do_scatter = False
-    # TODO: draw reference value, probably invert graph for this
     if not Config.algorithm == 21:
         draw_connected_points(x, Memory.val_continuous_value_list, plot_number_value, do_scatter=do_scatter)
     else:
@@ -121,6 +120,34 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
 
     pdf.savefig(fig1)
     plt.close(fig1)
+
+    if Config.algorithm == 21:
+        # inverted Value over time Graph
+        plot_number_inverted_value = 101
+        fig1 = plt.figure(plot_number_inverted_value)
+
+        # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
+        # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
+        plt.title("value on val set over train iterations")
+        xlabel('iteration', fontsize=16)
+        ylabel('conventional value', fontsize=16)
+        grid(True)
+        # plt.yscale('log')
+        do_scatter = True
+        # h = np.arange(len(Memory.val_discrete_value_list)) + 3
+        # h1 = h - np.array(Memory.val_discrete_value_list)
+        draw_connected_points(x, np.arange(len(Memory.val_discrete_value_list)) + 3 - np.array(Memory.val_discrete_value_list), plot_number_inverted_value, do_scatter=do_scatter)
+
+        o = [[], []]
+        for m in range(x.size):
+            o[0].append(robbins_problem_lower_boundary(m + 1))
+            o[1].append(robbins_problem_known_upper_boundary(m))
+        draw_connected_points(x, o[0], plot_number_inverted_value, 'black', do_scatter=do_scatter)
+        draw_connected_points(x, o[1], plot_number_inverted_value, 'gray', do_scatter=do_scatter)
+        plt.legend(["disc value", "W_n", "V barrier"])
+
+        pdf.savefig(fig1)
+        plt.close(fig1)
 
     # train Value over time Graph
     plot_number_train = 12
@@ -170,7 +197,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     # bar graph when stopping of final net happened on test
     plot_number_final_stopping_time = 14
     fig14 = plt.figure(plot_number_final_stopping_time)
-    # TODO: changed this
+    # TODO: changed this  3.11.21 und ich glaube es wurde gefixt?!
     x = range(1, Model.getN()+2)  # range(0, Model.getN()+1) as of before 14.10.21
     x = np.array(x)
     y = np.zeros(Model.getN()+1)

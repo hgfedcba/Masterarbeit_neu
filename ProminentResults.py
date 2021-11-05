@@ -60,6 +60,7 @@ class IndividualBestResult:
         self.val_cont_value = -1
         self.val_disc_value = -1
         self.m = 0
+        self.amount_of_times_where_no_stopping_happens = None
         self.val_stopping_times = None
         self.test_stopping_times = None
         self.time_to_this_result = None
@@ -91,4 +92,9 @@ class IndividualBestResult:
         self.test_cont_value = cont
         self.test_disc_value = disc
         self.test_stopping_times = stop
+
+        amount_of_times_where_no_stopping_happens = np.zeros_like(self.test_stopping_times[0])
+        for y in self.test_stopping_times:
+            amount_of_times_where_no_stopping_happens += np.array(y)
+        self.amount_of_times_where_no_stopping_happens = np.count_nonzero(amount_of_times_where_no_stopping_happens == 0)
         return disc

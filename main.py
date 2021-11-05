@@ -52,6 +52,10 @@ input sortieren
 
 # TODO: andere optimierer
 
+# TODO: review alg 10
+
+# TODO: fix time cheating in alg 20
+
 # TODO: übergebe nicht alle sortierten werte, sondern nur die letzten (n-2)*ln(n-3-x)/ln(n-3)
 
 
@@ -91,7 +95,7 @@ if __name__ == '__main__':
     import os
     log.warning("Start")
     # TODO: fix alg20 and not robins
-    ConfigInitializer("R0", log)
+    ConfigInitializer("R00", log)
     """
     os.chdir("../current run2")
     ConfigInitializer("RW4", log)
