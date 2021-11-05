@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import pytest
 from RobbinsModel import RobbinsModel
+from NetDefinitions import optimizers
 
 
 # TODO: IMPORTANT NOTE: I subtract K from the input of the Network to ensure the learning works from the beginning on
@@ -65,7 +66,7 @@ class NN:
         self.activation_internal = Config.activation_internal
         self.activation_final = Config.activation_final
         self.hidden_layer_count = Config.hidden_layer_count
-        self.optimizer = Config.optimizer
+        self.optimizer_number = Config.optimizer_number
 
         self.do_pretrain = Config.do_pretrain
         self.pretrain_iterations = Config.pretrain_iterations
@@ -112,6 +113,26 @@ class NN:
             return False
         assert False
 
+    def return_optimizer(self, parameters, special_config=None, lr=None):
+        if lr is None:
+            lr = self.initial_lr
+        if self.optimizer_number < 10:
+            return optimizers[self.optimizer_number](parameters, lr=lr)
+        elif self.optimizer_number == 71:
+            return optimizers[self.optimizer_number//10](parameters, lr=lr, centered=True)
+        elif self.optimizer_number == 72:
+            return optimizers[self.optimizer_number//10](parameters, lr=lr, momentum=0.5)
+        elif self.optimizer_number == 73:
+            return optimizers[self.optimizer_number//10](parameters, lr=lr, momentum=0.9)
+        elif self.optimizer_number == 31:
+            return optimizers[self.optimizer_number // 10](parameters, lr=lr, amsgrad=True)
+        elif self.optimizer_number == 81:  # TODO: Unused
+            return optimizers[self.optimizer_number // 10](parameters, lr=lr, nesterov=True)
+        elif self.optimizer_number == 82:
+            return optimizers[self.optimizer_number // 10](parameters, lr=lr, nesterov=True, momentum=0.5)
+        elif self.optimizer_number == 83:
+            return optimizers[self.optimizer_number // 10](parameters, lr=lr, momentum=0.5, dampening=0.5)
+
     def optimization(self, val_paths, m_out):
         self.N = self.Model.getN()
 
@@ -121,7 +142,7 @@ class NN:
         params = []
         for k in range(len(self.u)):
             params += list(self.u[k].parameters())
-        optimizer = self.optimizer(params, lr=self.initial_lr)
+        optimizer = self.return_optimizer(params)
         if self.do_lr_decay:
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
             scheduler.verbose = False  # prints updates

@@ -157,7 +157,7 @@ class Alg20_NN(NN):
         self.u[n] = net
 
         params = list(self.u[n].parameters())
-        optimizer = self.optimizer(params, lr=self.initial_lr)
+        optimizer = self.return_optimizer(params)
         if self.do_lr_decay:
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
             scheduler.verbose = False  # prints updates
@@ -193,7 +193,7 @@ class Alg20_NN(NN):
         params = []
         for k in range(n+1):
             params += list(self.u[k].parameters())
-        optimizer = self.optimizer(params, lr=self.initial_lr)
+        optimizer = self.return_optimizer(params)
         if self.do_lr_decay:
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
             scheduler.verbose = False  # prints updates

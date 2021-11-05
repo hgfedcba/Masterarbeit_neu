@@ -2,6 +2,7 @@ from torch.nn.functional import relu, hardtanh, relu6, elu, selu, celu, leaky_re
     gumbel_softmax, log_softmax, hardsigmoid
 from torch import tanh, sigmoid
 from torch.optim import Adadelta, Adagrad, AdamW, Adamax, ASGD, LBFGS, RMSprop, SGD, Adam, lr_scheduler
+
 # TODO: why are those not found?
 # from torch.optim import NAdam, RAdam, Rpop
 
@@ -9,9 +10,9 @@ activation_functions = [tanh, sigmoid, relu, hardtanh, relu6, elu, selu, celu, l
                         gumbel_softmax, log_softmax, hardsigmoid]
 
 # TODO: LBFGS needs "closure"
-optimizers = [Adam, Adadelta, Adagrad, AdamW, Adamax, ASGD, RMSprop, SGD]
-optimizer_dict = {Adam: "Adam", Adadelta: "Adadelta", Adagrad: "Adagrad", AdamW: "AdamW", Adamax: "Adamax", ASGD: "ASGD", LBFGS: "LBFGS", RMSprop: "RMSprop", SGD: "SGD"}
-
+optimizers = [Adam, Adadelta, Adagrad, AdamW, Adamax, ASGD, None, RMSprop, SGD]
+optimizer_dict = {0: "Adam", 1: "Adadelta", 2: "Adagrad", 3: "AdamW", 4: "Adamax", 5: "ASGD", 6: "LBFGS", 7: "RMSprop", 8: "SGD", 71: "RMSprop centered", 31: "AdamW-AMSGrad", 72: "RMSprop mom=0.5",
+                  73: "RMSprop mom=0.9", 82: "SGD mom=0.5", 83: "SGD 0.5, 0.5"}
 
 """
 Guide to the Definitions below and in Model Definitions:
@@ -40,7 +41,7 @@ def add_am_put_default_pretrain(K, slope_length):
 
 def add_am_call_default_pretrain(K, slope_length):
     def am_call_default_pretrain(x):
-        x = -(x-K)+K
+        x = -(x - K) + K
         b = K
         a = b - slope_length
         out = (b - x) / slope_length + relu(x - b) / slope_length - relu(a - x) / slope_length
@@ -55,7 +56,6 @@ def add_am_call_default_pretrain(K, slope_length):
 
 pretrain_functions = [False, True]
 pretrain_func_dict = {False: "False", True: "True"}
-
 
 lr_decay_algs = [False]
 lr_decay_dict = {False: "False"}
@@ -77,6 +77,7 @@ def add_step_lr_scheduler(step_size):
 
 def id(x):
     return x
+
 
 activation_func_dict = {
     tanh          : "tanh",
@@ -105,5 +106,5 @@ activation_func_dict = {
     gumbel_softmax: "gumbel_softmax",
     log_softmax   : "log_softmax",
     hardsigmoid   : "hardsigmoid",
-    id:"id"
+    id            : "id"
 }

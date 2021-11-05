@@ -48,6 +48,7 @@ class ConfigInitializer:
 
         list_individual_parameters = []
         list_common_parameters = []
+        # [Adam, Adadelta, Adagrad, AdamW, Adamax, ASGD, RMSprop, SGD]
 
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
@@ -59,14 +60,14 @@ class ConfigInitializer:
             'hidden layer count'                    : [2],  # [1, 2, 3]
             'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
-            'optimizer'                             : [2],  # [0, 2, 3, 4, 6] ... 1, 5, 7 scheinen schlechter, 6 besonders gut. # TODO: Es gibt weiter optimierer und weitere einstellungen
+            'optimizer'                             : [2, 7, 71, 72, 73],  # [2, 7] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut. # TODO: Es gibt weiter optimierer und weitere einstellungen
             # Wenn 2 -> _, dann 21 -> _ mit den ersten besonderen einstellungen. TODO: Dafür programmiere ich eine funktion in NN die als parameter die parameter, lr, optimizer und special config nr bekommt und dann den optimierer zurückgibt.
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
             'number pretrain iterations'            : [500],
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
-            'initial lr'                            : [0.02],  # 0.01 for other setting
+            'initial lr'                            : [0.02, 0.05],  # 0.01 for other setting
             'lr decay algorithm'                    : [3],  # 2 Information in 1 entry
             'dropout rate'                          : [0],  # only 0, breaks alg20
             'random seed'                           : [1337],
@@ -107,7 +108,7 @@ class ConfigInitializer:
             hidden_layer_count = params['hidden layer count']
             activation_internal = params['internal activation function']
             activation_final = params['final activation function']
-            optimizer = optimizers[params['optimizer']]
+            optimizer_number = params['optimizer']
             if params['pretrain function'] is False:
                 do_pretrain = False
             else:
@@ -133,7 +134,7 @@ class ConfigInitializer:
             antithetic_val = params['antithetic variables on validation set']
             antithetic_train = params['antithetic variables on train set']
 
-            current_Config = Config(device, algorithm, sort_net_input, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer, do_pretrain, pretrain_func, pretrain_iterations,
+            current_Config = Config(device, algorithm, sort_net_input, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer_number, do_pretrain, pretrain_func, pretrain_iterations,
                                     max_number_of_iterations,
                                     max_minutes_of_iterations, train_size, initial_lr, do_lr_decay, lr_decay_alg, dropout_rate, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size,
                                     val_size, stop_paths_in_plot, x_plot_range_for_net_plot, angle_for_net_plot)

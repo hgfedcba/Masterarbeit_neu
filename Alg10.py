@@ -128,7 +128,7 @@ class Alg10_NN(NN):
             self.new_pretrain(self.u[0], k)
 
         params = list(self.u[0].parameters())
-        optimizer = self.optimizer(params, lr=self.initial_lr)
+        optimizer = self.return_optimizer(params)
         if self.do_lr_decay:
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
             scheduler.verbose = False  # prints updates
@@ -165,7 +165,7 @@ class Alg10_NN(NN):
         for n in range(len(self.u)):
             self.u[n] = fake_net()
         params = list(net.parameters())
-        optimizer = self.optimizer(params, lr=0.1)
+        optimizer = self.optimizer_number(params, lr=0.1)
         for m in range(iterations):
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
 
@@ -173,7 +173,7 @@ class Alg10_NN(NN):
     # Train given net to only stop when the last value is big enough
     def robbins_pretrain(self, net, k, barrier):
         params = list(net.parameters())
-        optimizer = self.optimizer(params, lr=0.1)
+        optimizer = self.optimizer_number(params, lr=0.1)
 
         for m in range(100):
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
