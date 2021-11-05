@@ -60,6 +60,7 @@ class ConfigInitializer:
             'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
             'optimizer'                             : [2],  # [0, 2, 3, 4, 6] ... 1, 5, 7 scheinen schlechter, 6 besonders gut. # TODO: Es gibt weiter optimierer und weitere einstellungen
+            # Wenn 2 -> _, dann 21 -> _ mit den ersten besonderen einstellungen. TODO: Dafür programmiere ich eine funktion in NN die als parameter die parameter, lr, optimizer und special config nr bekommt und dann den optimierer zurückgibt.
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
             'number pretrain iterations'            : [500],
             'max number of iterations'              : [max_number],
@@ -244,7 +245,6 @@ class ConfigInitializer:
         """
 
         # TODO: use ljust more
-        # TODO: log the number of times steps where we never stop
         if alg == 20 or alg == 21:
             os = mylog("\trun: ", str(result[2]),
                        "best discrete result:", short_disc(result[0].disc_best_result), " | ", short_cont(result[0].disc_best_result),
