@@ -273,7 +273,7 @@ def initialize_model(option):
 
     elif option == "R00":
         N = 5
-        max_minutes = 0.1
+        max_minutes = 0.1  # TODO: change
         train_size = 128
         val_size = 256
         test_size = 512

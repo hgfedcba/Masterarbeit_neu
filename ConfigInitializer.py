@@ -54,7 +54,7 @@ class ConfigInitializer:
         dict_a = {  #
             # alg 20 is very good but also very slow
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [14, 10],  # TODO: I think 21 always has to go first as the inplace-sorting breaks it otherwise
+            'algorithm'                             : [14],  # TODO: I think 21 always has to go first as the inplace-sorting breaks it otherwise
             'sort net input'                        : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]

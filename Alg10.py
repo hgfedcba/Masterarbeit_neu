@@ -72,7 +72,7 @@ class Alg10_NN(NN):
 
                 m_th_iteration_start_time = time.time()
 
-                avg_list = self.train_net_k(m, duration, iterations)
+                avg_list = self.training_caller(m, duration, iterations)
                 self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
                 self.Memory.average_train_payoffs.extend(avg_list)
 
@@ -112,66 +112,66 @@ class Alg10_NN(NN):
 
         return m, self.ProminentResults, self.Memory
 
-    def train_net_k(self, k, duration, iterations):
-        start_time = time.time()
-        m = 0
+    def training_caller(self, k, duration, iterations):
 
         self.u.insert(0, Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK(), self.device, self.dropout_rate))
 
         # pretrain, deprecated
         if isinstance(self.Model, RobbinsModel) and self.algorithm == 11:
+            start_time = time.time()
             barrier = 0.55+(self.Model.getN()-k)/self.Model.getN()/3  # klappt nicht
             barrier = 0.65
             self.robbins_pretrain(self.u[0], k, barrier)
             self.Memory.pretrain_duration = self.Memory.pretrain_duration + time.time() - start_time
+
+        # TODO: Stand 8.11.
+        # mit leerem pretrain funktioniert es noch schlechter als ohne, also möchte ich das train net k aus alg 20 als pretrain für alg 10 verwenden um zu schauen, ob das funktioniert.
         if self.algorithm == 14:
-            self.new_pretrain(k, iterations/2, duration/2, start_time, fake=True)
-
-        params = list(self.u[0].parameters())
-        optimizer = self.return_optimizer(params)
-        if self.do_lr_decay:
-            scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
-            scheduler.verbose = False  # prints updates
-        avg_list = []
-        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
-            training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
-            if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
-                for j in range(len(training_paths)):
-                    if isinstance(self.Model, RobbinsModel):
-                        training_paths[j] = training_paths[j][k:]
-                    else:
-                        training_paths[j] = training_paths[j][:, k:]
-            else:
-                training_paths = training_paths[:, :, k:]
-            """
-            for j in range(len(training_paths)):
-                if isinstance(self.Model, RobbinsModel):
-                    training_paths[j] = training_paths[j][k:]
-                else:
-                    h = training_paths[j]
-                    training_paths[j] = training_paths[j][:, k:]
-            """
-            avg = self.training_step(optimizer, training_paths)
-            avg_list.append(avg)
-
-            if self.do_lr_decay:
-                scheduler.step()
-            m += 1
+            # avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
+            avg_list = self.alg20_train_net_k(k, duration / 2, iterations / 2)
+            avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2))
+        else:
+            avg_list = self.train_net_k(k, iterations, duration)
 
         return avg_list
 
-    def new_pretrain(self, k, iterations, duration, start_time, fake=False):
-        m = 0
+    # TODO: find out why this works and the other doesn't
+    def alg20_train_net_k(self, k, duration, iterations):
+        start_time = time.time()
         saved_u = copy.deepcopy(self.u)
-        for j in range(len(self.u)-1):
-            self.u[j+1] = fake_net
+        net = self.u[0]
+
+        saved_N = self.N
+        self.N = k + 1
+
+        self.u = []
+        """
+        for j in range(k + 1):
+            self.u.append(fake_net)
+        
+        # net = Net(n + 1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.K, self.device, self.dropout_rate)
+        self.u[k] = net
+
+        params = list(self.u[k].parameters())
+        """
+        self.u.append(net)
+        for j in range(k + 1, saved_N):
+            self.u.append(fake_net)
         params = list(self.u[0].parameters())
+
         optimizer = self.return_optimizer(params)
         if self.do_lr_decay:
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
             scheduler.verbose = False  # prints updates
+
         avg_list = []
-        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
+        m = 0
+        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 40:
+            """
+            training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
+            for k in range(len(training_paths)):
+                training_paths[k] = training_paths[k][:n + 2]
+            """
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
             if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
                 for j in range(len(training_paths)):
@@ -181,14 +181,6 @@ class Alg10_NN(NN):
                         training_paths[j] = training_paths[j][:, k:]
             else:
                 training_paths = training_paths[:, :, k:]
-            """
-            for j in range(len(training_paths)):
-                if isinstance(self.Model, RobbinsModel):
-                    training_paths[j] = training_paths[j][k:]
-                else:
-                    h = training_paths[j]
-                    training_paths[j] = training_paths[j][:, k:]
-            """
             avg = self.training_step(optimizer, training_paths)
             avg_list.append(avg)
 
@@ -197,6 +189,50 @@ class Alg10_NN(NN):
             m += 1
 
         self.u = saved_u
+        self.u[0] = net
+        self.N = saved_N
+
+        return avg_list
+
+    def train_net_k(self, k, iterations, duration, fake=False):
+        start_time = time.time()
+        m = 0
+        if fake:
+            saved_u = copy.deepcopy(self.u)
+            for j in range(len(self.u)-1):
+                self.u[j+1] = fake_net
+        params = list(self.u[0].parameters())
+        optimizer = self.return_optimizer(params)
+        if self.do_lr_decay:
+            scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
+            scheduler.verbose = False  # prints updates
+        avg_list = []
+        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
+            training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
+            if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
+                for j in range(len(training_paths)):
+                    if isinstance(self.Model, RobbinsModel):
+                        training_paths[j] = training_paths[j][k:]
+                    else:
+                        training_paths[j] = training_paths[j][:, k:]
+            else:
+                training_paths = training_paths[:, :, k:]
+            """
+            for j in range(len(training_paths)):
+                if isinstance(self.Model, RobbinsModel):
+                    training_paths[j] = training_paths[j][k:]
+                else:
+                    h = training_paths[j]
+                    training_paths[j] = training_paths[j][:, k:]
+            """
+            avg = self.training_step(optimizer, training_paths)
+            avg_list.append(avg)
+
+            if self.do_lr_decay:
+                scheduler.step()
+            m += 1
+        if fake:
+            self.u = saved_u
 
         return avg_list
 
