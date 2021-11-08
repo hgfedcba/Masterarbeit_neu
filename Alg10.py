@@ -128,7 +128,7 @@ class Alg10_NN(NN):
         # mit leerem pretrain funktioniert es noch schlechter als ohne, also möchte ich das train net k aus alg 20 als pretrain für alg 10 verwenden um zu schauen, ob das funktioniert.
         if self.algorithm == 14:
             # avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
-            avg_list = self.alg20_train_net_k(k, duration / 2, iterations / 2)
+            avg_list = self.alg20_train_net_k(k, duration / 2, iterations / 2)  # works!
             avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2))
         else:
             avg_list = self.train_net_k(k, iterations, duration)
@@ -141,9 +141,6 @@ class Alg10_NN(NN):
         saved_u = copy.deepcopy(self.u)
         net = self.u[0]
 
-        saved_N = self.N
-        self.N = k + 1
-
         self.u = []
         """
         for j in range(k + 1):
@@ -155,7 +152,7 @@ class Alg10_NN(NN):
         params = list(self.u[k].parameters())
         """
         self.u.append(net)
-        for j in range(k + 1, saved_N):
+        for j in range(k + 1, self.N):
             self.u.append(fake_net)
         params = list(self.u[0].parameters())
 
@@ -190,13 +187,11 @@ class Alg10_NN(NN):
 
         self.u = saved_u
         self.u[0] = net
-        self.N = saved_N
 
         return avg_list
 
     def train_net_k(self, k, iterations, duration, fake=False):
         start_time = time.time()
-        m = 0
         if fake:
             saved_u = copy.deepcopy(self.u)
             for j in range(len(self.u)-1):
@@ -207,6 +202,7 @@ class Alg10_NN(NN):
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
             scheduler.verbose = False  # prints updates
         avg_list = []
+        m = 0
         while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
             if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):

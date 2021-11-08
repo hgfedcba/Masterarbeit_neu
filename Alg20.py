@@ -145,7 +145,7 @@ class Alg20_NN(NN):
         start_time = time.time()
         saved_u = copy.deepcopy(self.u)
         if alg20:
-            saved_N = self.N
+            saved_N = self.N  # TODO: I very likely can remove this entirely, compare with alg10 (unbedingt testen nicht glauben!)
             self.N = n + 1
 
         self.u = []
@@ -166,6 +166,7 @@ class Alg20_NN(NN):
         while(m < iterations and (time.time() - start_time) / 60 < duration) or m < 40:
             if alg20:
                 training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
+                # TODO: warum nutze ich nicht einen aufruf wie bei alg21?
                 for k in range(len(training_paths)):
                     training_paths[k] = training_paths[k][:n + 2]
             else:

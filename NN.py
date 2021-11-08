@@ -321,8 +321,8 @@ class NN:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
             if self.sort_net_input:
                 self.sort_input_list_inplace(training_paths)
-
             U = torch.empty(self.batch_size, self.N + 1)
+
         else:
             if isinstance(training_paths[0], list):
                 local_N = training_paths[0].__len__()
