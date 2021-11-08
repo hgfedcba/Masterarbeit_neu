@@ -24,9 +24,8 @@ class Alg20_NN(NN):
 
         log = self.log
 
-        # TODO: fix time cheating as it turns out that relativly few iterations give decent results.
-        duration = self.T_max/self.N
-        iterations = self.M_max/self.N
+        duration = self.T_max/(self.N+3)
+        iterations = self.M_max/(self.N+3)
         ratio_single_to_together = 0.75
 
         # consists of fake nets. Fake nets are overridden gradually
@@ -43,10 +42,10 @@ class Alg20_NN(NN):
 
                 avg_list = self.train_and_append_net_k(m, duration*ratio_single_to_together, iterations*ratio_single_to_together, alg20=False)
 
-                # Note: last is longer
+                # Note: last joined training is longer
                 if m == end-1:
-                    iterations = max(100/ratio_single_to_together, iterations*3)
-                    duration = duration * 3
+                    iterations = max(100/ratio_single_to_together, iterations*4)
+                    duration = duration * 4
                 avg_list += self.train_together(m, duration*ratio_single_to_together, iterations*ratio_single_to_together, alg20=False)
 
                 self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
@@ -107,8 +106,8 @@ class Alg20_NN(NN):
 
                 # Note: last is longer
                 if m == end-1:
-                    iterations = max(100/ratio_single_to_together, iterations*3)
-                    duration = duration * 3
+                    iterations = max(100/ratio_single_to_together, iterations*4)
+                    duration = duration * 4
                 avg_list += self.train_together(m, duration * ratio_single_to_together, iterations * ratio_single_to_together, alg20=True)
 
                 self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
@@ -200,7 +199,7 @@ class Alg20_NN(NN):
         avg_list = []
         m = 0
 
-        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
+        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 10:
             if alg20:
                 avg = self.training_step(optimizer)
             else:

@@ -125,7 +125,7 @@ class Alg10_NN(NN):
             self.robbins_pretrain(self.u[0], k, barrier)
             self.Memory.pretrain_duration = self.Memory.pretrain_duration + time.time() - start_time
         if self.algorithm == 14:
-            self.new_pretrain(self.u[0], k)
+            self.new_pretrain(k, iterations/2, duration/2, start_time, fake=True)
 
         params = list(self.u[0].parameters())
         optimizer = self.return_optimizer(params)
@@ -160,15 +160,45 @@ class Alg10_NN(NN):
 
         return avg_list
 
-    def new_pretrain(self, net, k, iterations):
-        saved_u = self.u
-        for n in range(len(self.u)):
-            self.u[n] = fake_net()
-        params = list(net.parameters())
-        optimizer = self.optimizer_number(params, lr=0.1)
-        for m in range(iterations):
+    def new_pretrain(self, k, iterations, duration, start_time, fake=False):
+        m = 0
+        saved_u = copy.deepcopy(self.u)
+        for j in range(len(self.u)-1):
+            self.u[j+1] = fake_net
+        params = list(self.u[0].parameters())
+        optimizer = self.return_optimizer(params)
+        if self.do_lr_decay:
+            scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
+            scheduler.verbose = False  # prints updates
+        avg_list = []
+        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
+            if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
+                for j in range(len(training_paths)):
+                    if isinstance(self.Model, RobbinsModel):
+                        training_paths[j] = training_paths[j][k:]
+                    else:
+                        training_paths[j] = training_paths[j][:, k:]
+            else:
+                training_paths = training_paths[:, :, k:]
+            """
+            for j in range(len(training_paths)):
+                if isinstance(self.Model, RobbinsModel):
+                    training_paths[j] = training_paths[j][k:]
+                else:
+                    h = training_paths[j]
+                    training_paths[j] = training_paths[j][:, k:]
+            """
+            avg = self.training_step(optimizer, training_paths)
+            avg_list.append(avg)
 
+            if self.do_lr_decay:
+                scheduler.step()
+            m += 1
+
+        self.u = saved_u
+
+        return avg_list
 
     # Train given net to only stop when the last value is big enough
     def robbins_pretrain(self, net, k, barrier):

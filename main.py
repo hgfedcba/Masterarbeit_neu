@@ -50,13 +50,11 @@ input sortieren
 # TODO: test regularization, dropout      (not functional, breaks alg20)
 # TODO: <- both are supposed to reduce overfitting, but as overfitting is not possible in my setting it shouldn't help (much)
 
-# TODO: andere optimierer
-
 # TODO: review alg 10
 
-# TODO: fix time cheating in alg 20
+# TODO: fix time cheating in alg 20 (done?)
 
-# TODO: übergebe nicht alle sortierten werte, sondern nur die letzten (n-2)*ln(n-3-x)/ln(n-3)
+# TODO: übergebe nicht alle sortierten werte, sondern nur die letzten (n-2)*ln(n-3-x)/ln(n-3) -> for this I have to augment alg0 as this doesn't make sense otherwise
 
 
 if __name__ == '__main__':
@@ -95,7 +93,7 @@ if __name__ == '__main__':
     import os
     log.warning("Start")
     # TODO: fix alg20 and not robins
-    ConfigInitializer("R12", log)
+    ConfigInitializer("R00", log)
     """
     os.chdir("../current run2")
     ConfigInitializer("RW4", log)

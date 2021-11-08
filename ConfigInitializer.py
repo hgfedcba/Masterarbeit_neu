@@ -54,20 +54,20 @@ class ConfigInitializer:
         dict_a = {  #
             # alg 20 is very good but also very slow
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [21, 20],  # TODO: I think 21 always has to go first as the inplace-sorting breaks it otherwise
+            'algorithm'                             : [14, 10],  # TODO: I think 21 always has to go first as the inplace-sorting breaks it otherwise
             'sort net input'                        : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
             'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
-            'optimizer'                             : [2, 7, 71, 72, 73],  # [2, 7] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut. # TODO: Es gibt weiter optimierer und weitere einstellungen
+            'optimizer'                             : [2],  # [2, 7] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut. # TODO: Es gibt weiter optimierer und weitere einstellungen
             # Wenn 2 -> _, dann 21 -> _ mit den ersten besonderen einstellungen. TODO: Dafür programmiere ich eine funktion in NN die als parameter die parameter, lr, optimizer und special config nr bekommt und dann den optimierer zurückgibt.
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
             'number pretrain iterations'            : [500],
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
-            'initial lr'                            : [0.02, 0.05],  # 0.01 for other setting
+            'initial lr'                            : [0.02],  # 0.01 for other setting
             'lr decay algorithm'                    : [3],  # 2 Information in 1 entry
             'dropout rate'                          : [0],  # only 0, breaks alg20
             'random seed'                           : [1337],

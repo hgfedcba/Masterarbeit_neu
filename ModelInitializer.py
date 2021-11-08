@@ -34,6 +34,7 @@ with open(test_paths_file, 'wb') as f:
 def initialize_model(option):
     angle_for_net_plot = None
     max_number = 10000
+    # I deleated max_number everywhere. It was mostly 400 and was multiplied like max_time
 
     import pathlib
     path = pathlib.Path(__file__).parent.absolute().__str__()
@@ -310,7 +311,6 @@ def initialize_model(option):
     elif option == "R2" or option == "R2l":
         N = 19
         max_minutes = 30
-        max_number = 400
         train_size = 1024
         val_size = 2048
         test_size = 16384
@@ -318,7 +318,6 @@ def initialize_model(option):
 
         if option == "R2l":
             max_minutes *= 3
-            max_number *= 3
             train_size *= 2
             val_size *= 2
             test_size *= 2
@@ -337,7 +336,6 @@ def initialize_model(option):
     elif option == "R3":
         N = 39
         max_minutes = 120
-        max_number = 400
         train_size = 2048
         val_size = 4096
         test_size = 16384
@@ -357,7 +355,6 @@ def initialize_model(option):
     elif option == "R4":
         N = 59
         max_minutes = 150
-        max_number = 400
         train_size = 2048
         val_size = 4096
         test_size = 8192
@@ -379,7 +376,6 @@ def initialize_model(option):
     elif option == "R12" or option == "R12l":
         N = 11
         max_minutes = 25
-        max_number = 400
         train_size = 1024
         val_size = 2048
         test_size = 16384
@@ -387,7 +383,6 @@ def initialize_model(option):
 
         if option == "R12l":
             max_minutes *= 3
-            max_number *= 3
             train_size *= 2
             val_size *= 2
             test_size *= 2
@@ -406,7 +401,6 @@ def initialize_model(option):
     elif option == "R13" or option == "R13l":
         N = 12
         max_minutes = 25
-        max_number = 400
         train_size = 1024
         val_size = 2048
         test_size = 16384
@@ -414,7 +408,6 @@ def initialize_model(option):
 
         if option == "R13l":
             max_minutes *= 3
-            max_number *= 3
             train_size *= 2
             val_size *= 2
             test_size *= 2
@@ -454,7 +447,6 @@ def initialize_model(option):
     elif option == "RW2":
         N = 19
         max_minutes = 30
-        max_number = 300
         train_size = 1024
         val_size = 2048
         test_size = 16384
@@ -472,7 +464,6 @@ def initialize_model(option):
     elif option == "RW3":
         N = 39
         max_minutes = 120
-        max_number = 400
         train_size = 2048
         val_size = 4096
         test_size = 16384
@@ -490,7 +481,6 @@ def initialize_model(option):
     elif option == "RW4":
         N = 59
         max_minutes = 150
-        max_number = 400
         train_size = 2048
         val_size = 4096
         test_size = 8192
@@ -663,7 +653,6 @@ def initialize_model(option):
         add_am_put_default_pretrain(K, 16)
 
         max_minutes = 30
-        max_number = 200
         train_size = 512
         val_size = 1024
         test_size = 8192
