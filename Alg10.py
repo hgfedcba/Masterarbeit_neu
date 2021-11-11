@@ -58,8 +58,8 @@ class Alg10_NN(NN):
             self.Memory.average_val_stopping_time.append(np.mean(i_value))
         else:
             # scheduler = None
-            duration = self.T_max/(self.N+3)
-            iterations = self.M_max/(self.N+3)
+            duration = self.T_max/(self.N+1)
+            iterations = self.M_max/(self.N+1)
             '''
             for k in range(len(self.u)):
                 # TODO: change1
@@ -72,8 +72,8 @@ class Alg10_NN(NN):
 
                 m_th_iteration_start_time = time.time()
                 if m == 0:
-                    iterations = max(100, iterations*4)
-                    duration = duration * 4
+                    iterations = max(100, iterations*2)
+                    duration = duration * 2
 
                 avg_list = self.training_caller(m, duration, iterations)
                 self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
@@ -127,6 +127,14 @@ class Alg10_NN(NN):
             avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
             # avg_list = self.alg20_train_net_k(k, duration / 2, iterations / 2)  # works!
             avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2))
+        elif self.algorithm == 15:
+            if k == 0:
+                avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
+                # avg_list = self.alg20_train_net_k(k, duration / 2, iterations / 2)  # works!
+                avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2))
+            else:
+                avg_list = self.train_net_k(k, iterations, duration, fake=True)
+
         else:
             avg_list = self.train_net_k(k, iterations, duration)
 
@@ -175,6 +183,7 @@ class Alg10_NN(NN):
         return avg_list
     """
 
+    # erklärung für den sehr merkwüurdigen value on train batch graphen: die iterationen werden sehr viel langsamer mit der zeit (höhere input dimension, mehr netzauswertungen), also werden es immer weniger
     def train_net_k(self, k, iterations, duration, fake=False):
         start_time = time.time()
         if fake:

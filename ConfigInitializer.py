@@ -165,9 +165,9 @@ class ConfigInitializer:
                 # result enthält prominent_result klasse, memory klasse
                 optimitaion_result = [current_NN.optimization()]
             '''
-            if algorithm == 10 or algorithm == 11 or algorithm == 12 or algorithm == 14:
+            if algorithm == 10 or algorithm == 11 or algorithm == 12 or algorithm == 14 or algorithm == 15:
                 current_NN = Alg10.Alg10_NN(current_Config, Model, Memory, log)
-                if algorithm == 11 or algorithm == 14:
+                if algorithm == 11 or algorithm == 14 or algorithm == 15:
                     current_NN.do_pretrain = True
             elif algorithm == 20 or algorithm == 21:
                 current_NN = Alg20.Alg20_NN(current_Config, Model, Memory, log)

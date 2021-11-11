@@ -86,7 +86,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     grid(True)
     # plt.yscale('log')
 
-    if Config.algorithm == 10:
+    if Config.algorithm == 10 or Config.algorithm == 14 or Config.algorithm == 15:
         x = range(0, len(Memory.val_discrete_value_list))
         xlabel('nets trained', fontsize=16)
     else:
@@ -263,12 +263,8 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     draw_connected_points(iter, tn, plot_number_duration)
     plt.legend(["train duration", "val duration", "time spend in net"])
     ylabel('time', fontsize=16)
-    if Config.algorithm == 10:
-        plt.title("time spend to optimize each net")
-        xlabel('net', fontsize=16)
-    else:
-        plt.title('time spend on ' + str(Config.validation_frequency) + ' iterations')
-        xlabel('iteration', fontsize=16)
+    plt.title('time spend between each validation')
+    xlabel('iteration', fontsize=16)
     grid(True)
 
     pdf.savefig(fig2)
@@ -294,7 +290,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     draw_connected_points(iter, (time.time() - Memory.start_time) * np.ones_like(iter), plot_number_duration_2)
     draw_connected_points(iter, (time.time() - Memory.start_time - Memory.test_duration) * np.ones_like(iter), plot_number_duration_2)
     plt.legend(["train duration", "val duration", "time spend in net", "pretrain end", "test end", "test start"])
-    if Config.algorithm == 10:
+    if Config.algorithm == 10 or Config.algorithm == 14 or Config.algorithm == 15:
         xlabel('net', fontsize=16)
     else:
         xlabel('iteration', fontsize=16)

@@ -57,7 +57,8 @@ class Config:
             10: "back to front",
             11: "seq with pretrain",
             12: "explicit stop condition given",  # doesn't run through
-            14: "back to front empty pretrain",  # TODO: implement
+            14: "back to front empty pretrain",
+            15: "14 but train together once",  # TODO: implement
             20: "front to back N=const",
             21: "front to back N=inc"
         }
