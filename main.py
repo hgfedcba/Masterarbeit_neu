@@ -93,7 +93,7 @@ if __name__ == '__main__':
     import os
     log.warning("Start")
     # TODO: fix alg20 and not robins
-    ConfigInitializer("R00", log)
+    ConfigInitializer("R12l", log)
     """
     os.chdir("../current run2")
     ConfigInitializer("RW4", log)

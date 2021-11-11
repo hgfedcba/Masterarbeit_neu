@@ -58,8 +58,8 @@ class Alg10_NN(NN):
             self.Memory.average_val_stopping_time.append(np.mean(i_value))
         else:
             # scheduler = None
-            duration = self.T_max/self.N
-            iterations = self.M_max/4
+            duration = self.T_max/(self.N+3)
+            iterations = self.M_max/(self.N+3)
             '''
             for k in range(len(self.u)):
                 # TODO: change1
@@ -71,6 +71,9 @@ class Alg10_NN(NN):
                 self.Memory.total_net_durations.append(0)
 
                 m_th_iteration_start_time = time.time()
+                if m == 0:
+                    iterations = max(100, iterations*4)
+                    duration = duration * 4
 
                 avg_list = self.training_caller(m, duration, iterations)
                 self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
@@ -84,9 +87,6 @@ class Alg10_NN(NN):
                 for j in range(m):
                     self.u.append(fake_net)
                 self.u.extend(saved_u)
-
-                if self.sort_net_input:
-                    self.sort_input_list_inplace(self.val_paths)
 
                 cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
                 log.info(
@@ -113,7 +113,6 @@ class Alg10_NN(NN):
         return m, self.ProminentResults, self.Memory
 
     def training_caller(self, k, duration, iterations):
-
         self.u.insert(0, Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK(), self.device, self.dropout_rate))
 
         # pretrain, deprecated
@@ -124,33 +123,23 @@ class Alg10_NN(NN):
             self.robbins_pretrain(self.u[0], k, barrier)
             self.Memory.pretrain_duration = self.Memory.pretrain_duration + time.time() - start_time
 
-        # TODO: Stand 8.11.
-        # mit leerem pretrain funktioniert es noch schlechter als ohne, also möchte ich das train net k aus alg 20 als pretrain für alg 10 verwenden um zu schauen, ob das funktioniert.
         if self.algorithm == 14:
-            # avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
-            avg_list = self.alg20_train_net_k(k, duration / 2, iterations / 2)  # works!
+            avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
+            # avg_list = self.alg20_train_net_k(k, duration / 2, iterations / 2)  # works!
             avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2))
         else:
             avg_list = self.train_net_k(k, iterations, duration)
 
         return avg_list
 
-    # TODO: find out why this works and the other doesn't
+    """
+    # I probably don't need this anymore
     def alg20_train_net_k(self, k, duration, iterations):
         start_time = time.time()
         saved_u = copy.deepcopy(self.u)
         net = self.u[0]
 
         self.u = []
-        """
-        for j in range(k + 1):
-            self.u.append(fake_net)
-        
-        # net = Net(n + 1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.K, self.device, self.dropout_rate)
-        self.u[k] = net
-
-        params = list(self.u[k].parameters())
-        """
         self.u.append(net)
         for j in range(k + 1, self.N):
             self.u.append(fake_net)
@@ -164,11 +153,6 @@ class Alg10_NN(NN):
         avg_list = []
         m = 0
         while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 40:
-            """
-            training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
-            for k in range(len(training_paths)):
-                training_paths[k] = training_paths[k][:n + 2]
-            """
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
             if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
                 for j in range(len(training_paths)):
@@ -189,6 +173,7 @@ class Alg10_NN(NN):
         self.u[0] = net
 
         return avg_list
+    """
 
     def train_net_k(self, k, iterations, duration, fake=False):
         start_time = time.time()
@@ -228,7 +213,9 @@ class Alg10_NN(NN):
                 scheduler.step()
             m += 1
         if fake:
+            net = self.u[0]
             self.u = saved_u
+            self.u[0] = net
 
         return avg_list
 

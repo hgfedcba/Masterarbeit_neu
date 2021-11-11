@@ -94,7 +94,6 @@ class RobbinsModel(AbstractMathematicalModel):
         h = self.convert_NN_path_to_mathematical_path(x)
 
         # Schritt 1: Ersetze in x jeden Wert mit dem entsprechenden Rang
-        # TODO: (beachte das problem von 2 identischen werten)
         y = np.argsort(h)
         z1 = np.ones_like(y)
         z1[y] = np.arange(1, h.size + 1)
@@ -115,7 +114,6 @@ class RobbinsModel(AbstractMathematicalModel):
         h = self.convert_NN_path_to_mathematical_path(x)
 
         # Schritt 1: Ersetze in x jeden Wert mit dem entsprechenden Rang
-        # TODO: (beachte das problem von 2 identischen werten)
         y = np.argsort(h)
         z1 = np.ones_like(y)
         z1[y] = np.arange(1, h.size + 1)

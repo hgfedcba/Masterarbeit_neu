@@ -38,9 +38,7 @@ class Alg20_NN(NN):
 
                 m_th_iteration_start_time = time.time()
 
-                self.N = m+1
-
-                avg_list = self.train_and_append_net_k(m, duration*ratio_single_to_together, iterations*ratio_single_to_together, alg20=False)
+                avg_list = self.pretrain_and_append_net_k(m, duration * ratio_single_to_together, iterations * ratio_single_to_together, alg20=False)
 
                 # Note: last joined training is longer
                 if m == end-1:
@@ -58,9 +56,7 @@ class Alg20_NN(NN):
                     temp_val_paths.append(self.val_paths[k][:m + 2])
                     # temp_val_paths.append(copy.deepcopy(self.val_paths[k][:m+2]))  # deepcopy doesn't seem to be necessary
 
-                if m >= 2:
-                    assert True
-
+                self.N = m+1  # Es ist viel aufwand self.N aus validate zu lösen
                 cont_payoff, disc_payoff, stopping_times = self.validate(temp_val_paths)
                 """
                 log.info(
@@ -79,7 +75,7 @@ class Alg20_NN(NN):
 
                 self.Memory.val_durations.append(time.time() - val_start)
 
-                i_value = [max(s * range(0, self.N + 1)) for s in stopping_times]
+                i_value = [max(s * range(0, m + 2)) for s in stopping_times]
                 self.Memory.average_val_stopping_time.append(np.mean(i_value))
 
                 # print(avg_list)
@@ -102,7 +98,7 @@ class Alg20_NN(NN):
 
                 m_th_iteration_start_time = time.time()
 
-                avg_list = self.train_and_append_net_k(m, duration * ratio_single_to_together, iterations * ratio_single_to_together, alg20=True)
+                avg_list = self.pretrain_and_append_net_k(m, duration * ratio_single_to_together, iterations * ratio_single_to_together, alg20=True)
 
                 # Note: last is longer
                 if m == end-1:
@@ -140,22 +136,31 @@ class Alg20_NN(NN):
             self.ProminentResults.set_final_net(self, len(self.Memory.average_train_payoffs), cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
             return len(self.Memory.average_train_payoffs), self.ProminentResults, self.Memory
 
-    # m = number of previous observations
-    def train_and_append_net_k(self, n, duration, iterations, alg20=True):
+    # n = number of previous observations
+    def pretrain_and_append_net_k(self, n, duration, iterations, alg20=True):
         start_time = time.time()
         saved_u = copy.deepcopy(self.u)
+        """
+        # seems to have no effect
         if alg20:
-            saved_N = self.N  # TODO: I very likely can remove this entirely, compare with alg10 (unbedingt testen nicht glauben!)
-            self.N = n + 1
-
+            saved_N = self.N
+            # self.N = n + 1
+        """
+        """
         self.u = []
         for j in range(n+1):
             self.u.append(fake_net)
-
+        
         net = Net(n+1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.K, self.device, self.dropout_rate)
         self.u[n] = net
 
         params = list(self.u[n].parameters())
+        """
+        net = Net(n+1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.K, self.device, self.dropout_rate)
+        self.u = [net]
+
+        params = list(self.u[0].parameters())
+
         optimizer = self.return_optimizer(params)
         if self.do_lr_decay:
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
@@ -164,13 +169,16 @@ class Alg20_NN(NN):
         avg_list = []
         m = 0
         while(m < iterations and (time.time() - start_time) / 60 < duration) or m < 40:
-            if alg20:
-                training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
-                # TODO: warum nutze ich nicht einen aufruf wie bei alg21?
-                for k in range(len(training_paths)):
-                    training_paths[k] = training_paths[k][:n + 2]
+            training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train, N=n+1)
+
+            if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
+                for j in range(len(training_paths)):
+                    if isinstance(self.Model, RobbinsModel):
+                        training_paths[j] = training_paths[j][-2:]
+                    else:
+                        training_paths[j] = training_paths[j][:, -2:]
             else:
-                training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train, N=self.N)
+                training_paths = training_paths[:, :, -2:]
 
             avg = self.training_step(optimizer, training_paths)
             avg_list.append(avg)
@@ -182,7 +190,7 @@ class Alg20_NN(NN):
         self.u = saved_u
         if alg20:
             self.u[n] = net
-            self.N = saved_N
+            # self.N = saved_N
         else:
             self.u.append(net)
 
@@ -204,7 +212,7 @@ class Alg20_NN(NN):
             if alg20:
                 avg = self.training_step(optimizer)
             else:
-                training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train, N=self.N)
+                training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train, N=n+1)
 
                 avg = self.training_step(optimizer, training_paths)
             avg_list.append(avg)

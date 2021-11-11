@@ -11,7 +11,7 @@ activation_functions = [tanh, sigmoid, relu, hardtanh, relu6, elu, selu, celu, l
 
 # TODO: LBFGS needs "closure"
 optimizers = [Adam, Adadelta, Adagrad, AdamW, Adamax, ASGD, None, RMSprop, SGD]
-optimizer_dict = {0: "Adam", 1: "Adadelta", 2: "Adagrad", 3: "AdamW", 4: "Adamax", 5: "ASGD", 6: "LBFGS", 7: "RMSprop", 8: "SGD", 71: "RMSprop centered", 31: "AdamW-AMSGrad", 72: "RMSprop mom=0.5",
+optimizer_dict = {0: "Adam", 1: "Adadelta", 2: "Adagrad", 3: "AdamW", 4: "Adamax", 5: "ASGD", 6: "LBFGS", 7: "RMSprop", 8: "SGD", 31: "AdamW-AMSGrad", 71: "RMSprop centered", 72: "RMSprop mom=0.5",
                   73: "RMSprop mom=0.9", 82: "SGD mom=0.5", 83: "SGD 0.5, 0.5"}
 
 """
