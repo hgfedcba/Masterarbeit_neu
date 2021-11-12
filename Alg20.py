@@ -34,7 +34,7 @@ class Alg20_NN(NN):
 
         if self.algorithm == 21:
             for m in range(end):
-                self.Memory.total_net_durations.append(0)
+                self.Memory.total_net_durations_per_validation.append(0)
 
                 m_th_iteration_start_time = time.time()
 
@@ -46,7 +46,7 @@ class Alg20_NN(NN):
                     duration = duration * 4
                 avg_list += self.train_together(m, duration*ratio_single_to_together, iterations*ratio_single_to_together, alg20=False)
 
-                self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
+                self.Memory.train_durations_per_validation.append(time.time() - m_th_iteration_start_time)
                 self.Memory.average_train_payoffs.extend(avg_list)
 
                 val_start = time.time()
@@ -94,7 +94,7 @@ class Alg20_NN(NN):
             l = self.N + 2 - robbins_problem_lower_boundary(self.N)  # explicit threshhold function
 
             for m in range(end):
-                self.Memory.total_net_durations.append(0)
+                self.Memory.total_net_durations_per_validation.append(0)
 
                 m_th_iteration_start_time = time.time()
 
@@ -106,7 +106,7 @@ class Alg20_NN(NN):
                     duration = duration * 4
                 avg_list += self.train_together(m, duration * ratio_single_to_together, iterations * ratio_single_to_together, alg20=True)
 
-                self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
+                self.Memory.train_durations_per_validation.append(time.time() - m_th_iteration_start_time)
                 self.Memory.average_train_payoffs.extend(avg_list)
 
                 val_start = time.time()
@@ -169,6 +169,7 @@ class Alg20_NN(NN):
         avg_list = []
         m = 0
         while(m < iterations and (time.time() - start_time) / 60 < duration) or m < 40:
+            iteration_start = time.time()
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train, N=n+1)
 
             if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
@@ -185,6 +186,8 @@ class Alg20_NN(NN):
 
             if self.do_lr_decay:
                 scheduler.step()
+
+            self.Memory.single_train_durations.append(time.time() - iteration_start)
             m += 1
 
         self.u = saved_u
@@ -209,6 +212,7 @@ class Alg20_NN(NN):
         m = 0
 
         while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 10:
+            iteration_start = time.time()
             if alg20:
                 avg = self.training_step(optimizer)
             else:
@@ -219,5 +223,7 @@ class Alg20_NN(NN):
 
             if self.do_lr_decay:
                 scheduler.step()
+
+            self.Memory.single_train_durations.append(time.time() - iteration_start)
             m += 1
         return avg_list

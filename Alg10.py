@@ -38,8 +38,8 @@ class Alg10_NN(NN):
             for j in range(self.N):
                 self.u.append(real_fake_net(j, self.N))
             m = 0
-            self.Memory.total_net_durations.append(0)
-            self.Memory.train_durations.append(0)
+            self.Memory.total_net_durations_per_validation.append(0)
+            self.Memory.single_train_durations.append(0)
             val_start = time.time()
 
             cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
@@ -58,8 +58,12 @@ class Alg10_NN(NN):
             self.Memory.average_val_stopping_time.append(np.mean(i_value))
         else:
             # scheduler = None
-            duration = self.T_max/(self.N+1)
-            iterations = self.M_max/(self.N+1)
+            if self.algorithm == 15 or self.algorithm == 16:
+                duration = self.T_max/(self.N+1)
+                iterations = self.M_max/(self.N+1)
+            else:
+                duration = self.T_max / self.N
+                iterations = self.M_max / self.N
             '''
             for k in range(len(self.u)):
                 # TODO: change1
@@ -68,15 +72,15 @@ class Alg10_NN(NN):
             '''
             self.u = []
             for m in range(self.N-1, -1, -1):
-                self.Memory.total_net_durations.append(0)
+                self.Memory.total_net_durations_per_validation.append(0)
 
                 m_th_iteration_start_time = time.time()
-                if m == 0:
-                    iterations = max(100, iterations*2)
+                if m == 0 and (self.algorithm == 15 or self.algorithm == 16):
+                    iterations = max(100, iterations * 2)
                     duration = duration * 2
 
                 avg_list = self.training_caller(m, duration, iterations)
-                self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
+                self.Memory.train_durations_per_validation.append(time.time() - m_th_iteration_start_time)
                 self.Memory.average_train_payoffs.extend(avg_list)
 
                 val_start = time.time()
@@ -120,20 +124,33 @@ class Alg10_NN(NN):
             start_time = time.time()
             barrier = 0.55+(self.Model.getN()-k)/self.Model.getN()/3  # klappt nicht
             barrier = 0.65
-            self.robbins_pretrain(self.u[0], k, barrier)
+            self.robbins_pretrain(self.u[0], k, barrier)  # This is deprecated...
             self.Memory.pretrain_duration = self.Memory.pretrain_duration + time.time() - start_time
 
         if self.algorithm == 14:
             avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
-            # avg_list = self.alg20_train_net_k(k, duration / 2, iterations / 2)  # works!
             avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2))
         elif self.algorithm == 15:
             if k == 0:
+                iterations /= 2
+                duration /= 2
                 avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
-                # avg_list = self.alg20_train_net_k(k, duration / 2, iterations / 2)  # works!
-                avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2))
+                iterations *= 3
+                duration *= 3
+                avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2, train_all_nets=True))
+                # avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2))
             else:
-                avg_list = self.train_net_k(k, iterations, duration, fake=True)
+                avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
+                avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2))
+        elif self.algorithm == 16:
+            if k == 0:
+                iterations /= 2
+                duration /= 2
+            avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
+            if k == 0:
+                iterations *= 3
+                duration *= 3
+            avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2, train_all_nets=True))
 
         else:
             avg_list = self.train_net_k(k, iterations, duration)
@@ -184,13 +201,19 @@ class Alg10_NN(NN):
     """
 
     # erklärung für den sehr merkwüurdigen value on train batch graphen: die iterationen werden sehr viel langsamer mit der zeit (höhere input dimension, mehr netzauswertungen), also werden es immer weniger
-    def train_net_k(self, k, iterations, duration, fake=False):
+    def train_net_k(self, k, iterations, duration, fake=False, train_all_nets=False):
         start_time = time.time()
         if fake:
             saved_u = copy.deepcopy(self.u)
             for j in range(len(self.u)-1):
                 self.u[j+1] = fake_net
-        params = list(self.u[0].parameters())
+        if train_all_nets:
+            assert fake is False
+            params = []
+            for j in range(len(self.u)):
+                params += list(self.u[j].parameters())
+        else:
+            params = list(self.u[0].parameters())
         optimizer = self.return_optimizer(params)
         if self.do_lr_decay:
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
@@ -198,6 +221,7 @@ class Alg10_NN(NN):
         avg_list = []
         m = 0
         while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
+            iteration_start = time.time()
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
             if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
                 for j in range(len(training_paths)):
@@ -220,6 +244,8 @@ class Alg10_NN(NN):
 
             if self.do_lr_decay:
                 scheduler.step()
+
+            self.Memory.single_train_durations.append(time.time()-iteration_start)
             m += 1
         if fake:
             net = self.u[0]

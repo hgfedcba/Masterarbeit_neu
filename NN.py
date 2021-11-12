@@ -109,7 +109,7 @@ class NN:
     def single_net_algorithm(self):
         if self.algorithm == 2 or self.algorithm == 3:
             return True
-        if self.algorithm == 0 or self.algorithm == 10 or self.algorithm == 11 or self.algorithm == 12 or self.algorithm == 14 or self.algorithm == 15 or self.algorithm == 20 or self.algorithm == 21:
+        if self.algorithm == 0 or self.algorithm >= 10:
             return False
         assert False
 
@@ -155,6 +155,9 @@ class NN:
         if self.Memory.pretrain_duration > 0.1:
             log.info("pretrain took \t%s seconds" % self.Memory.pretrain_duration)
 
+        self.Memory.train_durations_per_validation.append(0)
+        self.Memory.total_net_durations_per_validation.append(0)
+
         m = m_out
         # continues if:
         # 1. die letzte Iteration keine validation stattgefunden hat
@@ -165,17 +168,17 @@ class NN:
         while (m % self.validation_frequency != 1 and not self.validation_frequency == 1) or \
                 ((time.time() - self.Memory.start_time) / 60 < self.T_max and (self.M_max == -1 or m < self.M_max) and self.ProminentResults.get_m_max() + 200 > m)\
                 or m < 10:
-            self.Memory.total_net_durations.append(0)
             m_th_iteration_start_time = time.time()
 
             average_payoff = self.training_step(optimizer)
-            self.Memory.train_durations.append(time.time() - m_th_iteration_start_time)
+            self.Memory.single_train_durations.append(time.time() - m_th_iteration_start_time)
+            self.Memory.train_durations_per_validation[-1] += time.time() - m_th_iteration_start_time
             self.Memory.average_train_payoffs.append(average_payoff)
 
             # validation
             if m % self.validation_frequency == 0:
-                if m >= 50:
-                    assert True
+                self.Memory.train_durations_per_validation.append(0)
+                self.Memory.total_net_durations_per_validation.append(0)
                 val_start = time.time()
 
                 if m == 200:
@@ -199,6 +202,9 @@ class NN:
                 scheduler.step()
 
             m += 1
+
+        self.Memory.train_durations_per_validation.pop()
+        self.Memory.total_net_durations_per_validation.pop()
 
         self.ProminentResults.set_final_net(self, m-1, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
@@ -351,7 +357,7 @@ class NN:
         # torch.autograd.set_detect_anomaly(True)
         loss.backward()
         optimizer.step()
-        self.Memory.total_net_durations[-1] += time.time() - t
+        self.Memory.total_net_durations_per_validation[-1] += time.time() - t
 
         return average_payoff.item()
 
@@ -456,14 +462,14 @@ class NN:
                     x.append(torch.tensor(into, dtype=torch.float32, requires_grad=grad, device=self.device))
                     # x[-1] = x[-1].to(device)
                     local_u.append(self.u[0](x[n]))
-                self.Memory.total_net_durations[-1] += time.time() - t
+                self.Memory.total_net_durations_per_validation[-1] += time.time() - t
             else:
                 local_u.append(torch.ones(1))
                 # h[-1].to(device)
             if isinstance(local_u[n], int) or isinstance(local_u[n], float):
                 U.append(local_u[n] * (torch.ones(1) - sum[n]))
             else:
-                U.append(local_u[n].to("cpu") * (torch.ones(1) - sum[n]))
+                U.append(local_u[n].to("cpu") * (torch.ones(1) - sum[n]))  # TODO: I probably have to change this to get this to work on a gpu
 
         z = torch.stack(U)
         assert torch.sum(z).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(z).item())

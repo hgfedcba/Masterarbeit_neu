@@ -54,14 +54,14 @@ class ConfigInitializer:
         dict_a = {  #
             # alg 20 is very good but also very slow
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [14, 15],  # TODO: I think 21 always has to go first as the inplace-sorting breaks it otherwise
+            'algorithm'                             : [14, 15, 16, 20, 0, 21],  # TODO: I think 21 always has to go first as the inplace-sorting breaks it otherwise
             'sort net input'                        : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
             'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
-            'optimizer'                             : [7, 72],  # [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut. # TODO: Es gibt weiter optimierer und weitere einstellungen
-            # Wenn 2 -> _, dann 21 -> _ mit den ersten besonderen einstellungen. TODO: Dafür programmiere ich eine funktion in NN die als parameter die parameter, lr, optimizer und special config nr bekommt und dann den optimierer zurückgibt.
+            'optimizer'                             : [7],  # [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
+            # Wenn 2 -> _, dann 21 -> _ mit den ersten besonderen einstellungen.
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
             'number pretrain iterations'            : [500],
             'max number of iterations'              : [max_number],
@@ -165,11 +165,11 @@ class ConfigInitializer:
                 # result enthält prominent_result klasse, memory klasse
                 optimitaion_result = [current_NN.optimization()]
             '''
-            if algorithm == 10 or algorithm == 11 or algorithm == 12 or algorithm == 14 or algorithm == 15:
+            if 20 > algorithm >= 10:
                 current_NN = Alg10.Alg10_NN(current_Config, Model, Memory, log)
-                if algorithm == 11 or algorithm == 14 or algorithm == 15:
+                if algorithm == 11 or algorithm >= 14:
                     current_NN.do_pretrain = True
-            elif algorithm == 20 or algorithm == 21:
+            elif algorithm >= 20:
                 current_NN = Alg20.Alg20_NN(current_Config, Model, Memory, log)
             else:
                 current_NN = NN.NN(current_Config, Model, Memory, log)
@@ -255,7 +255,7 @@ class ConfigInitializer:
                        "\ttime taken until discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
                        result[1].end_time - result[1].start_time,
                        "\titerations taken until discrete/cont/final result:", str(len(result[1].average_train_payoffs)).ljust(30, " "),
-                       "\ttime spend training:", sum(result[1].train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
+                       "\ttime spend training:", sum(result[1].single_train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations_per_validation),
                        "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
                        "Parameterstring:", result[3])
         else:
@@ -267,7 +267,7 @@ class ConfigInitializer:
                        "\ttime taken until discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
                        result[1].end_time - result[1].start_time,
                        "\titerations taken until discrete/cont/final result:", result[0].disc_best_result.m, " | ", result[0].cont_best_result.m, " | ", result[0].final_result.m,
-                       "\ttime spend training:", sum(result[1].train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations),
+                       "\ttime spend training:", sum(result[1].single_train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations_per_validation),
                        "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
                        "Parameterstring:", result[3])
 

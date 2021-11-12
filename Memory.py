@@ -5,9 +5,10 @@ class Memory:
     def __init__(self):
         self.start_time = time()
         self.end_time = time()
-        self.total_net_durations = []
+        self.total_net_durations_per_validation = []
         self.pretrain_duration = 0
-        self.train_durations = []
+        self.single_train_durations = []
+        self.train_durations_per_validation = []
         self.val_durations = []
         self.test_duration = 0
 

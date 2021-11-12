@@ -86,7 +86,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     grid(True)
     # plt.yscale('log')
 
-    if Config.algorithm == 10 or Config.algorithm == 14 or Config.algorithm == 15:
+    if Config.algorithm >= 10:
         x = range(0, len(Memory.val_discrete_value_list))
         xlabel('nets trained', fontsize=16)
     else:
@@ -253,18 +253,21 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     tn = []
 
     # Ich lasse die letzten val_frequency iterationen absichtlich aus dem plot heraus da es nicht einfach ist sie richtig anzuzeigen
-    for k in range(0, int(len(Memory.train_durations)/Config.validation_frequency)):
-        iter.append(Config.validation_frequency*k)
-        td.append(sum(Memory.train_durations[Config.validation_frequency*k:Config.validation_frequency*(k+1)]))
+    for k in range(0, int(len(Memory.train_durations_per_validation))):
+        iter.append(k)
+        td.append(sum(Memory.train_durations_per_validation[k:(k+1)]))
         vd.append(sum(Memory.val_durations[k:(k+1)]))
-        tn.append(sum(Memory.total_net_durations[Config.validation_frequency*k:Config.validation_frequency*(k+1)]))
+        tn.append(sum(Memory.total_net_durations_per_validation[k:(k + 1)]))
     draw_connected_points(iter, td, plot_number_duration)
     draw_connected_points(iter, vd, plot_number_duration)
     draw_connected_points(iter, tn, plot_number_duration)
     plt.legend(["train duration", "val duration", "time spend in net"])
     ylabel('time', fontsize=16)
     plt.title('time spend between each validation')
-    xlabel('iteration', fontsize=16)
+    if Config.algorithm >= 10:
+        xlabel('net', fontsize=16)
+    else:
+        xlabel('validation', fontsize=16)
     grid(True)
 
     pdf.savefig(fig2)
@@ -274,14 +277,16 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     plot_number_duration_2 = 25
     fig25 = plt.figure(plot_number_duration_2)
 
+    iter = []
     td = []
     vd = []
     tn = []
 
-    for k in range(0, int(len(Memory.train_durations)/Config.validation_frequency)):
-        td.append(Memory.pretrain_duration + sum(Memory.train_durations[:Config.validation_frequency*k]))
+    for k in range(0, int(len(Memory.train_durations_per_validation))):
+        iter.append(k)
+        td.append(Memory.pretrain_duration + sum(Memory.train_durations_per_validation[:k]))
         vd.append(Memory.pretrain_duration + sum(Memory.val_durations[:k]))
-        tn.append(Memory.pretrain_duration + sum(Memory.total_net_durations[:Config.validation_frequency*k]))
+        tn.append(Memory.pretrain_duration + sum(Memory.total_net_durations_per_validation[:Config.validation_frequency * k]))
 
     draw_connected_points(iter, td, plot_number_duration_2)
     draw_connected_points(iter, vd, plot_number_duration_2)
@@ -290,10 +295,10 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     draw_connected_points(iter, (time.time() - Memory.start_time) * np.ones_like(iter), plot_number_duration_2)
     draw_connected_points(iter, (time.time() - Memory.start_time - Memory.test_duration) * np.ones_like(iter), plot_number_duration_2)
     plt.legend(["train duration", "val duration", "time spend in net", "pretrain end", "test end", "test start"])
-    if Config.algorithm == 10 or Config.algorithm == 14 or Config.algorithm == 15:
+    if Config.algorithm >= 10:
         xlabel('net', fontsize=16)
     else:
-        xlabel('iteration', fontsize=16)
+        xlabel('validation', fontsize=16)
     ylabel('time', fontsize=16)
     plt.ylim([0, (time.time() - Memory.start_time)*1.05])
     # make this a pie chart     problem mit time spent in net
@@ -315,6 +320,30 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
 
     plt.show()
     '''
+
+    # Time spending for one training batch
+    plot_number_duration_3 = 26
+    fig2 = plt.figure(plot_number_duration_3)
+    # t = np.array(range(iteration_number, step=Config.validation_frequency))
+    iter = []
+    td = []
+    tn = []
+
+    # Ich lasse die letzten val_frequency iterationen absichtlich aus dem plot heraus da es nicht einfach ist sie richtig anzuzeigen
+    for k in range(0, int(len(Memory.single_train_durations))):
+        iter.append(k)
+        td.append(sum(Memory.single_train_durations[k:(k + 1)]))
+    draw_connected_points(iter, td, plot_number_duration_3)
+    plt.legend(["train duration"])
+    ylabel('time', fontsize=16)
+    plt.title('time spend on one training batch')
+    xlabel('train batch', fontsize=16)
+    grid(True)
+
+    pdf.savefig(fig2)
+    plt.close(fig2)
+
+    #
 
     path_dim = Model.getpath_dim()
 

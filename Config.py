@@ -51,14 +51,16 @@ class Config:
         self.angle_for_net_plot = angle_for_net_plot
 
         alg_dict = {
+            # TODO: I hardcoded that algs 10-19 are similar to 10 and 20-29 are similar to 20, algs >= 10 learn sequentially
             0: "Paper",
             2: "single Net",
             3: "smaller N pretrain",
             10: "back to front",
             11: "seq with pretrain",
             12: "explicit stop condition given",  # doesn't run through
-            14: "back to front empty pretrain",
-            15: "14 but train together once",  # TODO: implement
+            14: "(14) back to front empty pretrain",
+            15: "(15) train together at the end",
+            16: "(16) train all nets after pretrain",
             20: "front to back N=const",
             21: "front to back N=inc"
         }
