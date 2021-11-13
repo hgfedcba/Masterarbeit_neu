@@ -52,7 +52,7 @@ input sortieren
 
 # TODO: review alg 10
 
-# TODO: fix time cheating in alg 20 (done?)
+# TODO: fix time cheating in alg 20 !!!!!!!!!!!!!!!!!!
 
 # TODO: übergebe nicht alle sortierten werte, sondern nur die letzten (n-2)*ln(n-3-x)/ln(n-3) -> for this I have to augment alg0 as this doesn't make sense otherwise
 # TODO:                            or I could implement this a new Model

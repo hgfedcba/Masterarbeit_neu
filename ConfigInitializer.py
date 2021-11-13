@@ -54,13 +54,13 @@ class ConfigInitializer:
         dict_a = {  #
             # alg 20 is very good but also very slow
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [14, 15, 16, 20, 0, 21],  # TODO: I think 21 always has to go first as the inplace-sorting breaks it otherwise
+            'algorithm'                             : [14, 15, 16, 20],  # TODO: I think 21 always has to go first as the inplace-sorting breaks it otherwise
             'sort net input'                        : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
             'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
-            'optimizer'                             : [7],  # [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
+            'optimizer'                             : [7, 72],  # [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
             # Wenn 2 -> _, dann 21 -> _ mit den ersten besonderen einstellungen.
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
             'number pretrain iterations'            : [500],
