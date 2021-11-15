@@ -24,8 +24,8 @@ class Alg20_NN(NN):
 
         log = self.log
 
-        duration = self.T_max/(self.N+3)
-        iterations = self.M_max/(self.N+3)
+        duration = self.T_max/(self.N+2)
+        iterations = self.M_max/(self.N+2)
         ratio_single_to_together = 0.66
 
         # consists of fake nets. Fake nets are overridden gradually
@@ -43,7 +43,7 @@ class Alg20_NN(NN):
                 # Note: last joined training is longer
                 if m == end-1:
                     iterations = max(100/(1 - ratio_single_to_together), iterations*4)
-                    duration = duration * 4
+                    duration = duration * 3 / ratio_single_to_together
                 avg_list += self.train_together(m, duration * (1 - ratio_single_to_together), iterations * (1 - ratio_single_to_together), alg20=False)
 
                 self.Memory.train_durations_per_validation.append(time.time() - m_th_iteration_start_time)
@@ -103,7 +103,7 @@ class Alg20_NN(NN):
                 # Note: last is longer
                 if m == end-1:
                     iterations = max(100/(1 - ratio_single_to_together), iterations*4)
-                    duration = duration * 4
+                    duration = duration * 3 / ratio_single_to_together
                 avg_list += self.train_together(m, duration * (1 - ratio_single_to_together), iterations * (1 - ratio_single_to_together), alg20=True)
 
                 self.Memory.train_durations_per_validation.append(time.time() - m_th_iteration_start_time)
