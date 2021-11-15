@@ -57,7 +57,10 @@ input sortieren
 # TODO: übergebe nicht alle sortierten werte, sondern nur die letzten (n-2)*ln(n-3-x)/ln(n-3) -> for this I have to augment alg0 as this doesn't make sense otherwise
 # TODO:                            or I could implement this a new Model
 
-# TODO: noch einmal gpu
+# TODO: noch einmal gpu (ich muss calculate payoffs anpassen)
+# TODO: see todo in out + search for "cpu"
+
+# TODO: test ob gpu changes die cpu performance beeinträchtigt haben
 
 
 if __name__ == '__main__':

@@ -327,14 +327,14 @@ class NN:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
             if self.sort_net_input:
                 self.sort_input_list_inplace(training_paths)
-            U = torch.empty(self.batch_size, self.N + 1)
+            U = torch.empty(self.batch_size, self.N + 1, device=self.device)
 
         else:
             if isinstance(training_paths[0], list):
                 local_N = training_paths[0].__len__()
             else:
                 local_N = training_paths[0].shape[1]
-            U = torch.empty(self.batch_size, local_N)
+            U = torch.empty(self.batch_size, local_N, device=self.device)
 
         """
         breaks alg20
@@ -347,7 +347,7 @@ class NN:
         for j in range(self.batch_size):
             h, _ = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(training_paths[j], True)
             U[j, :] = h[:, 0]
-            individual_payoffs.append(self.Model.calculate_payoffs(U[j, :], training_paths[j], self.Model.getg, self.t))
+            individual_payoffs.append(self.Model.calculate_payoffs(U[j, :], training_paths[j], self.Model.getg, self.t, device=self.device))
         average_payoff = torch.sum(torch.stack(individual_payoffs)) / len(individual_payoffs)
 
         loss = -average_payoff
@@ -376,12 +376,12 @@ class NN:
         """
 
         # h = []
-        U = torch.empty(L, self.N + 1)
+        U = torch.empty(L, self.N + 1, device=self.device)
         tau_list = []
         for l in range(L):
             pre_u, tau = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(paths[l], False)
             U[l, :] = pre_u[:, 0]
-            cont_individual_payoffs.append(self.Model.calculate_payoffs(U[l, :], paths[l], self.Model.getg, self.t))
+            cont_individual_payoffs.append(self.Model.calculate_payoffs(U[l, :], paths[l], self.Model.getg, self.t, device=self.device))
 
             # h = paths[l][19][-4:]
             # h1 = pre_u[-4:]
@@ -443,7 +443,7 @@ class NN:
             if n > 0:
                 sum.append(sum[n - 1] + U[n - 1])  # 0...n-1
             else:
-                sum.append(0)
+                sum.append(torch.zeros(1, device=self.device))
             if n < local_N-1:
                 t = time.time()
                 if not self.single_net_algorithm():
@@ -464,12 +464,12 @@ class NN:
                     local_u.append(self.u[0](x[n]))
                 self.Memory.total_net_durations_per_validation[-1] += time.time() - t
             else:
-                local_u.append(torch.ones(1))
+                local_u.append(torch.ones(1, device=self.device))
                 # h[-1].to(device)
             if isinstance(local_u[n], int) or isinstance(local_u[n], float):
                 U.append(local_u[n] * (torch.ones(1) - sum[n]))
             else:
-                U.append(local_u[n].to("cpu") * (torch.ones(1) - sum[n]))  # TODO: I probably have to change this to get this to work on a gpu
+                U.append(local_u[n] * (torch.ones(1, device=self.device) - sum[n]))
 
         z = torch.stack(U)
         assert torch.sum(z).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(z).item())

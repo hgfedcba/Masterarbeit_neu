@@ -197,8 +197,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     # bar graph when stopping of final net happened on test
     plot_number_final_stopping_time = 14
     fig14 = plt.figure(plot_number_final_stopping_time)
-    # TODO: changed this  3.11.21 und ich glaube es wurde gefixt?!
-    x = range(1, Model.getN()+2)  # range(0, Model.getN()+1) as of before 14.10.21
+    x = range(1, Model.getN()+2)
     x = np.array(x)
     y = np.zeros(Model.getN()+1)
     for r in ProminentResults.final_result.test_stopping_times:

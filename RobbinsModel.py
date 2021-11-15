@@ -106,7 +106,7 @@ class RobbinsModel(AbstractMathematicalModel):
         # Schritt 2: Bilde das Skalarprodukt von t und z1
         return np.dot(t, z1)
 
-    def calculate_payoffs(self, U, x, g, t):
+    def calculate_payoffs(self, U, x, g, t, device="cpu"):
         if isinstance(U, np.ndarray):
             return self.getg(U, x)
         assert torch.sum(torch.tensor(U)).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(torch.tensor(U)).item())
@@ -125,11 +125,9 @@ class RobbinsModel(AbstractMathematicalModel):
 
         # Dieser Schritt ist für Alg10, damit nur so viele Werte betrachtet werden wie U enthält
         z2 = z1[-len(U):]
+        h = torch.matmul(U, torch.tensor(z2, dtype=torch.float, device=device))
 
-        h = torch.matmul(U, torch.tensor(z2, dtype=torch.float))
-
-        # Schritt 2: Bilde das Skalarprodukt von t und z1
-        return torch.matmul(U, torch.tensor(z2, dtype=torch.float))
+        return torch.matmul(U, torch.tensor(z2, dtype=torch.float, device=device))
 
     def set_reference_value(self):
         # 1.908 ist die beste bekannte untere Grenze für V und da die V_n monoton wachsend sind ist es auch eine untere Grenze für V_n
