@@ -12,7 +12,6 @@ import torch.optim as optim
 import pytest
 from RobbinsModel import RobbinsModel
 from NN import NN
-from NN import Net
 
 
 def fake_net(x):
@@ -33,6 +32,7 @@ class Alg10_NN(NN):
 
         log = self.log
 
+        # deprectaed
         if self.algorithm == 12:
             self.u = []
             for j in range(self.N):
@@ -57,20 +57,13 @@ class Alg10_NN(NN):
             i_value = [max(s * range(0, self.N + 1)) for s in stopping_times]
             self.Memory.average_val_stopping_time.append(np.mean(i_value))
         else:
-            # scheduler = None
             if self.algorithm == 15 or self.algorithm == 16:
                 duration = self.T_max/(self.N+1)
                 iterations = self.M_max/(self.N+1)
             else:
                 duration = self.T_max / self.N
                 iterations = self.M_max / self.N
-            '''
-            for k in range(len(self.u)):
-                # TODO: change1
-                self.u[k] = fake_net
-                # self.u[k] = Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK())
-            '''
-            self.u = []
+
             for m in range(self.N-1, -1, -1):
                 self.Memory.total_net_durations_per_validation.append(0)
 
@@ -85,14 +78,12 @@ class Alg10_NN(NN):
 
                 val_start = time.time()
 
-                saved_u = self.u
+                net_list = []
+                for _ in range(m):
+                    net_list.append(fake_net)
+                net_list.extend(self.u[m:])
 
-                self.u = []
-                for j in range(m):
-                    self.u.append(fake_net)
-                self.u.extend(saved_u)
-
-                cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
+                cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths, net_list=net_list)
                 log.info(
                     "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (self.N-m, round(cont_payoff, 3), round(disc_payoff, 3)))
 
@@ -107,8 +98,6 @@ class Alg10_NN(NN):
                 i_value = [max(s * range(0, self.N + 1)) for s in stopping_times]
                 self.Memory.average_val_stopping_time.append(np.mean(i_value))
 
-                self.u = saved_u
-
                 # print(avg_list)
             self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
@@ -117,7 +106,6 @@ class Alg10_NN(NN):
         return m, self.ProminentResults, self.Memory
 
     def training_caller(self, k, duration, iterations):
-        self.u.insert(0, Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK(), self.device, self.dropout_rate))
 
         # pretrain, deprecated
         if isinstance(self.Model, RobbinsModel) and self.algorithm == 11:
@@ -129,6 +117,7 @@ class Alg10_NN(NN):
 
         if self.algorithm == 14:
             avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
+            # avg_list = self.empty_pretrain_net(self.Model.getpath_dim()[k], k, iterations / 2, duration / 2)
             avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2))
         elif self.algorithm == 15:
             if k == 0:
@@ -202,18 +191,17 @@ class Alg10_NN(NN):
 
     # erklärung für den sehr merkwüurdigen value on train batch graphen: die iterationen werden sehr viel langsamer mit der zeit (höhere input dimension, mehr netzauswertungen), also werden es immer weniger
     def train_net_k(self, k, iterations, duration, fake=False, train_all_nets=False):
-        start_time = time.time()
         if fake:
-            saved_u = copy.deepcopy(self.u)
-            for j in range(len(self.u)-1):
-                self.u[j+1] = fake_net
+            return self.empty_pretrain_net_n(self.Model.getpath_dim()[k], k, duration, iterations)
+        start_time = time.time()
         if train_all_nets:
-            assert fake is False
+            net_list = self.u[k:]
             params = []
-            for j in range(len(self.u)):
-                params += list(self.u[j].parameters())
+            for j in range(len(net_list)):
+                params += list(net_list[j].parameters())
         else:
-            params = list(self.u[0].parameters())
+            net_list = self.u[k:]
+            params = list(net_list[0].parameters())
         optimizer = self.return_optimizer(params)
         if self.do_lr_decay:
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
@@ -239,7 +227,7 @@ class Alg10_NN(NN):
                     h = training_paths[j]
                     training_paths[j] = training_paths[j][:, k:]
             """
-            avg = self.training_step(optimizer, training_paths)
+            avg = self.training_step(optimizer, training_paths, net_list=net_list)
             avg_list.append(avg)
 
             if self.do_lr_decay:
@@ -247,10 +235,6 @@ class Alg10_NN(NN):
 
             self.Memory.single_train_durations.append(time.time()-iteration_start)
             m += 1
-        if fake:
-            net = self.u[0]
-            self.u = saved_u
-            self.u[0] = net
 
         return avg_list
 

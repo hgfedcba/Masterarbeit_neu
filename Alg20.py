@@ -1,7 +1,6 @@
 import copy
 from RobbinsModel import RobbinsModel
 from NN import NN
-from NN import Net
 
 import W_RobbinsModel
 from Util import *
@@ -29,7 +28,6 @@ class Alg20_NN(NN):
         ratio_single_to_together = 0.66
 
         # consists of fake nets. Fake nets are overridden gradually
-        self.u = []
         end = self.N
 
         if self.algorithm == 21:
@@ -38,7 +36,7 @@ class Alg20_NN(NN):
 
                 m_th_iteration_start_time = time.time()
 
-                avg_list = self.pretrain_and_append_net_k(m, duration * ratio_single_to_together, iterations * ratio_single_to_together, alg20=False)
+                avg_list = self.empty_pretrain_net_n(self.Model.getpath_dim()[m], m, duration * ratio_single_to_together, iterations * ratio_single_to_together)
 
                 # Note: last joined training is longer
                 if m == end-1:
@@ -56,8 +54,10 @@ class Alg20_NN(NN):
                     temp_val_paths.append(self.val_paths[k][:m + 2])
                     # temp_val_paths.append(copy.deepcopy(self.val_paths[k][:m+2]))  # deepcopy doesn't seem to be necessary
 
-                self.N = m+1  # Es ist viel aufwand self.N aus validate zu lösen
-                cont_payoff, disc_payoff, stopping_times = self.validate(temp_val_paths)
+                self.N = m+1  # Es ist viel aufwand self.N aus validate zu lösen, diese Lösung ist aber unschön
+
+                net_list = self.u[:m + 1]
+                cont_payoff, disc_payoff, stopping_times = self.validate(temp_val_paths, net_list=net_list)
                 """
                 log.info(
                     "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (m+1, round(cont_payoff, 3), round(disc_payoff, 3)))
@@ -87,8 +87,6 @@ class Alg20_NN(NN):
             return len(self.Memory.average_train_payoffs), self.ProminentResults, self.Memory
 
         elif self.algorithm == 20:
-            for j in range(self.N):
-                self.u.append(fake_net)
 
             # recall m+2 = self.N+1 = N
             l = self.N + 2 - robbins_problem_lower_boundary(self.N)  # explicit threshhold function
@@ -98,7 +96,7 @@ class Alg20_NN(NN):
 
                 m_th_iteration_start_time = time.time()
 
-                avg_list = self.pretrain_and_append_net_k(m, duration * ratio_single_to_together, iterations * ratio_single_to_together, alg20=True)
+                avg_list = self.empty_pretrain_net_n(self.Model.getpath_dim()[m], m, duration * ratio_single_to_together, iterations * ratio_single_to_together)
 
                 # Note: last is longer
                 if m == end-1:
@@ -111,7 +109,11 @@ class Alg20_NN(NN):
 
                 val_start = time.time()
 
-                cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths)
+                net_list = self.u[:m + 1]
+                for _ in range(self.Model.getN()-m-1):  # TODO: I want to understand why below it works without the -1...
+                    net_list.append(fake_net)
+
+                cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths, net_list=net_list)
                 """
                 log.info(
                     "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (m+1, round(cont_payoff, 3), round(disc_payoff, 3)))
@@ -136,74 +138,15 @@ class Alg20_NN(NN):
             self.ProminentResults.set_final_net(self, len(self.Memory.average_train_payoffs), cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
             return len(self.Memory.average_train_payoffs), self.ProminentResults, self.Memory
 
-    # n = number of previous observations
-    def pretrain_and_append_net_k(self, n, duration, iterations, alg20=True):
-        start_time = time.time()
-        saved_u = copy.deepcopy(self.u)
-        """
-        # seems to have no effect
-        if alg20:
-            saved_N = self.N
-            # self.N = n + 1
-        """
-        """
-        self.u = []
-        for j in range(n+1):
-            self.u.append(fake_net)
-        
-        net = Net(n+1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.K, self.device, self.dropout_rate)
-        self.u[n] = net
-
-        params = list(self.u[n].parameters())
-        """
-        net = Net(n+1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.K, self.device, self.dropout_rate)
-        self.u = [net]
-
-        params = list(self.u[0].parameters())
-
-        optimizer = self.return_optimizer(params)
-        if self.do_lr_decay:
-            scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
-            scheduler.verbose = False  # prints updates
-
-        avg_list = []
-        m = 0
-        while(m < iterations and (time.time() - start_time) / 60 < duration) or m < 40:
-            iteration_start = time.time()
-            training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train, N=n+1)
-
-            if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
-                for j in range(len(training_paths)):
-                    if isinstance(self.Model, RobbinsModel):
-                        training_paths[j] = training_paths[j][-2:]
-                    else:
-                        training_paths[j] = training_paths[j][:, -2:]
-            else:
-                training_paths = training_paths[:, :, -2:]
-
-            avg = self.training_step(optimizer, training_paths)
-            avg_list.append(avg)
-
-            if self.do_lr_decay:
-                scheduler.step()
-
-            self.Memory.single_train_durations.append(time.time() - iteration_start)
-            m += 1
-
-        self.u = saved_u
-        if alg20:
-            self.u[n] = net
-            # self.N = saved_N
-        else:
-            self.u.append(net)
-
-        return avg_list
-
     def train_together(self, n, duration, iterations, alg20=True):
         start_time = time.time()
+        net_list = self.u[:n+1]
         params = []
         for k in range(n+1):
-            params += list(self.u[k].parameters())
+            params += list(net_list[k].parameters())
+        if alg20:
+            for _ in range(self.Model.getN()-n):
+                net_list.append(fake_net)
         optimizer = self.return_optimizer(params)
         if self.do_lr_decay:
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
@@ -218,7 +161,7 @@ class Alg20_NN(NN):
             else:
                 training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train, N=n+1)
 
-                avg = self.training_step(optimizer, training_paths)
+                avg = self.training_step(optimizer, training_paths, net_list=net_list)
             avg_list.append(avg)
 
             if self.do_lr_decay:

@@ -52,15 +52,17 @@ input sortieren
 
 # TODO: review alg 10 (check)
 
-# TODO: fix time cheating in alg 20 (done? 15.11.)
-
 # TODO: übergebe nicht alle sortierten werte, sondern nur die letzten (n-2)*ln(n-3-x)/ln(n-3) -> for this I have to augment alg0 as this doesn't make sense otherwise
 # TODO:                            or I could implement this a new Model
 
 # TODO: noch einmal gpu (ich muss calculate payoffs anpassen)
-# TODO: see todo in out + search for "cpu"
+# TODO: see todo in out + search for "cpu" or device
 
-# TODO: test ob gpu changes die cpu performance beeinträchtigt haben
+# TODO: fix alg20, 14 and not robins
+
+# TODO: alg 0 pretrain
+
+# TODO: alg 2 robbins (without sorting)   3 versionen, einmal nullen vorne, einmal nullen hinten und einmal einsen hinten, immer mit extra t
 
 
 if __name__ == '__main__':
@@ -98,7 +100,6 @@ if __name__ == '__main__':
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R2l, R3, R4, R12, R12l, Russ0, RW0, RW1, RW2, RW3, RW4
     import os
     log.warning("Start")
-    # TODO: fix alg20 and not robins
     ConfigInitializer("R12l", log)
     """
     os.chdir("../current run2")
