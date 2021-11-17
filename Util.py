@@ -7,6 +7,32 @@ import matplotlib.backends.backend_pdf as pdfp
 import torch
 
 
+def sort_list_inplace(list, in_place=True, N=None):
+    if in_place:
+        out = list
+    else:
+        out = list.copy()
+    if N is None:
+        N = len(out[0])
+    for k in range(len(out)):
+        for l in range(N - 1):
+            h = sorted(out[k][l][0:-1])
+            h.append(out[k][l][-1])
+            out[k][l] = h
+
+    return out
+
+
+def fake_net(x):
+    return 0
+
+
+def real_fake_net(j, N):
+    def f(x):
+        return x[j] > (N-j-1)/(N-j)
+    return f
+
+
 def robbins_problem_lower_boundary(n):
     n = n+1
     if n > 12:

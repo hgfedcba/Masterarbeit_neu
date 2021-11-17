@@ -38,7 +38,7 @@ class ConfigInitializer:
         current_Config = None
 
         result_list = []
-        val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot = ModelInitializer.initialize_model(option)
+        val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file = ModelInitializer.initialize_model(option)
 
         # Parametergrid für Netz
         # addAdam
@@ -52,10 +52,10 @@ class ConfigInitializer:
 
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
-            # alg 20 is very good but also very slow
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [14, 15, 16, 20],  # TODO: I think 21 always has to go first as the inplace-sorting breaks it otherwise
-            'sort net input'                        : [True],
+            'algorithm'                             : [5, 21, 20, 15, 16],  # 5, 0, 21, 20, 15, 16
+            'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again
+            'pretrain with empty nets'              : [True, False],  # TODO: think about how I handle the difference between alg 20 and alg 21
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
             'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
@@ -68,7 +68,7 @@ class ConfigInitializer:
             'max minutes of iterations'             : [max_minutes],
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
             'initial lr'                            : [0.005],  # [0.005, 0.02] 0.01 for other setting
-            'lr decay algorithm'                    : [3],  # 2 Information in 1 entry
+            'lr decay algorithm'                    : [3],  # [2, 3] 2 Information in 1 entry
             'dropout rate'                          : [0],  # only 0, breaks alg20
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
@@ -102,6 +102,7 @@ class ConfigInitializer:
             stop_paths_in_plot = False
             algorithm = params['algorithm']
             sort_net_input = params['sort net input']
+            pretrain_with_empty_nets = params['pretrain with empty nets']
             if not (isinstance(Model, RobbinsModel) or isinstance(Model, W_RobbinsModel)):
                 sort_net_input = False
             internal_neurons = params['internal neurons per layer']
@@ -138,7 +139,7 @@ class ConfigInitializer:
             antithetic_val = params['antithetic variables on validation set']
             antithetic_train = params['antithetic variables on train set']
 
-            current_Config = Config(device, algorithm, sort_net_input, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer_number, do_pretrain, pretrain_func, pretrain_iterations,
+            current_Config = Config(device, algorithm, sort_net_input, pretrain_with_empty_nets, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer_number, do_pretrain, pretrain_func, pretrain_iterations,
                                     max_number_of_iterations,
                                     max_minutes_of_iterations, train_size, initial_lr, do_lr_decay, lr_decay_alg, dropout_rate, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size,
                                     val_size, stop_paths_in_plot, x_plot_range_for_net_plot, angle_for_net_plot)
@@ -155,6 +156,10 @@ class ConfigInitializer:
                 val_paths = val_paths[:val_size]
                 test_paths = test_paths[:test_size]
 
+                if sort_net_input:
+                    Util.sort_list_inplace(val_paths)
+                    Util.sort_list_inplace(test_paths)
+
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
             individual_parameter_list = current_Config.get_pl_wrt_list(list_individual_parameters)
@@ -170,13 +175,13 @@ class ConfigInitializer:
                 optimitaion_result = [current_NN.optimization()]
             '''
             if 20 > algorithm >= 10:
-                current_NN = Alg10.Alg10_NN(current_Config, Model, Memory, log)
+                current_NN = Alg10.Alg10_NN(current_Config, Model, Memory, log, val_paths_file=val_paths_file)
                 if algorithm == 11 or algorithm >= 14:
                     current_NN.do_pretrain = True
             elif algorithm >= 20:
-                current_NN = Alg20.Alg20_NN(current_Config, Model, Memory, log)
+                current_NN = Alg20.Alg20_NN(current_Config, Model, Memory, log, val_paths_file=val_paths_file)
             else:
-                current_NN = NN.NN(current_Config, Model, Memory, log)
+                current_NN = NN.NN(current_Config, Model, Memory, log, val_paths_file=val_paths_file)
 
             m_out = 0
 

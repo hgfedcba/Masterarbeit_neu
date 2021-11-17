@@ -6,19 +6,8 @@ import W_RobbinsModel
 from Util import *
 
 
-def fake_net(x):
-    return 0
-
-
-def real_fake_net(j, N):
-    def f(x):
-        return x[j] > (N-j-1)/(N-j)
-    return f
-
-
 class Alg20_NN(NN):
     def optimization(self, val_paths, m_out):
-        self.val_paths = val_paths
         self.N = self.Model.getN()
 
         log = self.log
@@ -31,6 +20,17 @@ class Alg20_NN(NN):
         end = self.N
 
         if self.algorithm == 21:
+            import pickle
+            if self.val_paths_file is None:
+                print("generating new val paths")
+                self.val_paths = self.Model.generate_paths(len(val_paths))
+            elif isinstance(self.Model, RobbinsModel):
+                with open(self.val_paths_file, "rb") as fp:  # Unpickling
+                    self.val_paths = pickle.load(fp)
+            else:
+                self.val_paths = np.load(self.val_paths_file, mmap_mode="r")
+            self.val_paths = self.val_paths[:len(val_paths)]
+
             for m in range(end):
                 self.Memory.total_net_durations_per_validation.append(0)
 
@@ -48,16 +48,17 @@ class Alg20_NN(NN):
                 self.Memory.average_train_payoffs.extend(avg_list)
 
                 val_start = time.time()
-
+                """
                 temp_val_paths = []
                 for k in range(len(self.val_paths)):
                     temp_val_paths.append(self.val_paths[k][:m + 2])
                     # temp_val_paths.append(copy.deepcopy(self.val_paths[k][:m+2]))  # deepcopy doesn't seem to be necessary
-
-                self.N = m+1  # Es ist viel aufwand self.N aus validate zu lösen, diese Lösung ist aber unschön
+                """
+                # temp_val_paths2 = self.val_paths[:][:m + 2]  # TODO: understand why this doesn't work, would make validate easier
 
                 net_list = self.u[:m + 1]
-                cont_payoff, disc_payoff, stopping_times = self.validate(temp_val_paths, net_list=net_list)
+                # cont_payoff, disc_payoff, stopping_times = self.validate(temp_val_paths, net_list=net_list, N=m+1)
+                cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths, net_list=net_list)
                 """
                 log.info(
                     "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (m+1, round(cont_payoff, 3), round(disc_payoff, 3)))
@@ -87,7 +88,7 @@ class Alg20_NN(NN):
             return len(self.Memory.average_train_payoffs), self.ProminentResults, self.Memory
 
         elif self.algorithm == 20:
-
+            self.val_paths = val_paths
             # recall m+2 = self.N+1 = N
             l = self.N + 2 - robbins_problem_lower_boundary(self.N)  # explicit threshhold function
 

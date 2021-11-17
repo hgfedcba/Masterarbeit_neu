@@ -4,7 +4,7 @@ from NetDefinitions import Adam, relu, hardtanh, relu6, elu, selu, celu, leaky_r
 
 class Config:
     # Ich gebe Standardwerte an um den Datentyp zu deklarieren. Ich möchte die Standardwerte in fast allen Fällen überschreiben.
-    def __init__(self, device="cpu", algorithm=0, sort_net_input=False, internal_neurons=50, hidden_layer_count=3, activation_internal=tanh, activation_final=sigmoid, optimizer_number=Adam, do_pretrain=True,
+    def __init__(self, device="cpu", algorithm=0, sort_net_input=False, pretrain_with_empty_nets=False, internal_neurons=50, hidden_layer_count=3, activation_internal=tanh, activation_final=sigmoid, optimizer_number=Adam, do_pretrain=True,
                  pretrain_func=pretrain_functions[0], pretrain_iterations=800,
                  max_number_of_iterations=50, max_minutes_of_iterations=5, train_size=32, initial_lr=0.0001, do_lr_decay=False, lr_decay_alg=lr_decay_algs[0], dropout_rate=0, random_seed=23343,
                  validation_frequency=2, antithetic_val=True, antithetic_train=False, val_size=64, test_size=128, stop_paths_in_plot=False, x_plot_range_for_net_plot=None, angle_for_net_plot=40):
@@ -19,6 +19,7 @@ class Config:
         self.device = device
         self.algorithm = algorithm  # 0 is source, 2 is christensen learn f, 3 is different N
         self.sort_net_input = sort_net_input
+        self.pretrain_with_empty_nets = pretrain_with_empty_nets
         self.internal_neurons = internal_neurons
         self.hidden_layer_count = hidden_layer_count
         self.activation_internal = activation_internal
@@ -66,7 +67,7 @@ class Config:
             21: "front to back N=inc"
         }
 
-        pl = [["device", device], ["algorithm", alg_dict.get(algorithm)], ["sort net input", sort_net_input], ["internal neurons per layer", internal_neurons], ["hidden layer count", hidden_layer_count],
+        pl = [["device", device], ["algorithm", alg_dict.get(algorithm)], ["sort net input", sort_net_input], ["pretrain with empty nets", pretrain_with_empty_nets], ["internal neurons per layer", internal_neurons], ["hidden layer count", hidden_layer_count],
               ["internal activation function", activation_func_dict.get(activation_internal)], ["final activation function", activation_func_dict.get(activation_final)],
               ["optimizer", optimizer_dict.get(optimizer_number)], ["do pretrain", do_pretrain], ["pretrain function", pretrain_func_dict.get(pretrain_func)],
               ["number pretrain iterations", pretrain_iterations], ["max number of iterations", max_number_of_iterations],

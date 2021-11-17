@@ -33,6 +33,7 @@ with open(test_paths_file, 'wb') as f:
 
 def initialize_model(option):
     angle_for_net_plot = None
+    val_paths_file = None
     max_number = 10000
     # I deleated max_number everywhere. It was mostly 400 and was multiplied like max_time
 
@@ -675,4 +676,4 @@ def initialize_model(option):
     if main_pc == "\tZweitrechner":
         max_minutes *= 1.3
         max_number *= 1.3
-    return val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot
+    return val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file

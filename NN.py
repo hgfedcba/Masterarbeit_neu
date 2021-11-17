@@ -41,7 +41,7 @@ class Net(nn.Module):
 
 
 class NN:
-    def __init__(self, Config, Model, Memory, log):
+    def __init__(self, Config, Model, Memory, log, val_paths_file=None):
         self.Memory = Memory
         self.log = log
 
@@ -82,7 +82,10 @@ class NN:
         self.device = Config.device
         self.algorithm = Config.algorithm
         self.sort_net_input = Config.sort_net_input
+        self.pretrain_with_empty_nets = Config.pretrain_with_empty_nets
         self.u = []
+
+        self.val_paths_file = val_paths_file
 
         # self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -218,7 +221,7 @@ class NN:
 
         avg_list = []
         for n in range(self.N):
-            avg_list.append(self.empty_pretrain_net_n(self.Model.getpath_dim()[n], n, duration / self.N, iterations / self.N, append=False))
+            avg_list.append(self.empty_pretrain_net_n(self.Model.getpath_dim()[n], n, duration / self.N, iterations / self.N))
 
         return avg_list
 
@@ -228,6 +231,15 @@ class NN:
         start_time = time.time()
 
         net_list = [self.u[n]]
+        # TODO: implement 2 different version for this
+        # version 1: no empty nets
+        # version 2: empty nets
+
+        # version 1 is much faster but gets worse values.
+        if self.pretrain_with_empty_nets:
+            k2 = self.Model.getN() - k
+            for _ in range(k2):
+                net_list.append(fake_net)
 
         params = list(net_list[0].parameters())
 
@@ -240,17 +252,28 @@ class NN:
         m = 0
         while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 40:
             iteration_start = time.time()
-            training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train, N=k)
-
-            if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
-                for j in range(len(training_paths)):
-                    if isinstance(self.Model, RobbinsModel):
-                        training_paths[j] = training_paths[j][-2:]
-                    else:
-                        training_paths[j] = training_paths[j][:, -2:]
+            if self.pretrain_with_empty_nets:
+                training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
+                if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
+                    for j in range(len(training_paths)):
+                        if isinstance(self.Model, RobbinsModel):
+                            training_paths[j] = training_paths[j][-k2-2:]
+                        else:
+                            training_paths[j] = training_paths[j][:, -k2-2:]
+                else:
+                    training_paths = training_paths[:, :, -k2-2:]
             else:
-                training_paths = training_paths[:, :, -2:]
-
+                training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train, N=k)
+                if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
+                    for j in range(len(training_paths)):
+                        if isinstance(self.Model, RobbinsModel):
+                            training_paths[j] = training_paths[j][-2:]
+                        else:
+                            training_paths[j] = training_paths[j][:, -2:]
+                else:
+                    training_paths = training_paths[:, :, -2:]
+            if k == 4:
+                assert True
             avg = self.training_step(optimizer, training_paths, net_list=net_list)
             avg_list.append(avg)
 
@@ -262,19 +285,11 @@ class NN:
 
         return avg_list
 
-    @staticmethod
-    def sort_input_list_inplace(list):
-        for k in range(len(list)):
-            for l in range(len(list[k]) - 1):
-                h = sorted(list[k][l][0:-1])
-                h.append(list[k][l][-1])
-                list[k][l] = h
-
     def training_step(self, optimizer, training_paths=None, net_list=None):
         if training_paths is None:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
             if self.sort_net_input:
-                self.sort_input_list_inplace(training_paths)
+                sort_list_inplace(training_paths)
             U = torch.empty(self.batch_size, self.N + 1, device=self.device)
 
         else:
@@ -310,9 +325,13 @@ class NN:
         return average_payoff.item()
 
     def validate(self, paths, net_list=None):
+        if net_list is not None:
+            N = len(net_list)  # This is only for alg 21
+        else:
+            N = self.N
         L = len(paths)
         if self.sort_net_input:
-            self.sort_input_list_inplace(paths)
+            paths = sort_list_inplace(paths, N=N)
         cont_individual_payoffs = []
         disc_individual_payoffs = []
         stopping_times = []
@@ -324,12 +343,12 @@ class NN:
         """
 
         # h = []
-        U = torch.empty(L, self.N + 1, device=self.device)
+        U = torch.empty(L, N + 1, device=self.device)
         tau_list = []
         for l in range(L):
-            pre_u, tau = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(paths[l], False, net_list=net_list)
+            pre_u, tau = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(paths[l][:N+1], False, net_list=net_list)
             U[l, :] = pre_u[:, 0]
-            cont_individual_payoffs.append(self.Model.calculate_payoffs(U[l, :], paths[l], self.Model.getg, self.t, device=self.device))
+            cont_individual_payoffs.append(self.Model.calculate_payoffs(U[l, :], paths[l][:N+1], self.Model.getg, self.t, device=self.device))
 
             # h = paths[l][19][-4:]
             # h1 = pre_u[-4:]
@@ -341,9 +360,9 @@ class NN:
             # part 2: discrete
             tau_list.append(tau)
 
-            single_stopping_time = np.zeros(self.N + 1)
+            single_stopping_time = np.zeros(N + 1)
             single_stopping_time[tau_list[l]] = 1
-            disc_individual_payoffs.append(self.Model.calculate_payoffs(single_stopping_time, paths[l], self.Model.getg, self.t).item())
+            disc_individual_payoffs.append(self.Model.calculate_payoffs(single_stopping_time, paths[l][:N+1], self.Model.getg, self.t).item())
             # h.append(max(paths[l][0]*single_stopping_time))
             # for_debugging5 = disc_individual_payoffs[-1]
             stopping_times.append(single_stopping_time)

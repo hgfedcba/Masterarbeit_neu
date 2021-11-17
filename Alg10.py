@@ -115,31 +115,25 @@ class Alg10_NN(NN):
             self.robbins_pretrain(self.u[0], k, barrier)  # This is deprecated...
             self.Memory.pretrain_duration = self.Memory.pretrain_duration + time.time() - start_time
 
+        # time spendning: 1/4 pretrain, 3/4 train. Alg 15 and 16 have one extra duration-unit spend in the last run on train together
+        pretrain_factor = 0.25
         if self.algorithm == 14:
-            avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
+            avg_list = self.train_net_k(k, iterations * pretrain_factor, duration * pretrain_factor, fake=True)  # TODO: remember I changed this time on 16.11., I probably want to change the other times as well
             # avg_list = self.empty_pretrain_net(self.Model.getpath_dim()[k], k, iterations / 2, duration / 2)
-            avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2))
+            avg_list.extend(self.train_net_k(k, iterations * (1-pretrain_factor), duration * (1-pretrain_factor)))
+
         elif self.algorithm == 15:
+            avg_list = self.train_net_k(k, iterations * pretrain_factor, duration * pretrain_factor, fake=True)
+            avg_list.extend(self.train_net_k(k, iterations * (1-pretrain_factor), duration * (1-pretrain_factor)))
             if k == 0:
-                iterations /= 2
-                duration /= 2
-                avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
-                iterations *= 3
-                duration *= 3
-                avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2, train_all_nets=True))
-                # avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2))
-            else:
-                avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
-                avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2))
+                avg_list.extend(self.train_net_k(k, iterations, duration, train_all_nets=True))  # extra time unit
+
         elif self.algorithm == 16:
+            avg_list = self.train_net_k(k, iterations * pretrain_factor, duration * pretrain_factor, fake=True)
             if k == 0:
-                iterations /= 2
-                duration /= 2
-            avg_list = self.train_net_k(k, iterations / 2, duration / 2, fake=True)
-            if k == 0:
-                iterations *= 3
-                duration *= 3
-            avg_list.extend(self.train_net_k(k, iterations / 2, duration / 2, train_all_nets=True))
+                iterations *= 2.33
+                duration *= 2.33
+            avg_list.extend(self.train_net_k(k, iterations * (1-pretrain_factor), duration * (1-pretrain_factor)))  # extra time unit
 
         else:
             avg_list = self.train_net_k(k, iterations, duration)
