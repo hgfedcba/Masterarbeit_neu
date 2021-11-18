@@ -68,9 +68,6 @@ class Alg10_NN(NN):
                 self.Memory.total_net_durations_per_validation.append(0)
 
                 m_th_iteration_start_time = time.time()
-                if m == 0 and (self.algorithm == 15 or self.algorithm == 16):
-                    iterations = max(100, iterations * 2)
-                    duration = duration * 2
 
                 avg_list = self.training_caller(m, duration, iterations)
                 self.Memory.train_durations_per_validation.append(time.time() - m_th_iteration_start_time)

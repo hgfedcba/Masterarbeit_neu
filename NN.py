@@ -155,7 +155,8 @@ class NN:
         pretrain_start = time.time()
         if self.do_pretrain:
             log.info("pretrain starts")
-            self.pretrain(self.T_max/2, self.M_max/2)
+            self.Memory.average_pretrain_payoffs.append(self.pretrain(self.T_max/2, self.M_max/2))
+            self.Memory.pretrain_net_duration = self.Memory.total_net_durations_per_validation.pop()
         self.Memory.pretrain_duration = time.time() - pretrain_start
         if self.Memory.pretrain_duration > 0.1:
             log.info("pretrain took \t%s seconds" % self.Memory.pretrain_duration)
@@ -216,8 +217,7 @@ class NN:
         return m, self.ProminentResults, self.Memory
 
     def pretrain(self, duration, iterations):
-        self.Memory.train_durations_per_validation.append(0)
-        self.Memory.total_net_durations_per_validation.append(0)
+        self.Memory.total_net_durations_per_validation.append(0)  # TODO: wird später in andere variable geschrieben
 
         avg_list = []
         for n in range(self.N):
@@ -251,7 +251,7 @@ class NN:
         avg_list = []
         m = 0
         while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 40:
-            iteration_start = time.time()
+            iteration_start = time.time()  # TODO: find out where the pretty pattern comes from
             if self.pretrain_with_empty_nets:
                 training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
                 if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
@@ -272,8 +272,6 @@ class NN:
                             training_paths[j] = training_paths[j][:, -2:]
                 else:
                     training_paths = training_paths[:, :, -2:]
-            if k == 4:
-                assert True
             avg = self.training_step(optimizer, training_paths, net_list=net_list)
             avg_list.append(avg)
 

@@ -152,9 +152,15 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     # train Value over time Graph
     plot_number_train = 12
     fig12 = plt.figure(plot_number_train)
-    x = range(0, len(Memory.average_train_payoffs))
-    x = np.array(x)
-    draw_connected_points(x, Memory.average_train_payoffs, plot_number_train)
+    if len(Memory.average_pretrain_payoffs) == 0:
+        x = range(0, len(Memory.average_train_payoffs))
+        x = np.array(x)
+        draw_connected_points(x, Memory.average_train_payoffs, plot_number_train)
+    else:
+        merged = Memory.average_pretrain_payoffs[:] + Memory.average_train_payoffs[:]
+        x = range(0, len(merged))
+        x = np.array(x)
+        draw_connected_points(x, merged, plot_number_train)
     if r_value == -1:
         plt.legend(["cont value", "disc value"])
     elif isinstance(r_value, float):
@@ -272,7 +278,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     pdf.savefig(fig2)
     plt.close(fig2)
 
-    # Time spending during training
+    # cumulative time spend
     plot_number_duration_2 = 25
     fig25 = plt.figure(plot_number_duration_2)
 
@@ -293,7 +299,12 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     draw_connected_points(iter, Memory.pretrain_duration * np.ones_like(iter), plot_number_duration_2)
     draw_connected_points(iter, (time.time() - Memory.start_time) * np.ones_like(iter), plot_number_duration_2)
     draw_connected_points(iter, (time.time() - Memory.start_time - Memory.test_duration) * np.ones_like(iter), plot_number_duration_2)
-    plt.legend(["train duration", "val duration", "time spend in net", "pretrain end", "test end", "test start"])
+
+    if Memory.pretrain_net_duration != 0:
+        draw_connected_points(iter, Memory.pretrain_net_duration * np.ones_like(iter), plot_number_duration_2)
+        plt.legend(["train duration", "val duration", "time spend in net", "pretrain end", "pretrain net dur", "test end", "test start"])
+    else:
+        plt.legend(["train duration", "val duration", "time spend in net", "pretrain end", "test end", "test start"])
     if Config.algorithm >= 10:
         xlabel('net', fontsize=16)
     else:
