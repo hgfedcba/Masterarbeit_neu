@@ -116,7 +116,7 @@ class ConfigInitializer:
                 do_pretrain = True
             pretrain_func = pretrain_functions[params['pretrain function']]
             if algorithm == 5:
-                algorithm = 0
+                algorithm = 0  # TODO: this is wrong
                 do_pretrain = True
                 pretrain_func = 0
             pretrain_iterations = params['number pretrain iterations']
