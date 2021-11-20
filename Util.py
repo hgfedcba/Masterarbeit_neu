@@ -127,7 +127,7 @@ def draw_function(x, f, plot_number=0, color=None, algorithm=False):
     return plot_number
 
 
-def draw_connected_points(x, y, plot_number=0, color=None, do_scatter=False):
+def draw_connected_points(x, y, plot_number=0, color=None, do_scatter=False, line_style='-'):
     if plot_number == 0:
         h = time.time()
         plot_number = int(h)
@@ -136,8 +136,8 @@ def draw_connected_points(x, y, plot_number=0, color=None, do_scatter=False):
     # for l in range(len(x)):
     #     plot(x, y[l].flatten())
     if do_scatter:
-        plt.scatter(x, y, color=color)
+        plt.scatter(x, y, line_style, color=color)
     else:
-        plot(x, y, color=color)
+        plot(x, y, line_style, color=color)
 
     return plot_number

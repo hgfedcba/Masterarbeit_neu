@@ -28,11 +28,15 @@ class Net(nn.Module):
 
         self.K = K
 
-        self.dropout = nn.Dropout(dropout_rate)
+        if dropout_rate > 0:
+            self.dropout = nn.Dropout(dropout_rate)
+        else:
+            self.dropout = None
 
     def forward(self, y):
         y = y-self.K
-        y = self.dropout(y)
+        if self.dropout is not None:
+            y = self.dropout(y)
         y = self.activation_internal(self.fc1(y))
         for k in range(self.hidden_layer_count):
             y = self.activation_internal(self.fcs[k](y))
@@ -114,7 +118,7 @@ class NN:
     def single_net_algorithm(self):
         if self.algorithm == 2 or self.algorithm == 3:
             return True
-        if self.algorithm == 0 or self.algorithm >= 10:
+        if self.algorithm == 0 or self.algorithm == 5 or self.algorithm >= 10:
             return False
         assert False
 
@@ -155,7 +159,7 @@ class NN:
         pretrain_start = time.time()
         if self.do_pretrain:
             log.info("pretrain starts")
-            self.Memory.average_pretrain_payoffs.append(self.pretrain(self.T_max/2, self.M_max/2))
+            self.Memory.average_pretrain_payoffs = self.pretrain(self.T_max/2, self.M_max/2)
             self.Memory.pretrain_net_duration = self.Memory.total_net_durations_per_validation.pop()
         self.Memory.pretrain_duration = time.time() - pretrain_start
         if self.Memory.pretrain_duration > 0.1:
@@ -177,24 +181,20 @@ class NN:
             m_th_iteration_start_time = time.time()
 
             average_payoff = self.training_step(optimizer)
+            self.Memory.average_train_payoffs.append(average_payoff)
+
             self.Memory.single_train_durations.append(time.time() - m_th_iteration_start_time)
             self.Memory.train_durations_per_validation[-1] += time.time() - m_th_iteration_start_time
-            self.Memory.average_train_payoffs.append(average_payoff)
 
             # validation
             if m % self.validation_frequency == 0:
-                self.Memory.train_durations_per_validation.append(0)
-                self.Memory.total_net_durations_per_validation.append(0)
                 val_start = time.time()
-
-                if m == 200:
-                    assert True
 
                 cont_payoff, disc_payoff, stopping_times = self.validate(val_paths)
                 log.info(
-                    "After \t%s iterations the continuous value is\t %s and the discrete value is \t%s" % (m, round(cont_payoff, 3), round(disc_payoff, 3)))
+                    "After \t%s iterations the continuous value is\t %s and the discrete value is \t%s" % (m + len(self.Memory.average_pretrain_payoffs), round(cont_payoff, 3), round(disc_payoff, 3)))
 
-                self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+                self.ProminentResults.process_current_iteration(self, m + len(self.Memory.average_pretrain_payoffs), cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
                 self.Memory.val_continuous_value_list.append(cont_payoff)
                 self.Memory.val_discrete_value_list.append(disc_payoff)
@@ -204,6 +204,9 @@ class NN:
                 i_value = [max(s*range(0, self.N+1)) for s in stopping_times]
                 self.Memory.average_val_stopping_time.append(np.mean(i_value))
 
+                self.Memory.train_durations_per_validation.append(0)
+                self.Memory.total_net_durations_per_validation.append(0)
+
             if self.do_lr_decay:
                 scheduler.step()
 
@@ -212,26 +215,26 @@ class NN:
         self.Memory.train_durations_per_validation.pop()
         self.Memory.total_net_durations_per_validation.pop()
 
-        self.ProminentResults.set_final_net(self, m-1, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
+        self.ProminentResults.set_final_net(self, m-1 + len(self.Memory.average_pretrain_payoffs), cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
-        return m, self.ProminentResults, self.Memory
+        return m + len(self.Memory.average_pretrain_payoffs), self.ProminentResults, self.Memory
 
     def pretrain(self, duration, iterations):
-        self.Memory.total_net_durations_per_validation.append(0)  # TODO: wird später in andere variable geschrieben
+        self.Memory.total_net_durations_per_validation.append(0)  # note: wird später in andere variable geschrieben
 
         avg_list = []
         for n in range(self.N):
-            avg_list.append(self.empty_pretrain_net_n(self.Model.getpath_dim()[n], n, duration / self.N, iterations / self.N))
+            avg_list.extend(self.empty_pretrain_net_n(self.Model.getpath_dim()[n], n, duration / self.N, iterations / self.N))
 
         return avg_list
 
     # nth net
     # k = path dim at time n
-    def empty_pretrain_net_n(self, k, n, duration, iterations):
+    def empty_pretrain_net_n(self, k, n, duration, iterations):  # TODO: trainiere mehrere netze gleichzeitig
         start_time = time.time()
 
         net_list = [self.u[n]]
-        # TODO: implement 2 different version for this
+
         # version 1: no empty nets
         # version 2: empty nets
 
@@ -240,6 +243,8 @@ class NN:
             k2 = self.Model.getN() - k
             for _ in range(k2):
                 net_list.append(fake_net)
+        else:
+            k2 = 0
 
         params = list(net_list[0].parameters())
 
@@ -254,24 +259,17 @@ class NN:
             iteration_start = time.time()  # TODO: find out where the pretty pattern comes from
             if self.pretrain_with_empty_nets:
                 training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
-                if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
-                    for j in range(len(training_paths)):
-                        if isinstance(self.Model, RobbinsModel):
-                            training_paths[j] = training_paths[j][-k2-2:]
-                        else:
-                            training_paths[j] = training_paths[j][:, -k2-2:]
-                else:
-                    training_paths = training_paths[:, :, -k2-2:]
             else:
                 training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train, N=k)
-                if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
-                    for j in range(len(training_paths)):
-                        if isinstance(self.Model, RobbinsModel):
-                            training_paths[j] = training_paths[j][-2:]
-                        else:
-                            training_paths[j] = training_paths[j][:, -2:]
-                else:
-                    training_paths = training_paths[:, :, -2:]
+
+            if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
+                for j in range(len(training_paths)):
+                    if isinstance(self.Model, RobbinsModel):
+                        training_paths[j] = training_paths[j][-k2-2:]  # k2 = 0 if no empty nets
+                    else:
+                        training_paths[j] = training_paths[j][:, -k2-2:]
+            else:
+                training_paths = training_paths[:, :, -2:]
             avg = self.training_step(optimizer, training_paths, net_list=net_list)
             avg_list.append(avg)
 

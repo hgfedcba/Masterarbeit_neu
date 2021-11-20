@@ -90,7 +90,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         x = range(0, len(Memory.val_discrete_value_list))
         xlabel('nets trained', fontsize=16)
     else:
-        x = range(0, Config.validation_frequency * (len(Memory.val_discrete_value_list)), Config.validation_frequency)
+        x = range(0, Config.validation_frequency * (len(Memory.val_discrete_value_list)), Config.validation_frequency)  # TODO: val_frequency?
     x = np.array(x)
     do_scatter = False
     if not Config.algorithm == 21:
@@ -184,7 +184,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     # average time of stopping
     plot_number_stopping_time = 13
     fig13 = plt.figure(plot_number_stopping_time)
-    x = range(0, Config.validation_frequency * (len(Memory.average_val_stopping_time)), Config.validation_frequency)
+    x = range(0, Config.validation_frequency * (len(Memory.average_val_stopping_time)), Config.validation_frequency)  # TODO: val_frequency?
     x = np.array(x)
     draw_connected_points(x, Memory.average_val_stopping_time, plot_number_stopping_time)
     plt.legend(["average time of stopping"])
@@ -258,7 +258,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     tn = []
 
     # Ich lasse die letzten val_frequency iterationen absichtlich aus dem plot heraus da es nicht einfach ist sie richtig anzuzeigen
-    for k in range(0, int(len(Memory.train_durations_per_validation))):
+    for k in range(0, len(Memory.train_durations_per_validation)):
         iter.append(k)
         td.append(sum(Memory.train_durations_per_validation[k:(k+1)]))
         vd.append(sum(Memory.val_durations[k:(k+1)]))
@@ -287,21 +287,21 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     vd = []
     tn = []
 
-    for k in range(0, int(len(Memory.train_durations_per_validation))):
+    for k in range(0, len(Memory.train_durations_per_validation)):
         iter.append(k)
-        td.append(Memory.pretrain_duration + sum(Memory.train_durations_per_validation[:k]))
-        vd.append(Memory.pretrain_duration + sum(Memory.val_durations[:k]))
-        tn.append(Memory.pretrain_duration + sum(Memory.total_net_durations_per_validation[:Config.validation_frequency * k]))
+        td.append(Memory.pretrain_duration + sum(Memory.train_durations_per_validation[:k+1]))
+        vd.append(Memory.pretrain_duration + sum(Memory.val_durations[:k+1]))
+        tn.append(Memory.pretrain_duration + sum(Memory.total_net_durations_per_validation[:k+1]))
 
     draw_connected_points(iter, td, plot_number_duration_2)
     draw_connected_points(iter, vd, plot_number_duration_2)
     draw_connected_points(iter, tn, plot_number_duration_2)
-    draw_connected_points(iter, Memory.pretrain_duration * np.ones_like(iter), plot_number_duration_2)
-    draw_connected_points(iter, (time.time() - Memory.start_time) * np.ones_like(iter), plot_number_duration_2)
-    draw_connected_points(iter, (time.time() - Memory.start_time - Memory.test_duration) * np.ones_like(iter), plot_number_duration_2)
+    draw_connected_points(iter, Memory.pretrain_duration * np.ones_like(iter), plot_number_duration_2, line_style='-.')
+    draw_connected_points(iter, (time.time() - Memory.start_time) * np.ones_like(iter), plot_number_duration_2, line_style='--')
+    draw_connected_points(iter, (time.time() - Memory.start_time - Memory.test_duration) * np.ones_like(iter), plot_number_duration_2, line_style='--')
 
     if Memory.pretrain_net_duration != 0:
-        draw_connected_points(iter, Memory.pretrain_net_duration * np.ones_like(iter), plot_number_duration_2)
+        draw_connected_points(iter, Memory.pretrain_net_duration * np.ones_like(iter), plot_number_duration_2, line_style='-.')  # TODO: seems a bit low
         plt.legend(["train duration", "val duration", "time spend in net", "pretrain end", "pretrain net dur", "test end", "test start"])
     else:
         plt.legend(["train duration", "val duration", "time spend in net", "pretrain end", "test end", "test start"])
@@ -340,7 +340,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     tn = []
 
     # Ich lasse die letzten val_frequency iterationen absichtlich aus dem plot heraus da es nicht einfach ist sie richtig anzuzeigen
-    for k in range(0, int(len(Memory.single_train_durations))):
+    for k in range(0, len(Memory.single_train_durations)):
         iter.append(k)
         td.append(sum(Memory.single_train_durations[k:(k + 1)]))
     draw_connected_points(iter, td, plot_number_duration_3)

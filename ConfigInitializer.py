@@ -55,10 +55,10 @@ class ConfigInitializer:
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
             'algorithm'                             : [5],  # 5, 0, 21, 20, 15
             'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again
-            'pretrain with empty nets'              : [True, False],  # TODO: think about how I handle the difference between alg 20 and alg 21
-            'internal neurons per layer'            : [50],  # 50, 100
-            'hidden layer count'                    : [2],  # [1, 2, 3]
-            'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
+            'pretrain with empty nets'              : [True],  # TODO: think about how I handle the difference between alg 20 and alg 21
+            'internal neurons per layer'            : [50, 100],  # 50, 100
+            'hidden layer count'                    : [2, 3],  # [1, 2, 3]
+            'internal activation function'          : [tanh, relu],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
             'optimizer'                             : [72],  # [7, 72] [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
             # Wenn 2 -> _, dann 21 -> _ mit den ersten besonderen einstellungen.
@@ -67,7 +67,7 @@ class ConfigInitializer:
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
-            'initial lr'                            : [0.005],  # [0.005, 0.02] 0.01 for other setting
+            'initial lr'                            : [0.005, 0.02],  # [0.005, 0.02] 0.01 for other setting
             'lr decay algorithm'                    : [3],  # [2, 3] 2 Information in 1 entry
             'dropout rate'                          : [0],  # only 0, breaks alg20
             'random seed'                           : [1337],
@@ -116,7 +116,6 @@ class ConfigInitializer:
                 do_pretrain = True
             pretrain_func = pretrain_functions[params['pretrain function']]
             if algorithm == 5:
-                algorithm = 0  # TODO: this is wrong
                 do_pretrain = True
                 pretrain_func = 0
             pretrain_iterations = params['number pretrain iterations']
@@ -263,7 +262,7 @@ class ConfigInitializer:
                        "\tfinal result:", short_disc(result[0].final_result), " | ", short_cont(result[0].final_result),
                        "\ttime taken until discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
                        result[1].end_time - result[1].start_time,
-                       "\titerations taken until discrete/cont/final result:", str(len(result[1].average_train_payoffs)).ljust(30, " "),
+                       "\titerations taken until final result:        ", str(len(result[1].average_train_payoffs)).ljust(30, " "),
                        "\ttime spend training:", sum(result[1].single_train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations_per_validation),
                        "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
                        "Parameterstring:", result[3])
@@ -308,12 +307,14 @@ class ConfigInitializer:
         '''
         data.append(['best disc', 'best cont', 'final', 'iterations', 'time'] + [param[0] for param in resultlist[0][4]])
         for res in resultlist:
-            if not (isinstance(res[0].NN, Alg10.Alg10_NN) or isinstance(res[0].NN, Alg20.Alg20_NN)):
-                data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.test_disc_value, res[0].cont_best_result.test_disc_value, res[0].final_result.test_disc_value, str(res[0].disc_best_result.m) + " | " + str(res[0].cont_best_result.m) + " | " + str(res[0].final_result.m), res[1].end_time-res[1].start_time] + [str(param[1]) for param in res[4]])
+            if isinstance(res[0].NN, Alg10.Alg10_NN) or isinstance(res[0].NN, Alg20.Alg20_NN):
+                data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.test_disc_value, res[0].cont_best_result.test_disc_value, res[0].final_result.test_disc_value,
+                             str(str(len(res[1].average_train_payoffs))), res[1].end_time - res[1].start_time]
+                            + [str(param[1]) for param in res[4]])
             else:
                 data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.test_disc_value, res[0].cont_best_result.test_disc_value, res[0].final_result.test_disc_value,
-                             str(len(res[1].average_train_payoffs)), res[1].end_time - res[1].start_time]
-                            + [str(param[1]) for param in res[4]])
+                             str(res[0].disc_best_result.m) + " | " + str(res[0].cont_best_result.m) + " | " + str(res[0].final_result.m), res[1].end_time - res[1].start_time] + [str(param[1]) for
+                                                                                                                                                                                   param in res[4]])
 
         for i in range(1, data.__len__()):
             for j in range(data[1].__len__()):

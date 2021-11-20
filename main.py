@@ -60,8 +60,6 @@ input sortieren
 
 # TODO: fix alg20, 14 and not robins
 
-# TODO: alg 0 pretrain
-
 # TODO: alg 2 robbins (without sorting)   3 versionen, einmal nullen vorne, einmal nullen hinten und einmal einsen hinten, immer mit extra t
 
 
@@ -100,7 +98,7 @@ if __name__ == '__main__':
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R2l, R3, R4, R12, R12l, Russ0, RW0, RW1, RW2, RW3, RW4
     import os
     log.warning("Start")
-    ConfigInitializer("R00", log)
+    ConfigInitializer("R20l", log)
     """
     os.chdir("../current run2")
     ConfigInitializer("RW4", log)
@@ -111,16 +109,6 @@ if __name__ == '__main__':
     """
     log.info("The End")
     """
-    from RobbinsModel import RobbinsModel
-    R = RobbinsModel(10)
-    h = R.generate_paths(5)
-    t = np.zeros(10)
-    t[0] = 1
-    R.getg(t, h[0])
-
-    print(h)
-
-
     from catboost_test_file import main
     main()
     """
