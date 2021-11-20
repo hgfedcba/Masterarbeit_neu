@@ -152,7 +152,7 @@ class ConfigInitializer:
 
                 log.warning("The reference value is: " + str(Model.get_reference_value()))
 
-                val_paths = val_paths[:val_size]
+                val_paths = val_paths[:val_size]  # TODO: parameter, der hier die letzten pfade wählt
                 test_paths = test_paths[:test_size]
 
                 if sort_net_input:
