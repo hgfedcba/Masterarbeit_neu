@@ -54,7 +54,13 @@ class Alg20_NN(NN):
                     temp_val_paths.append(self.val_paths[k][:m + 2])
                     # temp_val_paths.append(copy.deepcopy(self.val_paths[k][:m+2]))  # deepcopy doesn't seem to be necessary
                 """
-                # temp_val_paths2 = self.val_paths[:][:m + 2]  # TODO: understand why this doesn't work, would make validate easier
+                if m == 3:
+                    h1 = self.val_paths
+                    h2 = self.val_paths[:][:2]
+                    h3 = self.val_paths[:][:][:2]
+                    h4 = h3 == h1
+                    h5 = h2 == h1
+                    temp_val_paths2 = self.val_paths[:][:m + 2]  # TODO: understand why this doesn't work, would make validate easier
 
                 net_list = self.u[:m + 1]
                 # cont_payoff, disc_payoff, stopping_times = self.validate(temp_val_paths, net_list=net_list, N=m+1)

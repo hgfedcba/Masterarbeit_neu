@@ -136,7 +136,7 @@ def draw_connected_points(x, y, plot_number=0, color=None, do_scatter=False, lin
     # for l in range(len(x)):
     #     plot(x, y[l].flatten())
     if do_scatter:
-        plt.scatter(x, y, line_style, color=color)
+        plt.scatter(x, y, color=color)  # TODO: support line_style
     else:
         plot(x, y, line_style, color=color)
 

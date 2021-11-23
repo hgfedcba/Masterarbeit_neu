@@ -115,7 +115,7 @@ class Alg10_NN(NN):
         # time spendning: 1/4 pretrain, 3/4 train. Alg 15 and 16 have one extra duration-unit spend in the last run on train together
         pretrain_factor = 0.25
         if self.algorithm == 14:
-            avg_list = self.train_net_k(k, iterations * pretrain_factor, duration * pretrain_factor, fake=True)  # TODO: remember I changed this time on 16.11., I probably want to change the other times as well
+            avg_list = self.train_net_k(k, iterations * pretrain_factor, duration * pretrain_factor, fake=True)
             # avg_list = self.empty_pretrain_net(self.Model.getpath_dim()[k], k, iterations / 2, duration / 2)
             avg_list.extend(self.train_net_k(k, iterations * (1-pretrain_factor), duration * (1-pretrain_factor)))
 

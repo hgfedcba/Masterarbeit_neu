@@ -55,7 +55,7 @@ class ConfigInitializer:
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [0, 5],  # 5, 0, 21, 20, 15
+            'algorithm'                             : [21, 0, 5],  # 5, 0, 21, 20, 15
             'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again
             'pretrain with empty nets'              : [True],  # TODO: think about how I handle the difference between alg 20 and alg 21
             'internal neurons per layer'            : [50],  # 50, 100
@@ -77,9 +77,9 @@ class ConfigInitializer:
             'antithetic variables on validation set': [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
             'antithetic variables on train set'     : [False],
             'training size during pretrain'         : [0.25],
-            'training batch size'                   : [train_size, train_size*2],
-            'number of validation paths'            : [val_size],  # with my current implementation this has to be constant over a programm execution
-            'number of test paths'                  : [test_size]  # with my current implementation this has to be constant over a programm execution
+            'training batch size'                   : [train_size, train_size*2],  # TODO: why >= 4?
+            'number of validation paths'            : [val_size],  # with my current implementation this has to be constant over a programm execution, changes here have noe effect!
+            'number of test paths'                  : [test_size]  # with my current implementation this has to be constant over a programm execution, changes here have noe effect!
         }
 
         for u, v in dict_a.items():
