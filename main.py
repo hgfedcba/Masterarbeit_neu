@@ -64,6 +64,8 @@ input sortieren
 
 # TODO: time spend between each validation has a bad first output since m might start at ...5  <- very annoying to fix
 
+# TODO: alg 0 aber alle 50 iterationen resette alle netze die nie stoppen.
+
 
 if __name__ == '__main__':
     matplotlib.use("Agg")

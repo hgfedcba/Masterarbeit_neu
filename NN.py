@@ -289,14 +289,14 @@ class NN:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
             if self.sort_net_input:
                 sort_list_inplace(training_paths)
-            U = torch.empty(self.batch_size, self.N + 1, device=self.device)
+            U = torch.empty(len(training_paths), self.N + 1, device=self.device)
 
         else:
             if isinstance(training_paths[0], list):
                 local_N = training_paths[0].__len__()
             else:
                 local_N = training_paths[0].shape[1]
-            U = torch.empty(self.batch_size, local_N, device=self.device)
+            U = torch.empty(len(training_paths), local_N, device=self.device)
 
         """
         breaks alg20
@@ -306,7 +306,7 @@ class NN:
 
         individual_payoffs = []
 
-        for j in range(self.batch_size):
+        for j in range(len(training_paths)):
             h, _ = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(training_paths[j], True, net_list=net_list)
             U[j, :] = h[:, 0]
             individual_payoffs.append(self.Model.calculate_payoffs(U[j, :], training_paths[j], self.Model.getg, self.t, device=self.device))
