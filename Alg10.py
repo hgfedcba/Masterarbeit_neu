@@ -228,7 +228,7 @@ class Alg10_NN(NN):
             m += 1
 
         return avg_list
-
+    """
     # Train given net to only stop when the last value is big enough
     def robbins_pretrain(self, net, k, barrier):
         params = list(net.parameters())
@@ -272,4 +272,4 @@ class Alg10_NN(NN):
 
             if average_payoff.item() < 0.05:
                 break
-
+    """

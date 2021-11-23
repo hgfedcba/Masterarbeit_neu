@@ -311,7 +311,7 @@ def initialize_model(option):
 
     elif option == "R2" or option == "R2l":
         N = 19
-        max_minutes = 30
+        max_minutes = 50  # changed 23.11. 30->50
         train_size = 1024
         val_size = 2048
         test_size = 16384

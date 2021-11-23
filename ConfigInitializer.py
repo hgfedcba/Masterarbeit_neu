@@ -50,15 +50,17 @@ class ConfigInitializer:
         list_common_parameters = []
         # [Adam, Adadelta, Adagrad, AdamW, Adamax, ASGD, RMSprop, SGD]
 
+        # TODO: start run with 0, 5   lr 0.005, 0.001, train size *= 2, train size during pretrain *= 0.25
+
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [5],  # 5, 0, 21, 20, 15
+            'algorithm'                             : [0, 5],  # 5, 0, 21, 20, 15
             'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again
             'pretrain with empty nets'              : [True],  # TODO: think about how I handle the difference between alg 20 and alg 21
-            'internal neurons per layer'            : [50, 100],  # 50, 100
-            'hidden layer count'                    : [2, 3],  # [1, 2, 3]
-            'internal activation function'          : [tanh, relu],  # [tanh, relu, leaky_relu, softsign, selu]
+            'internal neurons per layer'            : [50],  # 50, 100
+            'hidden layer count'                    : [2],  # [1, 2, 3]
+            'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
             'optimizer'                             : [72],  # [7, 72] [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
             # Wenn 2 -> _, dann 21 -> _ mit den ersten besonderen einstellungen.
@@ -67,14 +69,15 @@ class ConfigInitializer:
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
-            'initial lr'                            : [0.005, 0.02],  # [0.005, 0.02] 0.01 for other setting
+            'initial lr'                            : [0.005, 0.001],  # [0.005, 0.02] 0.01 for other setting
             'lr decay algorithm'                    : [3],  # [2, 3] 2 Information in 1 entry
             'dropout rate'                          : [0],  # only 0, breaks alg20
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
             'antithetic variables on validation set': [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
             'antithetic variables on train set'     : [False],
-            'training batch size'                   : [train_size],
+            'training size during pretrain'         : [0.25],
+            'training batch size'                   : [train_size, train_size*2],
             'number of validation paths'            : [val_size],  # with my current implementation this has to be constant over a programm execution
             'number of test paths'                  : [test_size]  # with my current implementation this has to be constant over a programm execution
         }
@@ -137,10 +140,11 @@ class ConfigInitializer:
                 validation_frequency = 1
             antithetic_val = params['antithetic variables on validation set']
             antithetic_train = params['antithetic variables on train set']
+            training_size_during_pretrain = params['training size during pretrain']
 
             current_Config = Config(device, algorithm, sort_net_input, pretrain_with_empty_nets, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer_number, do_pretrain, pretrain_func, pretrain_iterations,
                                     max_number_of_iterations,
-                                    max_minutes_of_iterations, train_size, initial_lr, do_lr_decay, lr_decay_alg, dropout_rate, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size,
+                                    max_minutes_of_iterations, training_size_during_pretrain, train_size, initial_lr, do_lr_decay, lr_decay_alg, dropout_rate, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size,
                                     val_size, stop_paths_in_plot, x_plot_range_for_net_plot, angle_for_net_plot)
             if run_number == 0:
                 f = open("intermediate_results.txt", "w")
@@ -305,17 +309,19 @@ class ConfigInitializer:
         data.append(['average payoff of on the test set using the net giving the best result on the val set', 'average payoff of on the test set using the final net',
                      'time until intermediate result', 'time total'])
         '''
-        data.append(['best disc', 'best cont', 'final', 'iterations', 'time'] + [param[0] for param in resultlist[0][4]])
+        data.append(['best disc value', '# no stop', 'iterations', 'time'] + [param[0] for param in resultlist[0][4]])
         for res in resultlist:
+            data.append(['  ' + str(res[2]) + '  ', res[0].return_best_disc(), res[0].final_result.amount_of_times_where_no_stopping_happens, str(len(res[1].average_train_payoffs)), res[1].end_time - res[1].start_time]
+                            + [str(param[1]) for param in res[4]])
+            """
             if isinstance(res[0].NN, Alg10.Alg10_NN) or isinstance(res[0].NN, Alg20.Alg20_NN):
-                data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.test_disc_value, res[0].cont_best_result.test_disc_value, res[0].final_result.test_disc_value,
-                             str(str(len(res[1].average_train_payoffs))), res[1].end_time - res[1].start_time]
+                data.append(['  ' + str(res[2]) + '  ', res[0].return_best_disc(), res[0].final_result.amount_of_times_where_no_stopping_happens, str(len(res[1].average_train_payoffs)), res[1].end_time - res[1].start_time]
                             + [str(param[1]) for param in res[4]])
             else:
-                data.append(['  ' + str(res[2]) + '  ', res[0].disc_best_result.test_disc_value, res[0].cont_best_result.test_disc_value, res[0].final_result.test_disc_value,
+                data.append(['  ' + str(res[2]) + '  ', res[0].return_best_disc(), res[0].final_result.amount_of_times_where_no_stopping_happens,
                              str(res[0].disc_best_result.m) + " | " + str(res[0].cont_best_result.m) + " | " + str(res[0].final_result.m), res[1].end_time - res[1].start_time] + [str(param[1]) for
-                                                                                                                                                                                   param in res[4]])
-
+                                                                                                                                                                 param in res[4]])
+            """
         for i in range(1, data.__len__()):
             for j in range(data[1].__len__()):
                 if isinstance(data[i][j], float):
@@ -337,7 +343,7 @@ class ConfigInitializer:
                    figsize=(10, 3 + data.__len__() / 5)  # figsize=(10, 3)   gerade 2.5 / 4
                    )  # Add a table at the bottom of the axes
         # my current guess 20.10.21: Es wird die breite der zellen angegeben von links nach recht und wenn h zu lang ist wir es zurechtgeschnitten. Warum die erste Spalte klein ist weiß ich nicht.
-        h = [0.07, 0.07, 0.07, 0.1, 0.07]
+        h = [0.07, 0.07, 0.1, 0.07]
         h.extend([0.15] * 10)
         the_table = plt.table(cellText=cell_text,
                               colWidths=h,

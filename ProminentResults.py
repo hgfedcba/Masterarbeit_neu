@@ -54,6 +54,12 @@ class ProminentResults:
 
         return out
 
+    def return_best_cont(self):
+        return max(self.disc_best_result.test_cont_value, self.cont_best_result.test_cont_value, self.final_result.test_cont_value)
+
+    def return_best_disc(self):
+        return max(self.disc_best_result.test_disc_value, self.cont_best_result.test_disc_value, self.final_result.test_disc_value)
+
 
 class IndividualBestResult:
     def __init__(self, file_path):

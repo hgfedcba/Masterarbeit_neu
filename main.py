@@ -62,6 +62,8 @@ input sortieren
 
 # TODO: alg 2 robbins (without sorting)   3 versionen, einmal nullen vorne, einmal nullen hinten und einmal einsen hinten, immer mit extra t
 
+# TODO: time spend between each validation has a bad first output since m might start at ...5  <- very annoying to fix
+
 
 if __name__ == '__main__':
     matplotlib.use("Agg")
@@ -98,7 +100,7 @@ if __name__ == '__main__':
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R2l, R3, R4, R12, R12l, Russ0, RW0, RW1, RW2, RW3, RW4
     import os
     log.warning("Start")
-    ConfigInitializer("R20l", log)
+    ConfigInitializer("R2l", log)
     """
     os.chdir("../current run2")
     ConfigInitializer("RW4", log)

@@ -67,6 +67,7 @@ class NN:
         self.do_lr_decay = Config.do_lr_decay
         self.dropout_rate = Config.dropout_rate
 
+        self.training_size_during_pretrain = Config.training_size_during_pretrain
         self.batch_size = Config.train_size
 
         self.internal_neurons = Config.internal_neurons
@@ -177,7 +178,7 @@ class NN:
         # noch kaum iteriert wurde
         while (m % self.validation_frequency != 1 and not self.validation_frequency == 1) or \
                 ((time.time() - self.Memory.start_time) / 60 < self.T_max and (self.M_max == -1 or m < self.M_max) and self.ProminentResults.get_m_max() + 200 > m)\
-                or m < 10:
+                or m < 30:
             m_th_iteration_start_time = time.time()
 
             average_payoff = self.training_step(optimizer)
@@ -233,6 +234,8 @@ class NN:
     def empty_pretrain_net_n(self, k, n, duration, iterations):  # TODO: trainiere mehrere netze gleichzeitig
         start_time = time.time()
 
+        pretrain_batch_size = int(self.batch_size * self.training_size_during_pretrain)
+
         net_list = [self.u[n]]
 
         # version 1: no empty nets
@@ -255,12 +258,12 @@ class NN:
 
         avg_list = []
         m = 0
-        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 40:
+        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 30:
             iteration_start = time.time()  # TODO: find out where the pretty pattern comes from
             if self.pretrain_with_empty_nets:
-                training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
+                training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train)
             else:
-                training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train, N=k)
+                training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train, N=k)
 
             if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
                 for j in range(len(training_paths)):
