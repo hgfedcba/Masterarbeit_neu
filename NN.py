@@ -1,5 +1,7 @@
 import copy
 
+import numpy as np
+
 import W_RobbinsModel
 from Util import *
 from ProminentResults import ProminentResults
@@ -98,19 +100,26 @@ class NN:
             self.u = []
             if not self.single_net_algorithm():
                 for k in range(self.N):
-                    net = Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK(), self.device, self.dropout_rate)
-                    net.to(self.device)
+                    # net = Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK(), self.device, self.dropout_rate)
+                    # net.to(self.device)
+                    net = self.define_net_with_path_dim_k(self.path_dim[k])
                     self.u.append(net)
             else:
                 assert np.allclose(self.path_dim, np.ones_like(self.path_dim) * self.path_dim[0])
-                net = Net(self.path_dim[0] + 1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK(), self.device, self.dropout_rate)
-                net.to(self.device)
+                # net = Net(self.path_dim[0] + 1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK(), self.device, self.dropout_rate)
+                # net.to(self.device)
+                net = self.define_net_with_path_dim_k(self.path_dim[0] + 1)
                 self.u.append(net)
 
         assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
 
         define_nets()
         self.ProminentResults = ProminentResults(log, self)
+
+    def define_net_with_path_dim_k(self, k):
+        net = Net(k, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK(), self.device, self.dropout_rate)
+        net.to(self.device)
+        return net
 
     def return_net_a_at_value_b(self, a, b):
         b = b.to(self.device)
@@ -119,7 +128,7 @@ class NN:
     def single_net_algorithm(self):
         if self.algorithm == 2 or self.algorithm == 3:
             return True
-        if self.algorithm == 0 or self.algorithm == 5 or self.algorithm >= 10:
+        if self.algorithm == 0 or self.algorithm == 5 or self.algorithm == 6 or self.algorithm >= 10:
             return False
         assert False
 
@@ -160,7 +169,7 @@ class NN:
         pretrain_start = time.time()
         if self.do_pretrain:
             log.info("pretrain starts")
-            self.Memory.average_pretrain_payoffs = self.pretrain(self.T_max/2, self.M_max/2)
+            self.Memory.average_pretrain_payoffs = self.pretrain(self.T_max/2, min(self.M_max/2, 60 * self.N))
             self.Memory.pretrain_net_duration = self.Memory.total_net_durations_per_validation.pop()
         self.Memory.pretrain_duration = time.time() - pretrain_start
         if self.Memory.pretrain_duration > 0.1:
@@ -187,8 +196,11 @@ class NN:
             self.Memory.single_train_durations.append(time.time() - m_th_iteration_start_time)
             self.Memory.train_durations_per_validation[-1] += time.time() - m_th_iteration_start_time
 
+            if self.do_lr_decay:
+                scheduler.step()
+
             # validation
-            if m % self.validation_frequency == 0:
+            if m % self.validation_frequency == 0 and m > 0:
                 val_start = time.time()
 
                 cont_payoff, disc_payoff, stopping_times = self.validate(val_paths)
@@ -208,8 +220,23 @@ class NN:
                 self.Memory.train_durations_per_validation.append(0)
                 self.Memory.total_net_durations_per_validation.append(0)
 
-            if self.do_lr_decay:
-                scheduler.step()
+            if m % (5*self.validation_frequency) == 0 and m > 5 and self.algorithm == 6:
+                summed_stopping_times = np.sum(stopping_times, axis=0)
+                indicies_to_reset = np.where(summed_stopping_times < 5)[0]  # [0] so it works...
+                print(indicies_to_reset)  # TODO: implement String "resetted nets" in memory der die resetteten netze angibt mit kommas
+                if len(indicies_to_reset) != 0:
+                    for i in indicies_to_reset:
+                        if i < len(self.u):
+                            self.u[i] = self.define_net_with_path_dim_k(self.path_dim[i])
+                            self.empty_pretrain_net_n(self.Model.getpath_dim()[i], i, self.T_max/4, max(m, 100))
+
+                            params = []
+                            for k in range(len(self.u)):
+                                params += list(self.u[k].parameters())
+                            optimizer = self.return_optimizer(params)
+                            if self.do_lr_decay:
+                                scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
+                                scheduler.verbose = False  # prints updates
 
             m += 1
 
@@ -231,7 +258,7 @@ class NN:
 
     # nth net
     # k = path dim at time n
-    def empty_pretrain_net_n(self, k, n, duration, iterations):  # TODO: trainiere mehrere netze gleichzeitig
+    def empty_pretrain_net_n(self, k, n, max_duration, max_iterations):  # TODO: trainiere mehrere netze gleichzeitig
         start_time = time.time()
 
         pretrain_batch_size = int(self.batch_size * self.training_size_during_pretrain)
@@ -258,7 +285,8 @@ class NN:
 
         avg_list = []
         m = 0
-        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 30:
+        maximum = [0, 0]  # max, iterations since max
+        while (maximum[1] < 5 and (m < max_iterations and (time.time() - start_time) / 60 < max_duration)) or m < 30:
             iteration_start = time.time()  # TODO: find out where the pretty pattern comes from
             if self.pretrain_with_empty_nets:
                 training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train)
@@ -275,6 +303,12 @@ class NN:
                 training_paths = training_paths[:, :, -2:]
             avg = self.training_step(optimizer, training_paths, net_list=net_list)
             avg_list.append(avg)
+
+            if avg > maximum[0]:
+                maximum[0] = avg
+                maximum[1] = 0
+            else:
+                maximum[1] += 1
 
             if self.do_lr_decay:
                 scheduler.step()

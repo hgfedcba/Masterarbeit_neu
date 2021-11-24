@@ -70,6 +70,17 @@ input sortieren
 
 
 if __name__ == '__main__':
+    l1 = []
+    l11 = [[1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]
+    l12 = [[5], [5, 6], [5, 6, 7], [5, 6, 7, 8]]
+    l1.append(l11)
+    l1.append(l12)
+
+    # Goal:
+    l_target = [[[1], [1, 2], [1, 2, 3]], [[5], [5, 6], [5, 6, 7]]]
+
+    print(l1[:][:4] == l_target)
+
     matplotlib.use("Agg")
 
     log = logging.getLogger('l')
@@ -104,7 +115,7 @@ if __name__ == '__main__':
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R2l, R3, R4, R12, R12l, Russ0, RW0, RW1, RW2, RW3, RW4
     import os
     log.warning("Start")
-    ConfigInitializer("R00", log)
+    ConfigInitializer("R2s", log)
     """
     os.chdir("../current run2")
     ConfigInitializer("RW4", log)

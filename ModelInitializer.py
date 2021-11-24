@@ -292,7 +292,7 @@ def initialize_model(option):
         if option == "R0":
             max_minutes = 0.1
         else:
-            max_minutes = 0.5
+            max_minutes = 10
         train_size = 128
         val_size = 256
         test_size = 512
@@ -309,13 +309,16 @@ def initialize_model(option):
         with open(test_paths_file, "rb") as fp:  # Unpickling
             test_paths = pickle.load(fp)
 
-    elif option == "R2" or option == "R2l":
+    elif option == "R2" or option == "R2l" or option == "R2s":  # TODO: implement l, s and f as metaparameter
         N = 19
         max_minutes = 50  # changed 23.11. 30->50
         train_size = 1024
         val_size = 2048
         test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
+
+        if option == "R2s":  # old R2
+            max_minutes = 30
 
         if option == "R2l":
             max_minutes *= 3
