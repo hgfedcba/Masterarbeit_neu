@@ -73,7 +73,6 @@ class W_RobbinsModel(AbstractMathematicalModel):
         h = np.reshape(x, self.getN()+1)
 
         # Schritt 1: Ersetze in x jeden Wert mit dem entsprechenden Rang
-        # TODO: (beachte das problem von 2 identischen werten)
         y = np.argsort(h)
         z1 = np.ones_like(y)
         z1[y] = np.arange(1, h.size + 1)
@@ -86,7 +85,7 @@ class W_RobbinsModel(AbstractMathematicalModel):
         # Schritt 2: Bilde das Skalarprodukt von t und z1
         return np.dot(t, z1)
 
-    def calculate_payoffs(self, U, x, g, t):
+    def calculate_payoffs(self, U, x, g, t, device=None):
         if isinstance(U, np.ndarray):
             return self.getg(U, x)
         assert torch.sum(torch.tensor(U)).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(torch.tensor(U)).item())
@@ -95,7 +94,6 @@ class W_RobbinsModel(AbstractMathematicalModel):
         h = np.reshape(x, U.shape[0])
 
         # Schritt 1: Ersetze in x jeden Wert mit dem entsprechenden Rang
-        # TODO: (beachte das problem von 2 identischen werten)
         y = np.argsort(h)
         z1 = np.ones_like(y)
         z1[y] = np.arange(1, h.size + 1)
@@ -114,7 +112,7 @@ class W_RobbinsModel(AbstractMathematicalModel):
         return torch.matmul(U, torch.tensor(z2, dtype=torch.float))
 
     def set_reference_value(self):
-        self.__reference_value = Util.robbins_problem_lower_boundary(self.getN())
+        self.__reference_value = Util.robbins_problem_lower_boundary(self.getN())  # TODO: I think this is inverted
 
     def get_reference_value(self):
         return self.__reference_value

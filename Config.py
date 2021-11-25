@@ -5,7 +5,7 @@ from NetDefinitions import Adam, relu, hardtanh, relu6, elu, selu, celu, leaky_r
 class Config:
     # Ich gebe Standardwerte an um den Datentyp zu deklarieren. Ich möchte die Standardwerte in fast allen Fällen überschreiben.
     def __init__(self, device="cpu", algorithm=0, sort_net_input=False, pretrain_with_empty_nets=False, internal_neurons=50, hidden_layer_count=3, activation_internal=tanh, activation_final=sigmoid, optimizer_number=Adam, do_pretrain=True,
-                 pretrain_func=pretrain_functions[0], pretrain_iterations=800,
+                 pretrain_func=None, pretrain_iterations=800,
                  max_number_of_iterations=50, max_minutes_of_iterations=5, training_size_during_pretrain=1, train_size=32, initial_lr=0.0001, do_lr_decay=False, lr_decay_alg=lr_decay_algs[0], dropout_rate=0, random_seed=23343,
                  validation_frequency=2, antithetic_val=True, antithetic_train=False, val_size=64, test_size=128, stop_paths_in_plot=False, x_plot_range_for_net_plot=None, angle_for_net_plot=40):
 
@@ -53,7 +53,7 @@ class Config:
         self.angle_for_net_plot = angle_for_net_plot
 
         alg_dict = {
-            # TODO: I hardcoded that algs 10-19 are similar to 10 and 20-29 are similar to 20, algs >= 10 learn sequentially
+            # I hardcoded that algs 10-19 are similar to 10 and 20-29 are similar to 20, algs >= 10 learn sequentially
             0: "Paper",
             2: "single Net",
             3: "smaller N pretrain",

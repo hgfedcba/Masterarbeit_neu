@@ -11,7 +11,7 @@ import random
 from AbstractMathematicalModel import AbstractMathematicalModel
 
 
-# TODO: important note: Ich maximiere den Rang statt ihn zu minimieren. Es gibt N+1 Ränge
+# important note: Ich maximiere den Rang statt ihn zu minimieren. Es gibt N+1 Ränge
 class RobbinsModel(AbstractMathematicalModel):
     def __init__(self, N):
         self.__N = N  # X_0,..., X_(N)
@@ -125,7 +125,7 @@ class RobbinsModel(AbstractMathematicalModel):
 
         # Dieser Schritt ist für Alg10, damit nur so viele Werte betrachtet werden wie U enthält
         z2 = z1[-len(U):]
-        h = torch.matmul(U, torch.tensor(z2, dtype=torch.float, device=device))
+        h = torch.matmul(U, torch.tensor(z2, dtype=torch.float, device=device))  # TODO: Hier wird ein vektor von der cpu auf die gpu geladen -> Zeitproblem
 
         return torch.matmul(U, torch.tensor(z2, dtype=torch.float, device=device))
 

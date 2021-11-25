@@ -44,6 +44,19 @@ def initialize_model(option):
     else:
         main_pc = "\tHauptrechner"
 
+    l = False
+    s = False
+    f = False
+    if str(option)[-1] == "l":
+        l = True
+        option = option[:-1]
+    elif str(option)[-1] == "s":
+        s = True
+        option = option[:-1]
+    elif str(option)[-1] == "f":
+        f = True
+        option = option[:-1]
+
     if option == 4312:
         # American put in 1d
         # This Model is stupid since it results in no sells whatsoever
@@ -274,7 +287,7 @@ def initialize_model(option):
 
     elif option == "R00":
         N = 5
-        max_minutes = 0.1  # TODO: change
+        max_minutes = 0.1
         train_size = 128
         val_size = 256
         test_size = 512
@@ -309,22 +322,13 @@ def initialize_model(option):
         with open(test_paths_file, "rb") as fp:  # Unpickling
             test_paths = pickle.load(fp)
 
-    elif option == "R2" or option == "R2l" or option == "R2s":  # TODO: implement l, s and f as metaparameter
+    elif option == "R2":
         N = 19
         max_minutes = 50  # changed 23.11. 30->50
         train_size = 1024
         val_size = 2048
         test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
-
-        if option == "R2s":  # old R2
-            max_minutes = 30
-
-        if option == "R2l":
-            max_minutes *= 3
-            train_size *= 2
-            val_size *= 2
-            test_size *= 2
 
         Model = RobbinsModel(N)
         Model.set_reference_value()
@@ -377,19 +381,13 @@ def initialize_model(option):
             test_paths = pickle.load(fp)
             test_paths = test_paths[:test_size]
 
-    elif option == "R12" or option == "R12l":
+    elif option == "R12":
         N = 11
         max_minutes = 25
         train_size = 1024
         val_size = 2048
         test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
-
-        if option == "R12l":
-            max_minutes *= 3
-            train_size *= 2
-            val_size *= 2
-            test_size *= 2
 
         Model = RobbinsModel(N)
         Model.set_reference_value()
@@ -402,19 +400,13 @@ def initialize_model(option):
         with open(test_paths_file, "rb") as fp:  # Unpickling
             test_paths = pickle.load(fp)
 
-    elif option == "R13" or option == "R13l":
+    elif option == "R13":
         N = 12
         max_minutes = 25
         train_size = 1024
         val_size = 2048
         test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
-
-        if option == "R13l":
-            max_minutes *= 3
-            train_size *= 2
-            val_size *= 2
-            test_size *= 2
 
         Model = RobbinsModel(N)
         Model.set_reference_value()
@@ -679,4 +671,29 @@ def initialize_model(option):
     if main_pc == "\tZweitrechner":
         max_minutes *= 1.3
         max_number *= 1.3
-    return val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file
+
+    if s:
+        max_minutes /= 2
+
+    if l:
+        max_minutes *= 3
+        train_size *= 2
+        val_size *= 2
+        test_size *= 2
+    last_paths = False
+
+    if f:
+        max_minutes *= 4
+        train_size *= 2
+        val_size *= 2
+        test_size *= 8
+        last_paths = True
+
+    if isinstance(val_paths, list):
+        assert len(val_paths) > val_size
+        assert len(test_paths) > test_size
+    else:
+        assert val_paths.shape[0] > val_size
+        assert test_paths.shape[0] > test_size
+
+    return val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, last_paths

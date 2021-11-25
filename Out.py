@@ -607,9 +607,8 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test
 
         # TODO: recall: it is vitaly important that plot_number=k+1+NN.k
         l = NN.N
-        NN = ProminentResults.disc_best_result.load_state_dict_into_given_net(NN)
+        NN = ProminentResults.disc_best_result.load_state_dict_into_given_net(NN)  # TODO: verify if this loads to cpu
         for k in range(l):
-            # TODO: I have to change "draw_function" to work with .to(device), but don't want to now
             draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=NN.single_net_algorithm())
         NN = ProminentResults.cont_best_result.load_state_dict_into_given_net(NN)
         for k in range(l):
@@ -620,7 +619,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test
 
         for k in range(l):
             c_fig = plt.figure(k+1+NN.K)
-            if Config.do_pretrain:
+            if Config.do_pretrain and Config.pretrain_func is not None:
                 draw_function(x, Config.pretrain_func, k+1+NN.K, "black")
                 plt.legend(["best disc ", "best cont net", "final net", "pretrain"])
             else:

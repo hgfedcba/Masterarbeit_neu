@@ -33,12 +33,11 @@ class ConfigInitializer:
         # class that contains all stats of the theoretical model including prices i have from other sources. i also define a new instance of the config class for every element of the parameter grid.
         # i later use this concrete config for the nets etc.
 
-        start_time = time.time()
         intro_string = None
         current_Config = None
 
         result_list = []
-        val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file = ModelInitializer.initialize_model(option)
+        val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, last_paths = ModelInitializer.initialize_model(option)
 
         # Parametergrid für Netz
         # addAdam
@@ -50,13 +49,11 @@ class ConfigInitializer:
         list_common_parameters = []
         # [Adam, Adadelta, Adagrad, AdamW, Adamax, ASGD, RMSprop, SGD]
 
-        # TODO: start run with 0, 5   lr 0.005, 0.001, train size *= 2, train size during pretrain *= 0.25
-
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
-            'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
-            'algorithm'                             : [6, 0, 5],  # 5, 0, 21, 20, 15  # TODO: top algs are 6 and 5 with very short pretrain, think about this
-            'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again
+            'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
+            'algorithm'                             : [5, 6],  # 5, 0, 21, 20, 15  # TODO: top algs are 6 and 5 with very short pretrain, think about this
+            'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again | only for robbins problem
             'pretrain with empty nets'              : [True],  # TODO: think about how I handle the difference between alg 20 and alg 21
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
@@ -106,7 +103,7 @@ class ConfigInitializer:
             algorithm = params['algorithm']
             sort_net_input = params['sort net input']
             pretrain_with_empty_nets = params['pretrain with empty nets']
-            if not (isinstance(Model, RobbinsModel) or isinstance(Model, W_RobbinsModel)):
+            if not isinstance(Model, RobbinsModel):
                 sort_net_input = False
             internal_neurons = params['internal neurons per layer']
             hidden_layer_count = params['hidden layer count']
@@ -120,7 +117,7 @@ class ConfigInitializer:
             pretrain_func = pretrain_functions[params['pretrain function']]
             if algorithm == 5:
                 do_pretrain = True
-                pretrain_func = 0
+                pretrain_func = None
             pretrain_iterations = params['number pretrain iterations']
             max_number_of_iterations = params['max number of iterations']
             max_minutes_of_iterations = params['max minutes of iterations']
@@ -156,8 +153,12 @@ class ConfigInitializer:
 
                 log.warning("The reference value is: " + str(Model.get_reference_value()))
 
-                val_paths = val_paths[:val_size]  # TODO: parameter, der hier die letzten pfade wählt
-                test_paths = test_paths[:test_size]
+                if last_paths:
+                    val_paths = val_paths[-val_size:]
+                    test_paths = test_paths[-test_size:]
+                else:
+                    val_paths = val_paths[:val_size]
+                    test_paths = test_paths[:test_size]
 
                 if sort_net_input:
                     Util.sort_list_inplace(val_paths)

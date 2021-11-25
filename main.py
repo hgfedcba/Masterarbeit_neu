@@ -50,23 +50,16 @@ input sortieren
 # TODO: test regularization, dropout      (not functional, breaks alg20)
 # TODO: <- both are supposed to reduce overfitting, but as overfitting is not possible in my setting it shouldn't help (much)
 
-# TODO: review alg 10 (check)
-
 # TODO: übergebe nicht alle sortierten werte, sondern nur die letzten (n-2)*ln(n-3-x)/ln(n-3) -> for this I have to augment alg0 as this doesn't make sense otherwise
 # TODO:                            or I could implement this a new Model
 
 # TODO: noch einmal gpu (ich muss calculate payoffs anpassen)
-# TODO: see todo in out + search for "cpu" or device
 
 # TODO: fix alg20, 14 and not robins
 
 # TODO: alg 2 robbins (without sorting)   3 versionen, einmal nullen vorne, einmal nullen hinten und einmal einsen hinten, immer mit extra t
 #
-# TODO: parameter, der die letzten test pfade wählt
-
-# TODO: time spend between each validation has a bad first output since m might start at ...5  <- very annoying to fix
-
-# TODO: alg 0 aber alle 50 iterationen resette alle netze die nie stoppen.
+# TODO: parameter, der die letzten test pfade wählt  -> automatisch wenn ich 'f' wähle
 
 
 if __name__ == '__main__':
@@ -112,10 +105,11 @@ if __name__ == '__main__':
     log.error("this is an error message")
     log.critical("this is a critical message")
     '''
-    # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R2l, R3, R4, R12, R12l, Russ0, RW0, RW1, RW2, RW3, RW4
+    # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R2, R3, R4, R12, R12l, Russ0, RW0, RW1, RW2, RW3, RW4
+    # metaparameter s, l, f
     import os
     log.warning("Start")
-    ConfigInitializer("R2s", log)
+    ConfigInitializer("R3l", log)
     """
     os.chdir("../current run2")
     ConfigInitializer("RW4", log)

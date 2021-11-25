@@ -228,7 +228,7 @@ class NN:
                     for i in indicies_to_reset:
                         if i < len(self.u):
                             self.u[i] = self.define_net_with_path_dim_k(self.path_dim[i])
-                            self.empty_pretrain_net_n(self.Model.getpath_dim()[i], i, self.T_max/4, max(m, 100))
+                            self.empty_pretrain_net_n(self.Model.getpath_dim()[i], i, self.T_max/8, max(m, 100))
 
                             params = []
                             for k in range(len(self.u)):
@@ -300,7 +300,7 @@ class NN:
                     else:
                         training_paths[j] = training_paths[j][:, -k2-2:]
             else:
-                training_paths = training_paths[:, :, -2:]
+                training_paths = training_paths[:, :, -k2-2:]
             avg = self.training_step(optimizer, training_paths, net_list=net_list)
             avg_list.append(avg)
 
