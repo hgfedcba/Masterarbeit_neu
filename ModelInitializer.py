@@ -690,10 +690,10 @@ def initialize_model(option):
         last_paths = True
 
     if isinstance(val_paths, list):
-        assert len(val_paths) > val_size
-        assert len(test_paths) > test_size
+        assert len(val_paths) >= val_size
+        assert len(test_paths) >= test_size
     else:
-        assert val_paths.shape[0] > val_size
-        assert test_paths.shape[0] > test_size
+        assert val_paths.shape[0] >= val_size
+        assert test_paths.shape[0] >= test_size
 
     return val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, last_paths

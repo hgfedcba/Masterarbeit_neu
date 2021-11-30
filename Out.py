@@ -81,7 +81,6 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     # plt.axvline(ProminentResults.disc_best_result.m, color="orange")
     # plt.axvline(ProminentResults.cont_best_result.m, color="blue")
     plt.title("value on val set over train iterations")
-    xlabel('iteration', fontsize=16)
     ylabel('value', fontsize=16)
     grid(True)
     # plt.yscale('log')
@@ -90,7 +89,8 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         x = range(0, len(Memory.val_discrete_value_list))
         xlabel('nets trained', fontsize=16)
     else:
-        x = range(0, Config.validation_frequency * (len(Memory.val_discrete_value_list)), Config.validation_frequency)  # TODO: val_frequency?
+        x = range(0, Config.validation_frequency * (len(Memory.val_discrete_value_list)), Config.validation_frequency)
+        xlabel('iteration', fontsize=16)
     x = np.array(x)
     do_scatter = False
     if not Config.algorithm == 21:
@@ -184,7 +184,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     # average time of stopping
     plot_number_stopping_time = 13
     fig13 = plt.figure(plot_number_stopping_time)
-    x = range(0, Config.validation_frequency * (len(Memory.average_val_stopping_time)), Config.validation_frequency)  # TODO: val_frequency?
+    x = range(0, Config.validation_frequency * (len(Memory.average_val_stopping_time)), Config.validation_frequency)
     x = np.array(x)
     draw_connected_points(x, Memory.average_val_stopping_time, plot_number_stopping_time)
     plt.legend(["average time of stopping"])

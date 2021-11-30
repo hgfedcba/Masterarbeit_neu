@@ -20,3 +20,5 @@ class Memory:
         self.average_pretrain_payoffs = []
 
         self.average_val_stopping_time = []
+
+        self.net_resets = ""

@@ -222,13 +222,15 @@ class NN:
 
             if m % (5*self.validation_frequency) == 0 and m > 5 and self.algorithm == 6:
                 summed_stopping_times = np.sum(stopping_times, axis=0)
-                indicies_to_reset = np.where(summed_stopping_times < 5)[0]  # [0] so it works...
-                print(indicies_to_reset)  # TODO: implement String "resetted nets" in memory der die resetteten netze angibt mit kommas
+                while summed_stopping_times[-1] == 0:
+                    summed_stopping_times = summed_stopping_times[:-1]
+                indicies_to_reset = np.where(summed_stopping_times < 2)[0]  # [0] so it works...
+                self.Memory.net_resets += "(" + str(m) + ") " + str(indicies_to_reset) + "\t\t"
                 if len(indicies_to_reset) != 0:
                     for i in indicies_to_reset:
                         if i < len(self.u):
                             self.u[i] = self.define_net_with_path_dim_k(self.path_dim[i])
-                            self.empty_pretrain_net_n(self.Model.getpath_dim()[i], i, self.T_max/8, max(m, 100))
+                            self.empty_pretrain_net_n(self.Model.getpath_dim()[i], i, self.T_max/8, max(m, 100), end_condition=min(m/10, 30))
 
                             params = []
                             for k in range(len(self.u)):
@@ -258,7 +260,7 @@ class NN:
 
     # nth net
     # k = path dim at time n
-    def empty_pretrain_net_n(self, k, n, max_duration, max_iterations):  # TODO: trainiere mehrere netze gleichzeitig
+    def empty_pretrain_net_n(self, k, n, max_duration, max_iterations, end_condition=5):  # TODO: trainiere mehrere netze gleichzeitig
         start_time = time.time()
 
         pretrain_batch_size = int(self.batch_size * self.training_size_during_pretrain)
@@ -286,7 +288,7 @@ class NN:
         avg_list = []
         m = 0
         maximum = [0, 0]  # max, iterations since max
-        while (maximum[1] < 5 and (m < max_iterations and (time.time() - start_time) / 60 < max_duration)) or m < 30:
+        while (maximum[1] < end_condition and (m < max_iterations and (time.time() - start_time) / 60 < max_duration)) or m < 30:
             iteration_start = time.time()  # TODO: find out where the pretty pattern comes from
             if self.pretrain_with_empty_nets:
                 training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train)

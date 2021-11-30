@@ -270,7 +270,7 @@ class ConfigInitializer:
                        "\titerations taken until final result:        ", str(len(result[1].average_train_payoffs)).ljust(30, " "),
                        "\ttime spend training:", sum(result[1].single_train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations_per_validation),
                        "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
-                       "Parameterstring:", result[3])
+                       "Parameterstring:", result[3], (result[1].net_resets != "") * "\tnet resets:", result[1].net_resets)
         else:
             os = mylog("\trun: ", str(result[2]),
                        "\tamount of times without stopping:", result[0].final_result.amount_of_times_where_no_stopping_happens,
@@ -282,7 +282,7 @@ class ConfigInitializer:
                        "\titerations taken until discrete/cont/final result:", result[0].disc_best_result.m, " | ", result[0].cont_best_result.m, " | ", result[0].final_result.m,
                        "\ttime spend training:", sum(result[1].single_train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations_per_validation),
                        "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
-                       "Parameterstring:", result[3])
+                       "Parameterstring:", result[3], (result[1].net_resets != "") * "\tnet resets:", result[1].net_resets)
 
         return os
 
