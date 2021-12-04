@@ -187,7 +187,7 @@ class NN:
         # noch kaum iteriert wurde
         while (m % self.validation_frequency != 1 and not self.validation_frequency == 1) or \
                 ((time.time() - self.Memory.start_time) / 60 < self.T_max and (self.M_max == -1 or m < self.M_max) and self.ProminentResults.get_m_max() + 200 > m)\
-                or m < 30:
+                or m < 10:  # TODO: change to 30
             m_th_iteration_start_time = time.time()
 
             average_payoff = self.training_step(optimizer)
@@ -272,7 +272,7 @@ class NN:
 
         # version 1 is much faster but gets worse values.
         if self.pretrain_with_empty_nets:
-            k2 = self.Model.getN() - k
+            k2 = self.Model.getN() - n - 1
             for _ in range(k2):
                 net_list.append(fake_net)
         else:
@@ -294,15 +294,20 @@ class NN:
                 training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train)
             else:
                 training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train, N=k)
+            if n == 3:
+                assert True
 
-            if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
+            # TODO: das sollte ich anders machen
+            if isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
+                training_paths = training_paths[:, :, -k2-2:]
+            else:
                 for j in range(len(training_paths)):
                     if isinstance(self.Model, RobbinsModel):
                         training_paths[j] = training_paths[j][-k2-2:]  # k2 = 0 if no empty nets
                     else:
                         training_paths[j] = training_paths[j][:, -k2-2:]
-            else:
-                training_paths = training_paths[:, :, -k2-2:]
+            if m == 0:
+                assert True
             avg = self.training_step(optimizer, training_paths, net_list=net_list)
             avg_list.append(avg)
 
@@ -324,7 +329,7 @@ class NN:
         if training_paths is None:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
             if self.sort_net_input:
-                sort_list_inplace(training_paths)
+                sort_lists_inplace(training_paths)
             U = torch.empty(len(training_paths), self.N + 1, device=self.device)
 
         else:
@@ -366,21 +371,21 @@ class NN:
             N = self.N
         L = len(paths)
         if self.sort_net_input:
-            paths = sort_list_inplace(paths, N=N)
+            paths = sort_lists_inplace(paths, N=N)
         cont_individual_payoffs = []
         disc_individual_payoffs = []
         stopping_times = []
 
-        """
-        breaks alg20
+        # breaks alg20
         for net in self.u:
-            net.train(mode=False)
-        """
+            if net != fake_net:
+                net.train(mode=False)
 
         # h = []
         U = torch.empty(L, N + 1, device=self.device)
         tau_list = []
         for l in range(L):
+            mylog(l)
             pre_u, tau = self.generate_stopping_time_factors_and_discrete_stoppoint_from_path(paths[l][:N+1], False, net_list=net_list)
             U[l, :] = pre_u[:, 0]
             cont_individual_payoffs.append(self.Model.calculate_payoffs(U[l, :], paths[l][:N+1], self.Model.getg, self.t, device=self.device))

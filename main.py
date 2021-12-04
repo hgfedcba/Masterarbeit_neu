@@ -33,10 +33,6 @@ input sortieren
 
 # TODO: decide on russian parameters
 
-# TODO: Alle Plots überprüfen
-
-# TODO: switch names for test and validation set (überprüfen)
-
 # TODO: Save gif of 2d plot
 
 #VZibglagdbölsgbunrslgubnsrlhsrbnthlsrtghöbhnuhunu
@@ -58,22 +54,11 @@ input sortieren
 # TODO: fix alg20, 14 and not robins
 
 # TODO: alg 2 robbins (without sorting)   3 versionen, einmal nullen vorne, einmal nullen hinten und einmal einsen hinten, immer mit extra t
-#
-# TODO: parameter, der die letzten test pfade wählt  -> automatisch wenn ich 'f' wähle
+
+# TODO: find out why R3f failed
 
 
 if __name__ == '__main__':
-    l1 = []
-    l11 = [[1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]
-    l12 = [[5], [5, 6], [5, 6, 7], [5, 6, 7, 8]]
-    l1.append(l11)
-    l1.append(l12)
-
-    # Goal:
-    l_target = [[[1], [1, 2], [1, 2, 3]], [[5], [5, 6], [5, 6, 7]]]
-
-    print(l1[:][:4] == l_target)
-
     matplotlib.use("Agg")
 
     log = logging.getLogger('l')
@@ -109,10 +94,10 @@ if __name__ == '__main__':
     # metaparameter s, l, f
     import os
     log.warning("Start")
-    ConfigInitializer("R3l", log)
+    ConfigInitializer("R3f", log)
     """
     os.chdir("../current run2")
-    ConfigInitializer("RW4", log)
+    ConfigInitializer("R1", log)
     
     os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run3")
 

@@ -7,6 +7,7 @@ from MarkovBlackScholesModel import MarkovBlackScholesModel
 from ModelDefinitions import add_mu_c_x, add_sigma_c_x, add_american_put, add_russian_option, add_bermudan_max_call, binomial_trees
 from NetDefinitions import add_am_call_default_pretrain, add_am_put_default_pretrain
 from RobbinsModel import RobbinsModel
+from Shortened_RobbinsModel import Shortened_RobbinsModel
 from W_RobbinsModel import W_RobbinsModel
 
 """
@@ -343,10 +344,10 @@ def initialize_model(option):
 
     elif option == "R3":
         N = 39
-        max_minutes = 120
+        max_minutes = 120 // 120  # TODO: change
         train_size = 2048
         val_size = 4096
-        test_size = 16384
+        test_size = 16384 // 4  # neccessary for secondary pc
         x_plot_range_for_net_plot = [0, 1]
 
         Model = RobbinsModel(N)
@@ -419,6 +420,56 @@ def initialize_model(option):
             val_paths = pickle.load(fp)
         with open(test_paths_file, "rb") as fp:  # Unpickling
             test_paths = pickle.load(fp)
+
+    elif option == "SR00" or option == "SR01":
+        N = 19
+        max_minutes = 0.1
+        train_size = 128
+        val_size = 256
+        test_size = 512
+        if option == "SR01":
+            max_minutes *= 20
+            train_size *= 4
+            test_size *= 4
+        x_plot_range_for_net_plot = [0, 1]
+
+        Model = Shortened_RobbinsModel(N)
+        Model.set_reference_value()
+        Model.update_parameter_string(main_pc)
+
+        val_paths = Model.generate_paths(val_size, True)
+        test_paths = Model.generate_paths(test_size, True)
+
+    elif option == "SR1" or option == "SR0":
+        N = 19
+        if option == "SR0":
+            max_minutes = 0.1
+        else:
+            max_minutes = 10
+        train_size = 128
+        val_size = 256
+        test_size = 512
+        x_plot_range_for_net_plot = [0, 1]
+
+        Model = Shortened_RobbinsModel(N)
+        Model.set_reference_value()
+        Model.update_parameter_string(main_pc)
+
+        val_paths_file = "../val_paths_SR20.npy"
+        test_paths_file = "../test_paths_SR20.npy"
+        with open(val_paths_file, "rb") as fp:  # Unpickling
+            val_paths = pickle.load(fp)
+        with open(test_paths_file, "rb") as fp:  # Unpickling
+            test_paths = pickle.load(fp)
+        """
+        val_paths = Model.convert_Robbins_paths_to_shortened_Robbins_paths(val_paths)
+        test_paths = Model.convert_Robbins_paths_to_shortened_Robbins_paths(test_paths)
+
+        with open("../val_paths_SR20.npy", 'wb') as f:
+            pickle.dump(val_paths, f)
+        with open("../test_paths_SR20.npy", 'wb') as f:
+            pickle.dump(test_paths, f)
+        """
 
     elif option == "RW1" or option == "RW0":
         N = 19

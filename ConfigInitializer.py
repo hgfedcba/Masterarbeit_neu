@@ -52,7 +52,7 @@ class ConfigInitializer:
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
-            'algorithm'                             : [5, 6],  # 5, 0, 21, 20, 15  # TODO: top algs are 6 and 5 with very short pretrain, think about this
+            'algorithm'                             : [6, 5],  # 5, 0, 21, 20, 15  # [5, 6]
             'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again | only for robbins problem
             'pretrain with empty nets'              : [True],  # TODO: think about how I handle the difference between alg 20 and alg 21
             'internal neurons per layer'            : [50],  # 50, 100
@@ -68,13 +68,13 @@ class ConfigInitializer:
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
             'initial lr'                            : [0.005],  # [0.005, 0.02] 0.01 for other setting
             'lr decay algorithm'                    : [3],  # [2, 3] 2 Information in 1 entry
-            'dropout rate'                          : [0],  # only 0, breaks alg20
+            'dropout rate'                          : [0],  # only 0, breaks alg20  TODO: modes might not always be set correctly
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
             'antithetic variables on validation set': [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
             'antithetic variables on train set'     : [False],
             'training size during pretrain'         : [0.25],
-            'training batch size'                   : [train_size],  # TODO: why >= 4?
+            'training batch size'                   : [train_size],  # why does this have to be >= 4?
             'number of validation paths'            : [val_size],  # with my current implementation this has to be constant over a programm execution, changes here have noe effect!
             'number of test paths'                  : [test_size]  # with my current implementation this has to be constant over a programm execution, changes here have noe effect!
         }
@@ -161,8 +161,8 @@ class ConfigInitializer:
                     test_paths = test_paths[:test_size]
 
                 if sort_net_input:
-                    Util.sort_list_inplace(val_paths)
-                    Util.sort_list_inplace(test_paths)
+                    Util.sort_lists_inplace(val_paths)  # I am sorting too often
+                    Util.sort_lists_inplace(test_paths)
 
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
@@ -258,7 +258,7 @@ class ConfigInitializer:
             return str(round(a.val_cont_value, 5)) + " \t (" + str(round(a.test_cont_value, 5)) + ")\t"
         """
 
-        # TODO: use ljust more
+        # use ljust more
         if alg >= 10:
             os = mylog("\trun: ", str(result[2]),
                        "\tamount of times without stopping:", result[0].final_result.amount_of_times_where_no_stopping_happens,

@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf as pdfp
 import torch
 
-
-def sort_list_inplace(list, in_place=True, N=None):
+# sorts all given lists
+def sort_lists_inplace(lists, in_place=True, N=None):
     if in_place:
-        out = list
+        out = lists
     else:
-        out = list.copy()
+        out = lists.copy()
     if N is None:
         N = len(out[0])
     for k in range(len(out)):

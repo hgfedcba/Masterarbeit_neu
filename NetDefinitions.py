@@ -9,7 +9,7 @@ from torch.optim import Adadelta, Adagrad, AdamW, Adamax, ASGD, LBFGS, RMSprop, 
 activation_functions = [tanh, sigmoid, relu, hardtanh, relu6, elu, selu, celu, leaky_relu, rrelu, gelu, logsigmoid, hardshrink, tanhshrink, softsign, softplus, softmin, softmax, softshrink,
                         gumbel_softmax, log_softmax, hardsigmoid]
 
-# TODO: LBFGS needs "closure"
+# LBFGS needs "closure"
 optimizers = [Adam, Adadelta, Adagrad, AdamW, Adamax, ASGD, None, RMSprop, SGD]
 optimizer_dict = {0: "Adam", 1: "Adadelta", 2: "Adagrad", 3: "AdamW", 4: "Adamax", 5: "ASGD", 6: "LBFGS", 7: "RMSprop", 8: "SGD", 31: "AdamW-AMSGrad", 71: "RMSprop centered", 72: "RMSprop mom=0.5",
                   73: "RMSprop mom=0.9", 82: "SGD mom=0.5", 83: "SGD 0.5, 0.5"}
@@ -30,7 +30,7 @@ def add_am_put_default_pretrain(K, slope_length):
         b = K
         a = b - slope_length
         out = (b - x) / slope_length + relu(x - b) / slope_length - relu(a - x) / slope_length
-        out = out[:, 0]  # TODO: Unsure if good
+        out = out[:, 0]  # Unsure if good
         return out
 
     f = am_put_default_pretrain
@@ -45,7 +45,7 @@ def add_am_call_default_pretrain(K, slope_length):
         b = K
         a = b - slope_length
         out = (b - x) / slope_length + relu(x - b) / slope_length - relu(a - x) / slope_length
-        out = out[:, 0]  # TODO: Unsure if good
+        out = out[:, 0]  # Unsure if good
         return out
 
     f = am_call_default_pretrain
