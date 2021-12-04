@@ -15,16 +15,10 @@ from AbstractMathematicalModel import AbstractMathematicalModel
 # important note: Ich maximiere den Rang statt ihn zu minimieren. Es gibt N+1 Ränge
 class Shortened_RobbinsModel(RobbinsModel):  # TODO: might be a bad choice
     def __init__(self, N):
-        self.__N = N  # X_0,..., X_(N)
-        self.__reference_value_upper = None
-        self.__reference_value_lower = None
-        self.t = self.get_time_partition()
-        self.parameter_string = ""
-        self.parameter_list = []
-        self.__K = 0  # solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
+        super().__init__(N)
 
     def update_parameter_string(self, main_pc):
-        parameter_string = "Shortened Robbins Model mit unterem Referenzwert: ", round(self.__reference_value_upper, 3), "oberem Referenzwert: ", round(self.__reference_value_lower, 3), "N: ", self.__N+1,\
+        parameter_string = "Shortened Robbins Model mit unterem Referenzwert: ", round(self.__reference_value_upper, 3), "oberem Referenzwert: ", round(self.__reference_value_lower, 3), "N: ", self._N + 1,\
                            "auf dem " + main_pc
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
@@ -41,14 +35,15 @@ class Shortened_RobbinsModel(RobbinsModel):  # TODO: might be a bad choice
         """
 
         if N is None:
-            N = self.__N
+            N = self._N
 
-        x = np.random.uniform(low=0.0, high=1.0, size=(L, N+1)).tolist()
+        if N == 3:
+            assert True
 
         dim = self.getpath_dim()
+
+        x = np.random.uniform(low=0.0, high=1.0, size=(L, N+1)).tolist()
         # dim = np.amin([dim, (N+1)*np.ones_like(dim)], axis=0)
-        # TODO: implement requires sorted = True
-        # TODO: verify last entry of x is not touched, even with variable N
 
         y = []
         for l in range(L):
@@ -58,32 +53,36 @@ class Shortened_RobbinsModel(RobbinsModel):  # TODO: might be a bad choice
                 y[l].append(copy.deepcopy(y[l][n - 1]))
                 y[l][n].append(x[l][n])
 
-        Util.sort_lists_inplace(y)
+        Util.sort_lists_inplace_except_last_one(y)
         for l in range(L):
-            for n in range(0, N):
+            for n in range(0, N):  # very important that I modify (0, N) so that the last list isn't modified
                 y[l][n] = y[l][n][-dim[n]:]
 
         assert L == y.__len__()
 
+        if N == 3:
+            assert True
+            print(N)
+
         return y
 
     def get_time_partition(self, N=None, step_size=1):
-        return range(1, self.__N+1)
+        return range(1, self.getN()+1)
 
     def getT(self):
-        return self.__N
+        return self._N
 
     def getN(self):
-        return self.__N
+        return self._N
 
     def getK(self):
-        return self.__K
+        return self._K
 
     def getprocess_dim(self):
         return 1
 
     def getpath_dim(self):
-        n = self.__N
+        n = self._N
         out = np.ones(n)
         for x in range(1, n-3):
             out[x] = np.floor(n-np.nanmax([(n-2)*np.log(n-3-x)/np.log(n-3), n-x-1]))
@@ -161,9 +160,9 @@ class Shortened_RobbinsModel(RobbinsModel):  # TODO: might be a bad choice
         assert len(lists[0]) == self.getN()+1
         dim = self.getpath_dim()
         L = len(lists)
-        out = Util.sort_lists_inplace(lists, in_place=False)
+        out = Util.sort_lists_inplace_except_last_one(lists, in_place=False)
         for l in range(L):
-            for n in range(0, self.__N):
+            for n in range(0, self._N):
                 out[l][n] = out[l][n][-dim[n]:]
 
         return out

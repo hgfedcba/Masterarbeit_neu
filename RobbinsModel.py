@@ -14,16 +14,16 @@ from AbstractMathematicalModel import AbstractMathematicalModel
 # important note: Ich maximiere den Rang statt ihn zu minimieren. Es gibt N+1 Ränge
 class RobbinsModel(AbstractMathematicalModel):
     def __init__(self, N):
-        self.__N = N  # X_0,..., X_(N)
-        self.__reference_value_upper = None
-        self.__reference_value_lower = None
+        self._N = N  # X_0,..., X_(N)
+        self._reference_value_upper = None
+        self._reference_value_lower = None
         self.t = self.get_time_partition()
         self.parameter_string = ""
         self.parameter_list = []
-        self.__K = 0  # solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
+        self._K = 0  # solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
 
     def update_parameter_string(self, main_pc):
-        parameter_string = "Robbins Model with unterem Referenzwert: ", round(self.__reference_value_upper, 3), "oberen Referenzwert: ", round(self.__reference_value_lower, 3), "N: ", self.__N+1,\
+        parameter_string = "Robbins Model mit unterem Referenzwert: ", round(self._reference_value_upper, 3), "oberen Referenzwert: ", round(self._reference_value_lower, 3), "N: ", self._N + 1,\
                            "auf dem " + main_pc
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
@@ -40,7 +40,7 @@ class RobbinsModel(AbstractMathematicalModel):
         """
 
         if N is None:
-            N = self.__N
+            N = self._N
 
         x = np.random.uniform(low=0.0, high=1.0, size=(L, N+1)).tolist()
 
@@ -57,22 +57,22 @@ class RobbinsModel(AbstractMathematicalModel):
         return y
 
     def get_time_partition(self, N=None, step_size=1):
-        return range(1, self.__N+1)
+        return range(1, self._N + 1)
 
     def getT(self):
-        return self.__N
+        return self._N
 
     def getN(self):
-        return self.__N
+        return self._N
 
     def getK(self):
-        return self.__K
+        return self._K
 
     def getprocess_dim(self):
         return 1
 
     def getpath_dim(self):
-        return range(1, self.__N+1)
+        return range(1, self._N + 1)
 
     def convert_NN_path_to_mathematical_path(self, x):
         # Dude, seriously
@@ -131,12 +131,12 @@ class RobbinsModel(AbstractMathematicalModel):
 
     def set_reference_value(self):
         # 1.908 ist die beste bekannte untere Grenze für V und da die V_n monoton wachsend sind ist es auch eine untere Grenze für V_n
-        self.__reference_value_upper = self.getN() + 2 - Util.robbins_problem_known_upper_boundary(self.getN())
+        self._reference_value_upper = self.getN() + 2 - Util.robbins_problem_known_upper_boundary(self.getN())
         # self.__reference_value_upper = self.getN()+2-Util.robbins_problem_experimental_upper_boundary(self.getN())  # TODO: remember
-        self.__reference_value_lower = self.getN()+2-Util.robbins_problem_lower_boundary(self.getN())  # explicit threshhold function
+        self._reference_value_lower = self.getN() + 2 - Util.robbins_problem_lower_boundary(self.getN())  # explicit threshhold function
 
     def get_reference_value(self):
-        return self.__reference_value_lower, self.__reference_value_upper
+        return self._reference_value_lower, self._reference_value_upper
 
 
 

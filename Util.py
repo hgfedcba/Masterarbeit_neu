@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf as pdfp
 import torch
 
+
 # sorts all given lists
-def sort_lists_inplace(lists, in_place=True, N=None):
+def sort_lists_inplace_except_last_one(lists, in_place=True, N=None):
     if in_place:
         out = lists
     else:
@@ -85,7 +86,7 @@ def mylog(*argv):
     for s in range(len(argv)):
         if isinstance(argv[s], float):
             argv[s] = round(argv[s], 3)
-    out = ''.join(str(s) + "\t" for s in argv)
+    out = ''.join(str(s).ljust(6) + "\t" for s in argv)  # ljust 6 ist geraten
     out += "\n"
     return out
 

@@ -22,14 +22,14 @@ class W_RobbinsModel(AbstractMathematicalModel):
         self.__K = 0  # solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
 
     def update_parameter_string(self, main_pc):
-        parameter_string = "Robbins Model learning W with reference_value: ", round(self.__reference_value, 3), "N: ", self.__N+1, "auf dem " + main_pc
+        parameter_string = "Robbins Model ohne Vergangenheit mit Referenzwert: ", round(self.__reference_value, 3), "N: ", self.__N+1, "auf dem " + main_pc
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
 
         self.parameter_string = parameter_string + "\n"
 
     # antithetic is ignored
-    def generate_paths(self, L, antithetic=None):
+    def generate_paths(self, L, antithetic=None, N=None):
         """
         for l in range(L):
             out.append(np.random.uniform(low=0.0, high=1.0, size=None))

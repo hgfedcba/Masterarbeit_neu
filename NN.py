@@ -293,8 +293,9 @@ class NN:
             if self.pretrain_with_empty_nets:
                 training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train)
             else:
-                training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train, N=k)
+                training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train, N=k)  # TODO: doesn't work with Shortened_RobbinsModel, but I think the net dimension might be wrong
             if n == 3:
+                h = self.Model.getpath_dim()
                 assert True
 
             # TODO: das sollte ich anders machen
@@ -306,7 +307,7 @@ class NN:
                         training_paths[j] = training_paths[j][-k2-2:]  # k2 = 0 if no empty nets
                     else:
                         training_paths[j] = training_paths[j][:, -k2-2:]
-            if m == 0:
+            if n == 3:
                 assert True
             avg = self.training_step(optimizer, training_paths, net_list=net_list)
             avg_list.append(avg)
@@ -329,7 +330,7 @@ class NN:
         if training_paths is None:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
             if self.sort_net_input:
-                sort_lists_inplace(training_paths)
+                sort_lists_inplace_except_last_one(training_paths)
             U = torch.empty(len(training_paths), self.N + 1, device=self.device)
 
         else:
@@ -371,7 +372,7 @@ class NN:
             N = self.N
         L = len(paths)
         if self.sort_net_input:
-            paths = sort_lists_inplace(paths, N=N)
+            paths = sort_lists_inplace_except_last_one(paths, N=N)
         cont_individual_payoffs = []
         disc_individual_payoffs = []
         stopping_times = []

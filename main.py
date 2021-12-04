@@ -94,7 +94,7 @@ if __name__ == '__main__':
     # metaparameter s, l, f
     import os
     log.warning("Start")
-    ConfigInitializer("R00", log)
+    ConfigInitializer("SR1", log)
     """
     os.chdir("../current run2")
     ConfigInitializer("R1", log)

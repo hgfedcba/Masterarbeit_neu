@@ -24,6 +24,7 @@ from Memory import Memory as MemeClass
 import Out
 
 from RobbinsModel import RobbinsModel
+from Shortened_RobbinsModel import Shortened_RobbinsModel
 from W_RobbinsModel import W_RobbinsModel
 
 
@@ -52,7 +53,7 @@ class ConfigInitializer:
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
-            'algorithm'                             : [6, 5],  # 5, 0, 21, 20, 15  # [5, 6]
+            'algorithm'                             : [5, 6],  # 5, 0, 21, 20, 15  # [5, 6]
             'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again | only for robbins problem
             'pretrain with empty nets'              : [True],  # TODO: think about how I handle the difference between alg 20 and alg 21
             'internal neurons per layer'            : [50],  # 50, 100
@@ -105,6 +106,8 @@ class ConfigInitializer:
             pretrain_with_empty_nets = params['pretrain with empty nets']
             if not isinstance(Model, RobbinsModel):
                 sort_net_input = False
+            if isinstance(Model, Shortened_RobbinsModel):
+                sort_net_input = True
             internal_neurons = params['internal neurons per layer']
             hidden_layer_count = params['hidden layer count']
             activation_internal = params['internal activation function']
@@ -161,8 +164,8 @@ class ConfigInitializer:
                     test_paths = test_paths[:test_size]
 
                 if sort_net_input:
-                    Util.sort_lists_inplace(val_paths)  # I am sorting too often
-                    Util.sort_lists_inplace(test_paths)
+                    Util.sort_lists_inplace_except_last_one(val_paths)  # I am sorting too often
+                    Util.sort_lists_inplace_except_last_one(test_paths)
 
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
