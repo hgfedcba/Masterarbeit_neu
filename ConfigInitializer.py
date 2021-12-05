@@ -55,7 +55,7 @@ class ConfigInitializer:
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
             'algorithm'                             : [5, 6],  # 5, 0, 21, 20, 15  # [5, 6]
             'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again | only for robbins problem
-            'pretrain with empty nets'              : [False, True],  # TODO: think about how I handle the difference between alg 20 and alg 21
+            'pretrain with empty nets'              : [True],  # TODO: think about how I handle the difference between alg 20 and alg 21
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
             'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
