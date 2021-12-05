@@ -293,10 +293,7 @@ class NN:
             if self.pretrain_with_empty_nets:
                 training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train)
             else:
-                training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train, N=k)  # TODO: doesn't work with Shortened_RobbinsModel, but I think the net dimension might be wrong
-            if n == 3:
-                h = self.Model.getpath_dim()
-                assert True
+                training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train, N=n+1)
 
             # TODO: das sollte ich anders machen
             if isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
@@ -307,8 +304,6 @@ class NN:
                         training_paths[j] = training_paths[j][-k2-2:]  # k2 = 0 if no empty nets
                     else:
                         training_paths[j] = training_paths[j][:, -k2-2:]
-            if n == 3:
-                assert True
             avg = self.training_step(optimizer, training_paths, net_list=net_list)
             avg_list.append(avg)
 

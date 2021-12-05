@@ -37,9 +37,6 @@ class Shortened_RobbinsModel(RobbinsModel):  # TODO: might be a bad choice
         if N is None:
             N = self._N
 
-        if N == 3:
-            assert True
-
         dim = self.getpath_dim()
 
         x = np.random.uniform(low=0.0, high=1.0, size=(L, N+1)).tolist()
@@ -59,10 +56,6 @@ class Shortened_RobbinsModel(RobbinsModel):  # TODO: might be a bad choice
                 y[l][n] = y[l][n][-dim[n]:]
 
         assert L == y.__len__()
-
-        if N == 3:
-            assert True
-            print(N)
 
         return y
 
