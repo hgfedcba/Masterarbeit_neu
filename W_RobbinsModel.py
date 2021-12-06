@@ -112,7 +112,7 @@ class W_RobbinsModel(AbstractMathematicalModel):
         return torch.matmul(U, torch.tensor(z2, dtype=torch.float))
 
     def set_reference_value(self):
-        self.__reference_value = Util.robbins_problem_lower_boundary(self.getN())  # TODO: I think this is inverted
+        self.__reference_value = self.getN() + 1 - Util.robbins_problem_lower_boundary(self.getN())
 
     def get_reference_value(self):
         return self.__reference_value

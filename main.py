@@ -106,20 +106,20 @@ if __name__ == '__main__':
     log.error("this is an error message")
     log.critical("this is a critical message")
     '''
-    # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R1, R2, R2, R3, R4, R12, R12l, Russ0, RW0, RW1, RW2, RW3, RW4
-    # metaparameter s, l, f
+    # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R00, R12, R13, R20, R30, R40 und 0, W, S als pre und s, l, f als suffixe  # TODO: mache lokale pfade für alles
     import os
     log.warning("Start")
-    ConfigInitializer("SR1", log)  # TODO: change format SR20, WR20, 0R20 _R20
+    # TODO: R3f crasheds memory, don'T!
+    ConfigInitializer("WR0", log)
     """
     os.chdir("../current run2")
-    ConfigInitializer("R1", log)
+    ConfigInitializer("WR0", log)
     
     os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run3")
 
-    ConfigInitializer("Russ111", log)
+    ConfigInitializer("WR0", log)
     """
-    log.info("The End")
+    log.warning("The End")
     """
     from catboost_test_file import main
     main()
