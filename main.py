@@ -59,6 +59,22 @@ input sortieren
 
 
 if __name__ == '__main__':
+    if False:
+        import Shortened_RobbinsModel
+        from Util import *
+        n = 39
+        s = Shortened_RobbinsModel.Shortened_RobbinsModel(n)
+        h = s.getpath_dim()
+        # I draw n=0 ... 19 as those are the values used by the net
+        draw_connected_points(range(n), s.getpath_dim(), do_scatter=True, plot_number=1)
+        draw_connected_points(range(n), np.asarray(range(n))+1, do_scatter=True, plot_number=1)
+        plt.legend(["shortened", "full"])
+        xlabel("net number")
+        ylabel("number of arguments")
+        grid(True)
+        plt.ylim([0, n+1])
+        plt.show()
+
     matplotlib.use("Agg")
 
     log = logging.getLogger('l')
@@ -94,7 +110,7 @@ if __name__ == '__main__':
     # metaparameter s, l, f
     import os
     log.warning("Start")
-    ConfigInitializer("SR1", log)
+    ConfigInitializer("SR1", log)  # TODO: change format SR20, WR20, 0R20 _R20
     """
     os.chdir("../current run2")
     ConfigInitializer("R1", log)

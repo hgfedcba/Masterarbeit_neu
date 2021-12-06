@@ -74,13 +74,27 @@ class Shortened_RobbinsModel(RobbinsModel):  # TODO: might be a bad choice
     def getprocess_dim(self):
         return 1
 
+    # hat länge n statt n+1 weil der letzte Eintrag nicht gebraucht wird und werden darf
     def getpath_dim(self):
+        """
         n = self._N
         out = np.ones(n)
-        for x in range(1, n-3):
-            out[x] = np.floor(n-np.nanmax([(n-2)*np.log(n-3-x)/np.log(n-3), n-x-1]))
-        for x in range(n-3, n):
+        x_offset = 2
+        for x in range(1, n-x_offset):
+            out[x] = np.floor(n-np.nanmax([(n-2)*np.log(n-x_offset-x)/np.log(n-x_offset), n-x-1]))
+        for x in range(n-x_offset, n):
             out[x] = x+1
+
+        assert True
+        return out.astype('int')
+        """
+        n = self._N
+        out = np.ones(n)
+        x_offset = 2
+        for x in range(1, n - x_offset):
+            out[x] = np.floor(n - np.nanmax([(n - 2) * np.log(2*n - x_offset - 2*x) / np.log(2*n - x_offset), n - x - 1]))
+        for x in range(n - x_offset, n):
+            out[x] = x + 1
 
         assert True
         return out.astype('int')

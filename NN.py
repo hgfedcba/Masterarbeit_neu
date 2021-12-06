@@ -335,11 +335,10 @@ class NN:
                 local_N = training_paths[0].shape[1]
             U = torch.empty(len(training_paths), local_N, device=self.device)
 
-        """
-        breaks alg20
+        # breaks alg20
         for net in self.u:
-            net.train()
-        """
+            if net != fake_net:
+                net.train(mode=True)
 
         individual_payoffs = []
 
@@ -375,7 +374,7 @@ class NN:
         # breaks alg20
         for net in self.u:
             if net != fake_net:
-                net.train(mode=False)
+                net.eval()
 
         # h = []
         U = torch.empty(L, N + 1, device=self.device)
