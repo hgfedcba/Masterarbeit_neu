@@ -40,6 +40,8 @@ class ConfigInitializer:
         result_list = []
         val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, last_paths = ModelInitializer.initialize_model(option)
 
+        max_minutes = 0.1  # TODO: change
+
         # Parametergrid für Netz
         # addAdam
         add_step_lr_scheduler(500)
