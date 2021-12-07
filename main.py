@@ -110,15 +110,16 @@ if __name__ == '__main__':
     import os
     log.warning("Start")
     # TODO: R3f crasheds memory, don'T!
-    ConfigInitializer("WR0", log)
-    """
-    os.chdir("../current run2")
-    ConfigInitializer("WR0", log)
-    
-    os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run3")
+    # TODO: lade testpfade erst in test und überschreibe dann mit None
+    ConfigInitializer("R30s", log)
 
-    ConfigInitializer("WR0", log)
-    """
+    os.chdir("../current run2")
+    ConfigInitializer("SR30s", log)
+
+    # os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run3")
+    os.chdir("../current run3")
+    ConfigInitializer("WR30s", log)
+
     log.warning("The End")
     """
     from catboost_test_file import main

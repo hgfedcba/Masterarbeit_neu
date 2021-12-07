@@ -328,21 +328,6 @@ def initialize_model(option):
             Model = Shortened_RobbinsModel(N)
             Model.set_reference_value()
 
-            val_paths_file = "../val_paths_R20.npy"
-            test_paths_file = "../test_paths_R20.npy"
-            with open(val_paths_file, "rb") as fp:  # Unpickling
-                val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
-
-            val_paths = Model.convert_Robbins_paths_to_shortened_Robbins_paths(val_paths)
-            test_paths = Model.convert_Robbins_paths_to_shortened_Robbins_paths(test_paths)
-
-            with open("../val_paths_SR20.npy", 'wb') as f:
-                pickle.dump(val_paths, f)
-            with open("../test_paths_SR20.npy", 'wb') as f:
-                pickle.dump(test_paths, f)
-
             val_paths_file = "../val_paths_SR20.npy"
             test_paths_file = "../test_paths_SR20.npy"
 
@@ -433,6 +418,21 @@ def initialize_model(option):
             Model = Shortened_RobbinsModel(N)
             Model.set_reference_value()
 
+            val_paths_file = "../val_paths_R30.npy"
+            test_paths_file = "../test_paths_R30.npy"
+            with open(val_paths_file, "rb") as fp:  # Unpickling
+                val_paths = pickle.load(fp)
+            with open(test_paths_file, "rb") as fp:  # Unpickling
+                test_paths = pickle.load(fp)
+
+            val_paths = Model.convert_Robbins_paths_to_shortened_Robbins_paths(val_paths)
+            test_paths = Model.convert_Robbins_paths_to_shortened_Robbins_paths(test_paths)
+
+            with open("../val_paths_SR30.npy", 'wb') as f:
+                pickle.dump(val_paths, f)
+            with open("../test_paths_SR30.npy", 'wb') as f:
+                pickle.dump(test_paths, f)
+
             val_paths_file = "../val_paths_SR30.npy"
             test_paths_file = "../test_paths_SR30.npy"
 
@@ -444,6 +444,13 @@ def initialize_model(option):
         elif W:
             Model = W_RobbinsModel(N)
             Model.set_reference_value()
+
+            # TODO: Hier fehlt noch etwas
+
+            """
+            np.save("../val_paths_4411_5.npy", val_paths)
+            np.save("../test_paths_4411_5.npy", test_paths)
+            """
 
             val_paths_file = "../val_paths_WR30.npy"
             test_paths_file = "../test_paths_WR30.npy"
@@ -459,6 +466,15 @@ def initialize_model(option):
 
             val_paths_file = "../val_paths_R30.npy"
             test_paths_file = "../test_paths_R30.npy"
+
+            val_paths = Model.generate_paths(10000, True)
+            print("1/2")
+            test_paths = Model.generate_paths(100000, True)
+            with open(val_paths_file, 'wb') as f:
+                pickle.dump(val_paths, f)
+            with open(test_paths_file, 'wb') as f:
+                pickle.dump(test_paths, f)
+                
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
             with open(test_paths_file, "rb") as fp:  # Unpickling
