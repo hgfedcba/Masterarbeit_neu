@@ -28,9 +28,8 @@ import Out
 
 
 def main5():
-    # TODO: freeze t  !!!!!
-
-    # TODO: Net
+    # TO DO: freeze t  !!!!!
+    # TO DO: Net
 
     # Model
     r = 0.05

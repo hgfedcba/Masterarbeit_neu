@@ -11,7 +11,7 @@ import Util
 from AbstractMathematicalModel import AbstractMathematicalModel
 
 
-# TODO: important note: Ich maximiere den Rang statt ihn zu minimieren. Es gibt N+1 Ränge
+# important note: Ich maximiere den Rang statt ihn zu minimieren. Es gibt N+1 Ränge
 class W_RobbinsModel(AbstractMathematicalModel):
     def __init__(self, N):
         self.__N = N  # X_0,..., X_(N)

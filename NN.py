@@ -295,7 +295,6 @@ class NN:
             else:
                 training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train, N=n+1)
 
-            # TODO: das sollte ich anders machen
             if isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
                 training_paths = training_paths[:, :, -k2-2:]
             else:

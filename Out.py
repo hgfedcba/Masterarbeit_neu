@@ -30,7 +30,7 @@ def average_value_stopped_at(final_result, Model, paths):
         if isinstance(Model, RobbinsModel):
             for k in range(len(paths)):
                 if stopping_times[k] == n:
-                    stop.append(paths[k][n][-1])  # TODO: changed for Short robbins from [n]
+                    stop.append(paths[k][n][-1])
                 elif stopping_times[k] > n:
                     no_stop.append(paths[k][n][-1])
         else:
@@ -301,7 +301,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     draw_connected_points(iter, (time.time() - Memory.start_time - Memory.test_duration) * np.ones_like(iter), plot_number_duration_2, line_style='--')
 
     if Memory.pretrain_net_duration != 0:
-        draw_connected_points(iter, Memory.pretrain_net_duration * np.ones_like(iter), plot_number_duration_2, line_style='-.')  # TODO: seems a bit low
+        draw_connected_points(iter, Memory.pretrain_net_duration * np.ones_like(iter), plot_number_duration_2, line_style='-.')
         plt.legend(["train duration", "val duration", "time spend in net", "pretrain end", "pretrain net dur", "test end", "test start"])
     else:
         plt.legend(["train duration", "val duration", "time spend in net", "pretrain end", "test end", "test start"])
@@ -607,7 +607,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test
 
         # TODO: recall: it is vitaly important that plot_number=k+1+NN.k
         l = NN.N
-        NN = ProminentResults.disc_best_result.load_state_dict_into_given_net(NN)  # TODO: verify if this loads to cpu
+        NN = ProminentResults.disc_best_result.load_state_dict_into_given_net(NN)
         for k in range(l):
             draw_function(x, get_net(NN.u, k), plot_number=k+1+NN.K, algorithm=NN.single_net_algorithm())
         NN = ProminentResults.cont_best_result.load_state_dict_into_given_net(NN)

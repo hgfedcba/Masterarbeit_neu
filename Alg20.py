@@ -101,7 +101,7 @@ class Alg20_NN(NN):
                 val_start = time.time()
 
                 net_list = self.u[:m + 1]
-                for _ in range(self.Model.getN()-m-1):  # TODO: I want to understand why below it works without the -1...
+                for _ in range(self.Model.getN()-m-1):  # I want to understand why below it works without the -1...
                     net_list.append(fake_net)
 
                 cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths, net_list=net_list)

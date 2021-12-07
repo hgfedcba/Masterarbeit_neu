@@ -13,7 +13,7 @@ from AbstractMathematicalModel import AbstractMathematicalModel
 
 
 # important note: Ich maximiere den Rang statt ihn zu minimieren. Es gibt N+1 Ränge
-class Shortened_RobbinsModel(RobbinsModel):  # TODO: might be a bad choice
+class Shortened_RobbinsModel(RobbinsModel):
     def __init__(self, N):
         super().__init__(N)
 

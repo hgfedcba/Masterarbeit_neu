@@ -55,9 +55,9 @@ class ConfigInitializer:
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
-            'algorithm'                             : [21],  # 5, 0, 21, 20, 15  # [5, 6]
+            'algorithm'                             : [5, 6],  # 5, 0, 21, 20, 15  # [5, 6]
             'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again | only for robbins problem
-            'pretrain with empty nets'              : [True, False],
+            'pretrain with empty nets'              : [True],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
             'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]

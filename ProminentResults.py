@@ -35,7 +35,7 @@ class ProminentResults:
     def get_max_time_to_best_result(self):
         return max(self.cont_best_result.time_to_this_result, self.disc_best_result.time_to_this_result)
 
-    def test(self, paths_for_test):
+    def test(self, paths_for_test):  # TODO: file instead of paths
         out = self.final_result.test(paths_for_test, self.NN)
 
         if self.final_result.m == self.cont_best_result.m:
@@ -89,6 +89,7 @@ class IndividualBestResult:
         checkpoint = torch.load(self.save_file_path)
         for k in range(len(NN.u)):
             NN.u[k].load_state_dict(checkpoint["Model" + str(k)])
+            NN.u[k].to("cpu")
             NN.u[k].eval()
         return NN
 
