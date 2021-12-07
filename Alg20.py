@@ -48,29 +48,13 @@ class Alg20_NN(NN):
                 self.Memory.average_train_payoffs.extend(avg_list)
 
                 val_start = time.time()
-                """
-                temp_val_paths = []
-                for k in range(len(self.val_paths)):
-                    temp_val_paths.append(self.val_paths[k][:m + 2])
-                    # temp_val_paths.append(copy.deepcopy(self.val_paths[k][:m+2]))  # deepcopy doesn't seem to be necessary
-                """
-                if m == 3:
-                    h1 = self.val_paths
-                    h2 = self.val_paths[:][:2]
-                    h3 = self.val_paths[:][:][:2]
-                    h4 = h3 == h1
-                    h5 = h2 == h1
-                    temp_val_paths2 = self.val_paths[:][:m + 2]  # TODO: understand why this doesn't work, would make validate easier
 
                 net_list = self.u[:m + 1]
-                # cont_payoff, disc_payoff, stopping_times = self.validate(temp_val_paths, net_list=net_list, N=m+1)
-                cont_payoff, disc_payoff, stopping_times = self.validate(self.val_paths, net_list=net_list)
+                cont_payoff, disc_payoff, stopping_times = self.validate([path[:m+2] for path in self.val_paths], net_list=net_list)
                 """
                 log.info(
                     "After training \t%s nets the continuous value is\t %s and the discrete value is \t%s" % (m+1, round(cont_payoff, 3), round(disc_payoff, 3)))
                 """
-                # Prominent Result ergibt wenig sinn, da das optimale ergebnis definitiv am ende ist
-                # self.ProminentResults.process_current_iteration(self, m, cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
                 # recall m+2 = self.N+1 = N
                 l = m + 3 - robbins_problem_lower_boundary(m + 1)  # explicit threshhold function

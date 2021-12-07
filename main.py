@@ -46,16 +46,13 @@ input sortieren
 # TODO: test regularization, dropout      (not functional, breaks alg20)
 # TODO: <- both are supposed to reduce overfitting, but as overfitting is not possible in my setting it shouldn't help (much)
 
-# TODO: übergebe nicht alle sortierten werte, sondern nur die letzten (n-2)*ln(n-3-x)/ln(n-3) -> for this I have to augment alg0 as this doesn't make sense otherwise
-# TODO:                            or I could implement this a new Model
-
 # TODO: noch einmal gpu (ich muss calculate payoffs anpassen)
 
 # TODO: fix alg20, 14 and not robins
 
 # TODO: alg 2 robbins (without sorting)   3 versionen, einmal nullen vorne, einmal nullen hinten und einmal einsen hinten, immer mit extra t
 
-# TODO: find out why R3f failed
+# TODO: pretrainiere mehrere netze gleichzeitig
 
 
 if __name__ == '__main__':
@@ -110,7 +107,7 @@ if __name__ == '__main__':
     import os
     log.warning("Start")
     # TODO: R3f crasheds memory, don'T!
-    ConfigInitializer("WR0", log)
+    ConfigInitializer("R00", log)
     """
     os.chdir("../current run2")
     ConfigInitializer("WR0", log)

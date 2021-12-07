@@ -53,9 +53,9 @@ class ConfigInitializer:
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
-            'algorithm'                             : [6],  # 5, 0, 21, 20, 15  # [5, 6]
+            'algorithm'                             : [21],  # 5, 0, 21, 20, 15  # [5, 6]
             'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again | only for robbins problem
-            'pretrain with empty nets'              : [True],  # TODO: think about how I handle the difference between alg 20 and alg 21
+            'pretrain with empty nets'              : [True, False],
             'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
             'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
@@ -69,7 +69,7 @@ class ConfigInitializer:
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
             'initial lr'                            : [0.005],  # [0.005, 0.02] 0.01 for other setting
             'lr decay algorithm'                    : [3],  # [2, 3] 2 Information in 1 entry
-            'dropout rate'                          : [0],  # only 0, breaks alg20  TODO: modes might not always be set correctly
+            'dropout rate'                          : [0],  # only 0, breaks alg20
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
             'antithetic variables on validation set': [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY

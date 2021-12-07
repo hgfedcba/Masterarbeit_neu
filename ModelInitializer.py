@@ -34,6 +34,7 @@ with open(test_paths_file, 'wb') as f:
 
 def initialize_model(option):
     angle_for_net_plot = None
+    val_paths_file = None  # wird übergeben
     max_number = 10000
     # I deleated max_number everywhere. It was mostly 400 and was multiplied like max_time
 
@@ -888,7 +889,7 @@ def initialize_model(option):
         max_number *= 1.3
 
     if s:
-        max_minutes /= 2
+        max_minutes /= 4
 
     if l:
         max_minutes *= 3
@@ -902,7 +903,7 @@ def initialize_model(option):
         train_size *= 2
         val_size *= 2
         test_size *= 8
-        # last_paths = True  # TODO: change
+        last_paths = True
 
     if isinstance(val_paths, list):
         val_size = min(len(val_paths), val_size)

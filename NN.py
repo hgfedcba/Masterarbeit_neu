@@ -145,7 +145,7 @@ class NN:
             return optimizers[self.optimizer_number//10](parameters, lr=lr, momentum=0.9)
         elif self.optimizer_number == 31:
             return optimizers[self.optimizer_number // 10](parameters, lr=lr, amsgrad=True)
-        elif self.optimizer_number == 81:  # TODO: Unused
+        elif self.optimizer_number == 81:  # Unused
             return optimizers[self.optimizer_number // 10](parameters, lr=lr, nesterov=True)
         elif self.optimizer_number == 82:
             return optimizers[self.optimizer_number // 10](parameters, lr=lr, nesterov=True, momentum=0.5)
@@ -187,7 +187,7 @@ class NN:
         # noch kaum iteriert wurde
         while (m % self.validation_frequency != 1 and not self.validation_frequency == 1) or \
                 ((time.time() - self.Memory.start_time) / 60 < self.T_max and (self.M_max == -1 or m < self.M_max) and self.ProminentResults.get_m_max() + 200 > m)\
-                or m < 10:  # TODO: change to 30
+                or m < 30:
             m_th_iteration_start_time = time.time()
 
             average_payoff = self.training_step(optimizer)
@@ -260,7 +260,7 @@ class NN:
 
     # nth net
     # k = path dim at time n
-    def empty_pretrain_net_n(self, k, n, max_duration, max_iterations, end_condition=5):  # TODO: trainiere mehrere netze gleichzeitig
+    def empty_pretrain_net_n(self, k, n, max_duration, max_iterations, end_condition=5):
         start_time = time.time()
 
         pretrain_batch_size = int(self.batch_size * self.training_size_during_pretrain)
@@ -385,21 +385,12 @@ class NN:
             U[l, :] = pre_u[:, 0]
             cont_individual_payoffs.append(self.Model.calculate_payoffs(U[l, :], paths[l][:N+1], self.Model.getg, self.t, device=self.device))
 
-            # h = paths[l][19][-4:]
-            # h1 = pre_u[-4:]
-
-            # for_debugging1 = paths[l]
-            # for_debugging2 = h[:, 0]
-            # for_debugging3 = cont_individual_payoffs[l]
-
             # part 2: discrete
             tau_list.append(tau)
 
             single_stopping_time = np.zeros(N + 1)
             single_stopping_time[tau_list[l]] = 1
             disc_individual_payoffs.append(self.Model.calculate_payoffs(single_stopping_time, paths[l][:N+1], self.Model.getg, self.t).item())
-            # h.append(max(paths[l][0]*single_stopping_time))
-            # for_debugging5 = disc_individual_payoffs[-1]
             stopping_times.append(single_stopping_time)
 
         disc_payoff = sum(disc_individual_payoffs) / L
@@ -408,19 +399,6 @@ class NN:
 
         # tau list is better then stopping_times
         return cont_payoff, disc_payoff, stopping_times
-
-    """
-    def generate_discrete_stopping_time_from_U(self, U):
-        # between 0 and N
-        tau_set = np.zeros(self.N + 1)
-        for n in range(tau_set.size):
-            h1 = torch.sum(U[0:n + 1]).item()
-            h2 = 1 - U[n].item()
-            h3 = sum(U[0:n + 1]) >= 1 - U[n]
-            tau_set[n] = torch.sum(U[0:n + 1]).item() >= 1 - U[n].item()
-        tau = np.argmax(tau_set)  # argmax returns the first "True" entry
-        return tau
-    """
 
     def generate_discrete_stopping_time_from_u(self, u):
         # between 0 and N
@@ -452,24 +430,18 @@ class NN:
                 t = time.time()
                 if not self.single_net_algorithm():
                     if isinstance(x_input, list):
-                        # h = x_input[n][:]
-                        # h1 = x_input[n]
-                        # h2 = np.asarray(x_input[n])
                         x.append(torch.tensor(x_input[n][:], dtype=torch.float32, requires_grad=grad, device=self.device))
                     else:
                         x.append(torch.tensor(x_input[:, n], dtype=torch.float32, requires_grad=grad, device=self.device))
-                    # x[-1] = x[-1].to(device)
                     local_u.append(net_list[n](x[n]))
                 else:
                     into = np.append(n+self.K, x_input[:, n])  # Der Input ist der Zeitpunkt und der tatsächliche Aktienwert. Ich addiere self.K auf den Zeitpunkt da dieser Faktor später noch
                     # abgezogen wird und ich möglichst nahe an der 0 bleiben möchte.
                     x.append(torch.tensor(into, dtype=torch.float32, requires_grad=grad, device=self.device))
-                    # x[-1] = x[-1].to(device)
                     local_u.append(net_list[0](x[n]))
                 self.Memory.total_net_durations_per_validation[-1] += time.time() - t
             else:
                 local_u.append(torch.ones(1, device=self.device))
-                # h[-1].to(device)
             if isinstance(local_u[n], int) or isinstance(local_u[n], float):
                 U.append(local_u[n] * (torch.ones(1) - sum[n]))
             else:
@@ -479,14 +451,3 @@ class NN:
         assert torch.sum(z).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(z).item())
         return z, self.generate_discrete_stopping_time_from_u(local_u)
         # return z, self.generate_discrete_stopping_time_from_U(z)
-    """
-    def calculate_payoffs(self, U, x, g, t):
-        assert torch.sum(torch.tensor(U)).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(torch.tensor(U)).item())
-
-        s = torch.zeros(1)
-        for n in range(self.N + 1):
-            h1 = U[n]
-            h2 = g(t[n], x[:, n])
-            s += U[n] * g(t[n], x[:, n])
-        return s
-    """

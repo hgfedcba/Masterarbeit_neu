@@ -3,7 +3,7 @@ from torch.nn.functional import relu, hardtanh, relu6, elu, selu, celu, leaky_re
 from torch import tanh, sigmoid
 from torch.optim import Adadelta, Adagrad, AdamW, Adamax, ASGD, LBFGS, RMSprop, SGD, Adam, lr_scheduler
 
-# TODO: why are those not found?
+# why are those not found?
 # from torch.optim import NAdam, RAdam, Rpop
 
 activation_functions = [tanh, sigmoid, relu, hardtanh, relu6, elu, selu, celu, leaky_relu, rrelu, gelu, logsigmoid, hardshrink, tanhshrink, softsign, softplus, softmin, softmax, softshrink,

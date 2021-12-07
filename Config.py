@@ -65,7 +65,7 @@ class Config:
             14: "(14) back to front empty pretrain",
             15: "(15) train together at the end",
             16: "(16) train all nets after pretrain",
-            20: "front to back N=const",
+            20: "front to back N=const",  # I think 20 and 21 differ in the joint training, while the pretrain is identically controlled by "pretrain with empty nets"
             21: "front to back N=inc"
         }
 
