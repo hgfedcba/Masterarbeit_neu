@@ -14,15 +14,15 @@ from AbstractMathematicalModel import AbstractMathematicalModel
 # important note: Ich maximiere den Rang statt ihn zu minimieren. Es gibt N+1 Ränge
 class W_RobbinsModel(AbstractMathematicalModel):
     def __init__(self, N):
-        self.__N = N  # X_0,..., X_(N)
-        self.__reference_value = None
+        self._N = N  # X_0,..., X_(N)
+        self._reference_value = None
         self.t = self.get_time_partition()
         self.parameter_string = ""
         self.parameter_list = []
-        self.__K = 0  # solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
+        self._K = 0  # solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
 
     def update_parameter_string(self, main_pc):
-        parameter_string = "Robbins Model ohne Vergangenheit mit Referenzwert: ", round(self.__reference_value, 3), "N: ", self.__N+1, "auf dem " + main_pc
+        parameter_string = "Robbins Model ohne Vergangenheit mit Referenzwert: ", round(self._reference_value, 3), "N: ", self._N + 1, "auf dem " + main_pc
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
 
@@ -45,26 +45,26 @@ class W_RobbinsModel(AbstractMathematicalModel):
         for k in range(x.__len__()):
             x[k] = np.reshape(x[k], (1, self.__N+1))
         """
-        x = np.random.uniform(low=0.0, high=1.0, size=(L, 1, self.__N + 1))
+        x = np.random.uniform(low=0.0, high=1.0, size=(L, 1, self._N + 1))
         return x
 
     def get_time_partition(self, N=None, step_size=1):
-        return range(1, self.__N+1)
+        return range(1, self._N + 1)
 
     def getT(self):
-        return self.__N
+        return self._N
 
     def getN(self):
-        return self.__N
+        return self._N
 
     def getK(self):
-        return self.__K
+        return self._K
 
     def getprocess_dim(self):
         return 1
 
     def getpath_dim(self):
-        return 1 * np.ones(self.__N, dtype=np.int)
+        return 1 * np.ones(self._N, dtype=np.int)
 
     def getg(self, t, x):
         # (zeitstetige) stoppzeit t, pfad x
@@ -112,10 +112,10 @@ class W_RobbinsModel(AbstractMathematicalModel):
         return torch.matmul(U, torch.tensor(z2, dtype=torch.float))
 
     def set_reference_value(self):
-        self.__reference_value = self.getN() + 1 - Util.robbins_problem_lower_boundary(self.getN())
+        self._reference_value = self.getN() + 1 - Util.robbins_problem_lower_boundary(self.getN())
 
     def get_reference_value(self):
-        return self.__reference_value
+        return self._reference_value
 
 
 

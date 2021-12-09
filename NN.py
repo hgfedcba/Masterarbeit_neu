@@ -98,20 +98,20 @@ class NN:
 
         def define_nets():
             self.u = []
-            if not self.single_net_algorithm():
-                for k in range(self.N):
-                    # net = Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK(), self.device, self.dropout_rate)
-                    # net.to(self.device)
-                    net = self.define_net_with_path_dim_k(self.path_dim[k])
-                    self.u.append(net)
-            else:
+            if self.single_net_algorithm():
                 assert np.allclose(self.path_dim, np.ones_like(self.path_dim) * self.path_dim[0])
                 # net = Net(self.path_dim[0] + 1, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK(), self.device, self.dropout_rate)
                 # net.to(self.device)
                 net = self.define_net_with_path_dim_k(self.path_dim[0] + 1)
                 self.u.append(net)
+            else:
+                for k in range(self.N):
+                    # net = Net(self.path_dim[k], self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, Model.getK(), self.device, self.dropout_rate)
+                    # net.to(self.device)
+                    net = self.define_net_with_path_dim_k(self.path_dim[k])
+                    self.u.append(net)
 
-        assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
+        assert not self.single_net_algorithm() or not isinstance(self.Model, RobbinsModel)
 
         define_nets()
         self.ProminentResults = ProminentResults(log, self)

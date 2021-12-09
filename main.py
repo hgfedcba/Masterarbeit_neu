@@ -54,6 +54,8 @@ input sortieren
 
 # TODO: pretrainiere mehrere netze gleichzeitig
 
+# TODO: erwähne die dimension auch bei alg0 zu übergeben
+
 
 if __name__ == '__main__':
     if False:
@@ -108,11 +110,11 @@ if __name__ == '__main__':
     log.warning("Start")
     # TODO: R3f crasheds memory, don'T!
     # TODO: lade testpfade erst in test und überschreibe dann mit None
-    ConfigInitializer("R00", log)
-    """
-    os.chdir("../current run2")
-    ConfigInitializer("SR30s", log)
+    ConfigInitializer("FR1", log)
 
+    os.chdir("../current run2")
+    ConfigInitializer("SR1", log)
+    """
     # os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run3")
     os.chdir("../current run3")
     ConfigInitializer("WR30s", log)
