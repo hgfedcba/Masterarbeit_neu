@@ -38,7 +38,7 @@ class ConfigInitializer:
         current_Config = None
 
         result_list = []
-        val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, test_paths_file, last_paths = ModelInitializer.initialize_model(option)
+        val_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, test_paths_file, last_paths = ModelInitializer.initialize_model(option)
 
         train_size = 100
         val_size = 100
@@ -58,7 +58,7 @@ class ConfigInitializer:
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
-            'algorithm'                             : [0],  # 5, 0, 21, 20, 15  # [5, 6]
+            'algorithm'                             : [16],  # 5, 0, 21, 20, 15  # [5, 6]
             'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again | only for robbins problem
             'pretrain with empty nets'              : [True],
             'internal neurons per layer'            : [50],  # 50, 100
@@ -163,14 +163,14 @@ class ConfigInitializer:
 
                 if last_paths:
                     val_paths = val_paths[-val_size:]
-                    test_paths = test_paths[-test_size:]
+                    # test_paths = test_paths[-test_size:]
                 else:
                     val_paths = val_paths[:val_size]
-                    test_paths = test_paths[:test_size]
+                    # test_paths = test_paths[:test_size]
 
                 if sort_net_input:
                     Util.sort_lists_inplace_except_last_one(val_paths)  # I am sorting too often
-                    Util.sort_lists_inplace_except_last_one(test_paths)
+                    # Util.sort_lists_inplace_except_last_one(test_paths)
 
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
@@ -227,6 +227,7 @@ class ConfigInitializer:
             optimization_result = [current_NN.optimization(val_paths, m_out)[1:]]
             log.warning("Test begins")
             fvs = time.time()
+            test_paths = ModelInitializer.load_test_paths(test_paths_file, Model, test_size, last_paths)
             final = optimization_result[0][0].test(test_paths)
             log.info("Testing on the final net gives: " + str(final))
             Memory.test_duration = time.time() - fvs
@@ -240,6 +241,7 @@ class ConfigInitializer:
             f.close()
 
             Out.create_graphics(Memory, optimization_result[0][0], Model, current_Config, run_number, val_paths, test_paths, current_NN)
+            test_paths = None
 
             run_number += 1
 

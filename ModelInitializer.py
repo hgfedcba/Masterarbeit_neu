@@ -114,7 +114,7 @@ def initialize_model(option):
         val_paths_file = "../val_paths_4312.npy"
         test_paths_file = "../test_paths_4312.npy"
         val_paths = np.load(val_paths_file, mmap_mode="r")
-        test_paths = np.load(test_paths_file, mmap_mode="r")
+        # test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == 4411_2:
         # bermudan max call
@@ -153,7 +153,7 @@ def initialize_model(option):
         val_paths_file = "../val_paths_4411_2.npy"
         test_paths_file = "../test_paths_4411_2.npy"
         val_paths = np.load(val_paths_file, mmap_mode="r")
-        test_paths = np.load(test_paths_file, mmap_mode="r")
+        # test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == 4411_5:
         # bermudan max call
@@ -191,7 +191,7 @@ def initialize_model(option):
         val_paths_file = "../val_paths_4411_5.npy"
         test_paths_file = "../test_paths_4411_5.npy"
         val_paths = np.load(val_paths_file, mmap_mode="r")
-        test_paths = np.load(test_paths_file, mmap_mode="r")
+        # test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == 2:
         # Model
@@ -224,7 +224,7 @@ def initialize_model(option):
         val_paths_file = "../val_paths_2.npy"
         test_paths_file = "../test_paths_2.npy"
         val_paths = np.load(val_paths_file, mmap_mode="r")
-        test_paths = np.load(test_paths_file, mmap_mode="r")
+        # test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == 1:
         # Model
@@ -266,7 +266,7 @@ def initialize_model(option):
         val_paths_file = "../val_paths_1.npy"
         test_paths_file = "../test_paths_1.npy"
         val_paths = np.load(val_paths_file, mmap_mode="r")
-        test_paths = np.load(test_paths_file, mmap_mode="r")
+        # test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == 0:
         # Model
@@ -299,7 +299,7 @@ def initialize_model(option):
         val_paths_file = "../val_paths_1.npy"
         test_paths_file = "../test_paths_1.npy"
         val_paths = np.load(val_paths_file, mmap_mode="r")
-        test_paths = np.load(test_paths_file, mmap_mode="r")
+        # test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == "R00":
         N = 5
@@ -325,7 +325,7 @@ def initialize_model(option):
         Model.update_parameter_string(main_pc)
 
         val_paths = Model.generate_paths(val_size, True)
-        test_paths = Model.generate_paths(test_size, True)
+        # test_paths = Model.generate_paths(test_size, True)
 
     elif option == "R1" or option == "R0":
         N = 11
@@ -351,8 +351,8 @@ def initialize_model(option):
 
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
 
         elif W:
             Model = W_RobbinsModel(N)
@@ -362,7 +362,7 @@ def initialize_model(option):
             test_paths_file = "../test_paths_WR12.npy"
 
             val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
         elif filled:
             Model = Filled_RobbinsModel(N)
             Model.set_reference_value()
@@ -371,7 +371,7 @@ def initialize_model(option):
             test_paths_file = "../test_paths_0R12.npy"
 
             val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
 
         else:
             Model = RobbinsModel(N)
@@ -381,8 +381,8 @@ def initialize_model(option):
             test_paths_file = "../test_paths_R12.npy"
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
 
         Model.update_parameter_string(main_pc)
 
@@ -402,8 +402,8 @@ def initialize_model(option):
 
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
         elif W:
             Model = W_RobbinsModel(N)
             Model.set_reference_value()
@@ -412,7 +412,7 @@ def initialize_model(option):
             test_paths_file = "../test_paths_WR12.npy"
 
             val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
         elif filled:
             Model = Filled_RobbinsModel(N)
             Model.set_reference_value()
@@ -421,7 +421,7 @@ def initialize_model(option):
             test_paths_file = "../test_paths_0R12.npy"
 
             val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
         else:
             Model = RobbinsModel(N)
             Model.set_reference_value()
@@ -430,8 +430,8 @@ def initialize_model(option):
             test_paths_file = "../test_paths_R12.npy"
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
 
         Model.update_parameter_string(main_pc)
 
@@ -451,8 +451,8 @@ def initialize_model(option):
 
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
         elif W:
             Model = W_RobbinsModel(N)
             Model.set_reference_value()
@@ -461,7 +461,7 @@ def initialize_model(option):
             test_paths_file = "../test_paths_WR13.npy"
 
             val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
         elif filled:
             Model = Filled_RobbinsModel(N)
             Model.set_reference_value()
@@ -470,7 +470,7 @@ def initialize_model(option):
             test_paths_file = "../test_paths_0R13.npy"
 
             val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
 
         else:
             Model = RobbinsModel(N)
@@ -480,8 +480,8 @@ def initialize_model(option):
             test_paths_file = "../test_paths_R13.npy"
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
 
         Model.update_parameter_string(main_pc)
 
@@ -502,8 +502,8 @@ def initialize_model(option):
 
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
 
         elif W:
             Model = W_RobbinsModel(N)
@@ -513,7 +513,7 @@ def initialize_model(option):
             test_paths_file = "../test_paths_WR20.npy"
 
             val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
         elif filled:
             Model = Filled_RobbinsModel(N)
             Model.set_reference_value()
@@ -522,7 +522,7 @@ def initialize_model(option):
             test_paths_file = "../test_paths_0R20.npy"
 
             val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
         else:
             Model = RobbinsModel(N)
             Model.set_reference_value()
@@ -531,8 +531,8 @@ def initialize_model(option):
             test_paths_file = "../test_paths_R20.npy"
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
 
         Model.update_parameter_string(main_pc)
 
@@ -553,8 +553,8 @@ def initialize_model(option):
 
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
         elif W:
             Model = W_RobbinsModel(N)
             Model.set_reference_value()
@@ -563,7 +563,7 @@ def initialize_model(option):
             test_paths_file = "../test_paths_WR30.npy"
 
             val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
         elif filled:
             Model = Filled_RobbinsModel(N)
             Model.set_reference_value()
@@ -572,7 +572,7 @@ def initialize_model(option):
             test_paths_file = "../test_paths_0R30.npy"
 
             val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
         else:
             Model = RobbinsModel(N)
             Model.set_reference_value()
@@ -582,8 +582,8 @@ def initialize_model(option):
                 
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
 
         Model.update_parameter_string(main_pc)
 
@@ -599,74 +599,32 @@ def initialize_model(option):
             Model = Shortened_RobbinsModel(N)
             Model.set_reference_value()
 
-            val_paths_file = "../val_paths_R40.npy"
-            test_paths_file = "../test_paths_R40.npy"
-            with open(val_paths_file, "rb") as fp:  # Unpickling
-                val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
-
-            val_paths = Model.convert_Robbins_paths_to_shortened_Robbins_paths(val_paths)
-            test_paths = Model.convert_Robbins_paths_to_shortened_Robbins_paths(test_paths)
-
-            with open("../val_paths_SR40.npy", 'wb') as f:
-                pickle.dump(val_paths, f)
-            with open("../test_paths_SR40.npy", 'wb') as f:
-                pickle.dump(test_paths, f)
-
             val_paths_file = "../val_paths_SR40.npy"
             test_paths_file = "../test_paths_SR40.npy"
 
-            h = Model.getpath_dim()
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
 
         elif W:
             Model = W_RobbinsModel(N)
             Model.set_reference_value()
 
-            val_paths_file = "../val_paths_R40.npy"
-            test_paths_file = "../test_paths_R40.npy"
-            with open(val_paths_file, "rb") as fp:  # Unpickling
-                val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
-
-            val_paths = Model.convert_multiple_Robbins_paths_to_W_paths(val_paths)
-            test_paths = Model.convert_multiple_Robbins_paths_to_W_paths(test_paths)
-
             val_paths_file = "../val_paths_WR40.npy"
             test_paths_file = "../test_paths_WR40.npy"
 
-            np.save(val_paths_file, val_paths)  # TODO
-            np.save(test_paths_file, test_paths)
-
             val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
         elif filled:
             Model = Filled_RobbinsModel(N)
             Model.set_reference_value()
 
-            val_paths_file = "../val_paths_R40.npy"
-            test_paths_file = "../test_paths_R40.npy"
-            with open(val_paths_file, "rb") as fp:  # Unpickling
-                val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
-
-            val_paths = Model.convert_Robbins_to_Filled(val_paths)
-            test_paths = Model.convert_Robbins_to_Filled(test_paths)
-
             val_paths_file = "../val_paths_0R40.npy"
             test_paths_file = "../test_paths_0R40.npy"
 
-            np.save(val_paths_file, val_paths)  # TODO
-            np.save(test_paths_file, test_paths)
-
             val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
         else:
             Model = RobbinsModel(N)
             Model.set_reference_value()
@@ -675,8 +633,8 @@ def initialize_model(option):
             test_paths_file = "../test_paths_R40.npy"
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
 
         Model.update_parameter_string(main_pc)
 
@@ -712,8 +670,8 @@ def initialize_model(option):
             h = Model.getpath_dim()
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
 
         elif W:
             Model = W_RobbinsModel(N)
@@ -723,7 +681,7 @@ def initialize_model(option):
             test_paths_file = "../test_paths_WR60.npy"
 
             val_paths = np.load(val_paths_file, mmap_mode="r")
-            test_paths = np.load(test_paths_file, mmap_mode="r")
+            # test_paths = np.load(test_paths_file, mmap_mode="r")
         elif filled:
             Model = None
             pass
@@ -735,8 +693,8 @@ def initialize_model(option):
             test_paths_file = "../test_paths_R60.npy"
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
-            with open(test_paths_file, "rb") as fp:  # Unpickling
-                test_paths = pickle.load(fp)
+            # with open(test_paths_file, "rb") as fp:  # Unpickling
+                # test_paths = pickle.load(fp)
 
         Model.update_parameter_string(main_pc)
 
@@ -773,7 +731,7 @@ def initialize_model(option):
         # val_paths = np.load(val_paths_file, mmap_mode="r")
         # test_paths = np.load(test_paths_file, mmap_mode="r")
         val_paths = Model.generate_paths(val_size)
-        test_paths = Model.generate_paths(test_size)
+        # test_paths = Model.generate_paths(test_size)
 
     elif option == "Russ11":
         # Model
@@ -808,7 +766,7 @@ def initialize_model(option):
         # val_paths = np.load(val_paths_file, mmap_mode="r")
         # test_paths = np.load(test_paths_file, mmap_mode="r")
         val_paths = Model.generate_paths(val_size)
-        test_paths = Model.generate_paths(test_size)
+        # test_paths = Model.generate_paths(test_size)
 
     elif option == "Russ111":
         # Model
@@ -843,7 +801,7 @@ def initialize_model(option):
         # val_paths = np.load(val_paths_file, mmap_mode="r")
         # test_paths = np.load(test_paths_file, mmap_mode="r")
         val_paths = Model.generate_paths(val_size)
-        test_paths = Model.generate_paths(test_size)
+        # test_paths = Model.generate_paths(test_size)
 
     elif option == "Russ0":
         # Model
@@ -878,7 +836,7 @@ def initialize_model(option):
         # val_paths = np.load(val_paths_file, mmap_mode="r")
         # test_paths = np.load(test_paths_file, mmap_mode="r")
         val_paths = Model.generate_paths(val_size)
-        test_paths = Model.generate_paths(test_size)
+        # test_paths = Model.generate_paths(test_size)
 
     elif option == "Russ2":
         # Model
@@ -913,7 +871,7 @@ def initialize_model(option):
         # val_paths = np.load(val_paths_file, mmap_mode="r")
         # test_paths = np.load(test_paths_file, mmap_mode="r")
         val_paths = Model.generate_paths(val_size)
-        test_paths = Model.generate_paths(test_size)
+        # test_paths = Model.generate_paths(test_size)
     else:
         # falsche Option eingegeben
         assert False
@@ -938,11 +896,31 @@ def initialize_model(option):
         test_size *= 8
         last_paths = True
 
+    """
     if isinstance(val_paths, list):
         val_size = min(len(val_paths), val_size)
         test_size = min(len(test_paths), test_size)
     else:
         val_size = min(val_paths.shape[0], val_size)
         test_size = min(test_paths.shape[0], test_size)
+    """
 
-    return val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, test_paths_file, last_paths
+    return val_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, test_paths_file, last_paths
+    # return val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, test_paths_file, last_paths
+
+
+def load_test_paths(test_paths_file, Model, test_size, last_paths):
+    if test_paths_file is None:
+        test_paths = Model.generate_paths(test_size)
+    else:
+        if isinstance(Model, RobbinsModel):
+            with open(test_paths_file, "rb") as fp:  # Unpickling
+                test_paths = pickle.load(fp)
+        else:
+            test_paths = np.load(test_paths_file, mmap_mode="r")
+        if last_paths:
+            test_paths = test_paths[-test_size:]
+        else:
+            test_paths = test_paths[:test_size]
+    return test_paths
+

@@ -48,12 +48,8 @@ input sortieren
 
 # TODO: noch einmal gpu (ich muss calculate payoffs anpassen)
 
-# TODO: fix alg20, 14 and not robins
-
-# TODO: alg 2 robbins (without sorting)   3 versionen, einmal nullen vorne, einmal nullen hinten und einmal einsen hinten, immer mit extra t
-
+# writing
 # TODO: pretrainiere mehrere netze gleichzeitig
-
 # TODO: erwähne die dimension auch bei alg0 zu übergeben
 
 
@@ -109,22 +105,21 @@ if __name__ == '__main__':
     import os
     log.warning("Start")
     # TODO: R3f crasheds memory, don'T!
-    # TODO: lade testpfade erst in test und überschreibe dann mit None
-    ConfigInitializer("R30", log)
-    """
+    ConfigInitializer(1, log)
+
     time.sleep(5)
     os.chdir("../current run2")
-    ConfigInitializer("SR40", log)
+    ConfigInitializer(2, log)
 
     time.sleep(5)
     # os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run3")
     os.chdir("../current run3")
-    ConfigInitializer("WR40", log)
+    ConfigInitializer("R00", log)
 
     time.sleep(5)
     os.chdir("../current run4")
-    ConfigInitializer("FR40", log)
-    """
+    ConfigInitializer("SR0", log)
+
     log.warning("The End")
     """
     from catboost_test_file import main
