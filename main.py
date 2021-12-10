@@ -110,14 +110,20 @@ if __name__ == '__main__':
     log.warning("Start")
     # TODO: R3f crasheds memory, don'T!
     # TODO: lade testpfade erst in test und überschreibe dann mit None
-    ConfigInitializer("FR1", log)
-
-    os.chdir("../current run2")
-    ConfigInitializer("SR1", log)
+    ConfigInitializer("R30", log)
     """
+    time.sleep(5)
+    os.chdir("../current run2")
+    ConfigInitializer("SR40", log)
+
+    time.sleep(5)
     # os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run3")
     os.chdir("../current run3")
-    ConfigInitializer("WR30s", log)
+    ConfigInitializer("WR40", log)
+
+    time.sleep(5)
+    os.chdir("../current run4")
+    ConfigInitializer("FR40", log)
     """
     log.warning("The End")
     """

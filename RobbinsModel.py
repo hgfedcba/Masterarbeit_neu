@@ -75,12 +75,6 @@ class RobbinsModel(AbstractMathematicalModel):
         return range(1, self._N + 1)
 
     def convert_NN_path_to_mathematical_path(self, x):
-        # Dude, seriously
-        """
-        out = np.ones_like(x)
-        for k in range(x.__len__()):
-            out[k] *= x[k][k]
-        """
         return np.array(x[-1])
 
     def convert_multiple_NN_paths_to_mathematical_paths(self, x):

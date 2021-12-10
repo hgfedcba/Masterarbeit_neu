@@ -30,23 +30,15 @@ class W_RobbinsModel(AbstractMathematicalModel):
 
     # antithetic is ignored
     def generate_paths(self, L, antithetic=None, N=None):
-        """
-        for l in range(L):
-            out.append(np.random.uniform(low=0.0, high=1.0, size=None))
-            # if l % 100000 == 0:
-            #     print(l)
-        """
-
-        """
-        x = np.random.uniform(low=0.0, high=1.0, size=(L, self.__N+1))
-
-        x = x.tolist()
-
-        for k in range(x.__len__()):
-            x[k] = np.reshape(x[k], (1, self.__N+1))
-        """
         x = np.random.uniform(low=0.0, high=1.0, size=(L, 1, self._N + 1))
         return x
+
+    def convert_Robbins_path_to_W_path(self, x):
+        return np.array(x[-1])
+
+    def convert_multiple_Robbins_paths_to_W_paths(self, x):
+        l = len(x[0])
+        return [np.array(y[-1]).reshape((1, l)) for y in x]
 
     def get_time_partition(self, N=None, step_size=1):
         return range(1, self._N + 1)

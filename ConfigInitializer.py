@@ -38,7 +38,12 @@ class ConfigInitializer:
         current_Config = None
 
         result_list = []
-        val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, last_paths = ModelInitializer.initialize_model(option)
+        val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, test_paths_file, last_paths = ModelInitializer.initialize_model(option)
+
+        train_size = 100
+        val_size = 100
+        test_size = 100
+        max_minutes = 0.1  # TODO: Change
 
         # Parametergrid für Netz
         # addAdam
@@ -53,7 +58,7 @@ class ConfigInitializer:
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
-            'algorithm'                             : [2, 5, 6],  # 5, 0, 21, 20, 15  # [5, 6]
+            'algorithm'                             : [0],  # 5, 0, 21, 20, 15  # [5, 6]
             'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again | only for robbins problem
             'pretrain with empty nets'              : [True],
             'internal neurons per layer'            : [50],  # 50, 100
@@ -183,6 +188,11 @@ class ConfigInitializer:
             '''
 
             if (algorithm == 2 or algorithm == 3) and isinstance(Model, RobbinsModel):
+                log.info("continued")
+                continue
+
+            if algorithm == 21 and not isinstance(Model, RobbinsModel):
+                log.info("continued")
                 continue
 
             if 20 > algorithm >= 10:
