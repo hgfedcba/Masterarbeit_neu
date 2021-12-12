@@ -105,21 +105,21 @@ if __name__ == '__main__':
     import os
     log.warning("Start")
     # TODO: R3f crasheds memory, don'T!
-    ConfigInitializer(1, log)
-
+    ConfigInitializer("FR12", log)  # TODO: relative time of stopping plot missing
+    """
     time.sleep(5)
     os.chdir("../current run2")
-    ConfigInitializer(2, log)
-
+    ConfigInitializer("FR12", log)
+    
     time.sleep(5)
     # os.chdir("C:/Users/Olus/Desktop/Masterarbeit Mathe/new computer/current run3")
     os.chdir("../current run3")
-    ConfigInitializer("R00", log)
-
+    ConfigInitializer("FR20", log)
+    
     time.sleep(5)
     os.chdir("../current run4")
     ConfigInitializer("SR0", log)
-
+    """
     log.warning("The End")
     """
     from catboost_test_file import main

@@ -40,11 +40,6 @@ class ConfigInitializer:
         result_list = []
         val_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, test_paths_file, last_paths = ModelInitializer.initialize_model(option)
 
-        train_size = 100
-        val_size = 100
-        test_size = 100
-        max_minutes = 0.1  # TODO: Change
-
         # Parametergrid für Netz
         # addAdam
         add_step_lr_scheduler(500)
@@ -58,22 +53,22 @@ class ConfigInitializer:
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
-            'algorithm'                             : [16],  # 5, 0, 21, 20, 15  # [5, 6]
+            'algorithm'                             : [2],  # 5, 0, 21, 20, 15  # [5, 6]
             'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again | only for robbins problem
             'pretrain with empty nets'              : [True],
-            'internal neurons per layer'            : [50],  # 50, 100
+            'internal neurons per layer'            : [100, 50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
-            'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
+            'internal activation function'          : [tanh, relu],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
-            'optimizer'                             : [72],  # [7, 72] [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
+            'optimizer'                             : [7, 72, 2],  # [7, 72] [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
             # Wenn 2 -> _, dann 21 -> _ mit den ersten besonderen einstellungen.
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
             'number pretrain iterations'            : [500],
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
-            'initial lr'                            : [0.005],  # [0.005, 0.02] 0.01 for other setting
-            'lr decay algorithm'                    : [3],  # [2, 3] 2 Information in 1 entry
+            'initial lr'                            : [0.005, 0.02],  # [0.005, 0.02] 0.01 for other setting
+            'lr decay algorithm'                    : [2, 3],  # [2, 3] 2 Information in 1 entry
             'dropout rate'                          : [0],  # only 0, breaks alg20
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
