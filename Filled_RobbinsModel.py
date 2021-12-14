@@ -41,8 +41,6 @@ class Filled_RobbinsModel(AbstractMathematicalModel):  # die pfade werden voene 
         for i in range(len(list)):
             y.append(np.zeros([N + 1, N + 1]))
             for j in range(N+1):
-                h1 = y[i][j, -j - 1:]
-                h2 = list[i][j]
                 y[i][-j - 1:, j] = np.array(list[i][j])
                 assert True
 
@@ -61,8 +59,6 @@ class Filled_RobbinsModel(AbstractMathematicalModel):  # die pfade werden voene 
         for i in range(L):
             y.append(np.zeros([N+1, N+1]))
             for j in range(N+1):
-                h1 = y[i][j, -j-1:]
-                h2 = x[i, :j+1]
                 y[i][-j-1:, j] = x[i, :j+1]
 
         y = self.sort_np_paths_list(y)

@@ -14,6 +14,8 @@ import numpy as np
 
 import RussianOption
 from RobbinsModel import RobbinsModel
+from Shortened_RobbinsModel import Shortened_RobbinsModel
+from Filled_RobbinsModel import Filled_RobbinsModel
 
 from Util import *
 import statistics
@@ -29,6 +31,12 @@ def average_value_stopped_at(final_result, Model, paths):
         no_stop = []
         if isinstance(Model, RobbinsModel):
             for k in range(len(paths)):
+                if stopping_times[k] == n:
+                    stop.append(paths[k][n][-1])
+                elif stopping_times[k] > n:
+                    no_stop.append(paths[k][n][-1])
+        elif isinstance(Model, Filled_RobbinsModel):
+            for k in range(paths.shape[0]):
                 if stopping_times[k] == n:
                     stop.append(paths[k][n][-1])
                 elif stopping_times[k] > n:
@@ -218,7 +226,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     pdf.savefig(fig14)
     plt.close(fig14)
 
-    if True or np.all(Model.getpath_dim() == np.ones_like(Model.getpath_dim())) or isinstance(Model, RobbinsModel):  # TODO: I kind of forgot why this is here
+    if len(test_paths) > 0:  # I kind of forgot why this is here np.all(Model.getpath_dim() == np.ones_like(Model.getpath_dim())) or isinstance(Model, RobbinsModel)
         # bar graph of stopping boundary
         c, v, p = average_value_stopped_at(ProminentResults.final_result, Model, test_paths)
 
@@ -242,7 +250,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
         plt.xlabel('Time')
         plt.ylabel('average value')
-        plt.title('avg value stopped at on the test set at each timestep')  # TODO: bugged
+        plt.title('avg value stopped at on the test set at each timestep')
         # plt.yscale('log')
 
         pdf.savefig(fig15)
