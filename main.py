@@ -104,7 +104,7 @@ if __name__ == '__main__':
     import os
     log.warning("Start")
     # TODO: R3f crasheds memory, don'T!
-    ConfigInitializer("FR12l", log)
+    ConfigInitializer("FR12l", log)  # TODO: out
     """
     time.sleep(5)
     os.chdir("../current run2")

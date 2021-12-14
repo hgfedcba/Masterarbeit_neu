@@ -18,7 +18,7 @@ class Shortened_RobbinsModel(RobbinsModel):
         super().__init__(N)
 
     def update_parameter_string(self, main_pc):
-        parameter_string = "Shortened Robbins Model mit unterem Referenzwert für V: ", round(self._reference_value_upper_V, 3), "oberem Referenzwert für W: ", round(self.__reference_value_lower_W, 3), "N: ", self._N + 1,\
+        parameter_string = "Shortened Robbins Model mit unterer Schranke für V: ", round(self._reference_value_upper_V, 3), "oberer Schranke für W_n: ", round(self.__reference_value_lower_W, 3), "N: ", self._N + 1,\
                            "auf dem " + main_pc
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)

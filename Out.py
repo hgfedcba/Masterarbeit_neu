@@ -242,7 +242,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
         plt.xlabel('Time')
         plt.ylabel('average value')
-        plt.title('avg value stopped at on the test set at each timestep')
+        plt.title('avg value stopped at on the test set at each timestep')  # TODO: bugged
         # plt.yscale('log')
 
         pdf.savefig(fig15)
