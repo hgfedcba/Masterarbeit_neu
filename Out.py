@@ -108,8 +108,8 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     elif Config.algorithm == 21:
         o = [[], []]
         for m in range(x.size):
-            o[0].append(m + 3 - robbins_problem_lower_boundary(m + 1))
-            o[1].append(m + 3 - robbins_problem_known_upper_boundary(m))
+            o[0].append(m + 3 - robbins_problem_lower_boundary_of_W(m + 1))
+            o[1].append(m + 3 - robbins_problem_known_upper_boundary_of_V(m))
         draw_connected_points(x, o[0], plot_number_value, 'black', do_scatter=do_scatter)
         draw_connected_points(x, o[1], plot_number_value, 'gray', do_scatter=do_scatter)
         plt.legend(["disc value", "W_n", "V barrier"])
@@ -140,8 +140,8 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
 
         o = [[], []]
         for m in range(x.size):
-            o[0].append(robbins_problem_lower_boundary(m + 1))
-            o[1].append(robbins_problem_known_upper_boundary(m))
+            o[0].append(robbins_problem_lower_boundary_of_W(m + 1))
+            o[1].append(robbins_problem_known_upper_boundary_of_V(m))
         draw_connected_points(x, o[0], plot_number_inverted_value, 'black', do_scatter=do_scatter)
         draw_connected_points(x, o[1], plot_number_inverted_value, 'gray', do_scatter=do_scatter)
         plt.legend(["disc value", "W_n", "V barrier"])
@@ -218,7 +218,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     pdf.savefig(fig14)
     plt.close(fig14)
 
-    if np.all(Model.getpath_dim() == np.ones_like(Model.getpath_dim())) or isinstance(Model, RobbinsModel):
+    if True or np.all(Model.getpath_dim() == np.ones_like(Model.getpath_dim())) or isinstance(Model, RobbinsModel):  # TODO: I kind of forgot why this is here
         # bar graph of stopping boundary
         c, v, p = average_value_stopped_at(ProminentResults.final_result, Model, test_paths)
 

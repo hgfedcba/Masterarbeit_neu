@@ -58,9 +58,9 @@ class ConfigInitializer:
             'pretrain with empty nets'              : [True],
             'internal neurons per layer'            : [100, 50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
-            'internal activation function'          : [tanh, relu],  # [tanh, relu, leaky_relu, softsign, selu]
+            'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
-            'optimizer'                             : [7, 72, 2],  # [7, 72] [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
+            'optimizer'                             : [72],  # [7, 72] [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
             # Wenn 2 -> _, dann 21 -> _ mit den ersten besonderen einstellungen.
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
             'number pretrain iterations'            : [500],
@@ -222,7 +222,7 @@ class ConfigInitializer:
             optimization_result = [current_NN.optimization(val_paths, m_out)[1:]]
             log.warning("Test begins")
             fvs = time.time()
-            test_paths = ModelInitializer.load_test_paths(test_paths_file, Model, test_size, last_paths)
+            test_paths, test_size = ModelInitializer.load_test_paths(test_paths_file, Model, test_size, last_paths)
             final = optimization_result[0][0].test(test_paths)
             log.info("Testing on the final net gives: " + str(final))
             Memory.test_duration = time.time() - fvs
@@ -254,6 +254,7 @@ class ConfigInitializer:
             f.write(self.result_to_resultstring(res, algorithm))
         f.close()
 
+        assert len(result_list) > 0
         self.create_outputtable(Model, current_Config, list_common_parameters, result_list)
 
     @staticmethod
@@ -324,7 +325,7 @@ class ConfigInitializer:
         data.append(['average payoff of on the test set using the net giving the best result on the val set', 'average payoff of on the test set using the final net',
                      'time until intermediate result', 'time total'])
         '''
-        data.append(['best disc value', '# no stop', 'iterations', 'time'] + [param[0] for param in resultlist[0][4]])
+        data.append(['disc value', '# no stop', 'iterations', 'time'] + [param[0] for param in resultlist[0][4]])
         for res in resultlist:
             data.append(['  ' + str(res[2]) + '  ', res[0].return_best_disc(), res[0].final_result.amount_of_times_where_no_stopping_happens, str(len(res[1].average_train_payoffs)), res[1].end_time - res[1].start_time]
                             + [str(param[1]) for param in res[4]])

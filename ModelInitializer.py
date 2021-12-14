@@ -916,11 +916,13 @@ def load_test_paths(test_paths_file, Model, test_size, last_paths):
         if isinstance(Model, RobbinsModel):
             with open(test_paths_file, "rb") as fp:  # Unpickling
                 test_paths = pickle.load(fp)
+            test_size = min(test_size, len(test_paths))
         else:
             test_paths = np.load(test_paths_file, mmap_mode="r")
+            test_size = min(test_size, test_paths.shape[0])
         if last_paths:
             test_paths = test_paths[-test_size:]
         else:
             test_paths = test_paths[:test_size]
-    return test_paths
+    return test_paths, test_size
 

@@ -15,14 +15,14 @@ from AbstractMathematicalModel import AbstractMathematicalModel
 class W_RobbinsModel(AbstractMathematicalModel):
     def __init__(self, N):
         self._N = N  # X_0,..., X_(N)
-        self._reference_value = None
+        self._reference_value_W = None
         self.t = self.get_time_partition()
         self.parameter_string = ""
         self.parameter_list = []
         self._K = 0  # solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
 
     def update_parameter_string(self, main_pc):
-        parameter_string = "Robbins Model ohne Vergangenheit mit Referenzwert: ", round(self._reference_value, 3), "N: ", self._N + 1, "auf dem " + main_pc
+        parameter_string = "Robbins Model ohne Vergangenheit mit Referenzwert: ", round(self._reference_value_W, 3), "N: ", self._N + 1, "auf dem " + main_pc
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
 
@@ -104,10 +104,10 @@ class W_RobbinsModel(AbstractMathematicalModel):
         return torch.matmul(U, torch.tensor(z2, dtype=torch.float))
 
     def set_reference_value(self):
-        self._reference_value = self.getN() + 1 - Util.robbins_problem_lower_boundary(self.getN())
+        self._reference_value_W = self.getN() + 1 - Util.robbins_problem_lower_boundary_of_W(self.getN())
 
     def get_reference_value(self):
-        return self._reference_value
+        return self._reference_value_W
 
 
 

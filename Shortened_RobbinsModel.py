@@ -18,7 +18,7 @@ class Shortened_RobbinsModel(RobbinsModel):
         super().__init__(N)
 
     def update_parameter_string(self, main_pc):
-        parameter_string = "Shortened Robbins Model mit unterem Referenzwert: ", round(self.__reference_value_upper, 3), "oberem Referenzwert: ", round(self.__reference_value_lower, 3), "N: ", self._N + 1,\
+        parameter_string = "Shortened Robbins Model mit unterem Referenzwert für V: ", round(self._reference_value_upper_V, 3), "oberem Referenzwert für W: ", round(self.__reference_value_lower_W, 3), "N: ", self._N + 1,\
                            "auf dem " + main_pc
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
@@ -156,12 +156,12 @@ class Shortened_RobbinsModel(RobbinsModel):
 
     def set_reference_value(self):
         # 1.908 ist die beste bekannte untere Grenze für V und da die V_n monoton wachsend sind ist es auch eine untere Grenze für V_n
-        self.__reference_value_upper = self.getN() + 2 - Util.robbins_problem_known_upper_boundary(self.getN())
+        self.__reference_value_upper_V = self.getN() + 2 - Util.robbins_problem_known_upper_boundary_of_V(self.getN())
         # self.__reference_value_upper = self.getN()+2-Util.robbins_problem_experimental_upper_boundary(self.getN())  # TODO: remember
-        self.__reference_value_lower = self.getN()+2-Util.robbins_problem_lower_boundary(self.getN())  # explicit threshhold function
+        self.__reference_value_lower_W = self.getN() + 2 - Util.robbins_problem_lower_boundary_of_W(self.getN())  # explicit threshhold function
 
     def get_reference_value(self):
-        return self.__reference_value_lower, self.__reference_value_upper
+        return self.__reference_value_lower_W, self.__reference_value_upper_V
 
     def convert_Robbins_paths_to_shortened_Robbins_paths(self, lists):
         assert len(lists[0]) == self.getN()+1

@@ -15,15 +15,15 @@ from AbstractMathematicalModel import AbstractMathematicalModel
 class Filled_RobbinsModel(AbstractMathematicalModel):  # die pfade werden voene mit 0en aufgefüllt und sind sortiert
     def __init__(self, N):
         self._N = N  # X_0,..., X_(N)
-        self._reference_value_upper = None
-        self._reference_value_lower = None
+        self._reference_value_upper_V = None
+        self._reference_value_lower_W = None
         self.t = self.get_time_partition()
         self.parameter_string = ""
         self.parameter_list = []
         self._K = 0  # solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
 
     def update_parameter_string(self, main_pc):
-        parameter_string = "Filled Robbins Model mit unterem Referenzwert: ", round(self._reference_value_upper, 3), "oberen Referenzwert: ", round(self._reference_value_lower, 3), "N: ", self._N + 1,\
+        parameter_string = "Filled Robbins Model mit unterem Referenzwert für V: ", round(self._reference_value_upper_V, 3), "oberem Referenzwert für W: ", round(self._reference_value_lower_W, 3), "N: ", self._N + 1,\
                            "auf dem " + main_pc
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
@@ -144,12 +144,12 @@ class Filled_RobbinsModel(AbstractMathematicalModel):  # die pfade werden voene 
 
     def set_reference_value(self):
         # 1.908 ist die beste bekannte untere Grenze für V und da die V_n monoton wachsend sind ist es auch eine untere Grenze für V_n
-        self._reference_value_upper = self.getN() + 2 - Util.robbins_problem_known_upper_boundary(self.getN())
+        self._reference_value_upper_V = self.getN() + 2 - Util.robbins_problem_known_upper_boundary_of_V(self.getN())
         # self.__reference_value_upper = self.getN()+2-Util.robbins_problem_experimental_upper_boundary(self.getN())  # TODO: remember
-        self._reference_value_lower = self.getN() + 2 - Util.robbins_problem_lower_boundary(self.getN())  # explicit threshhold function
+        self._reference_value_lower_W = self.getN() + 2 - Util.robbins_problem_lower_boundary_of_W(self.getN())  # explicit threshhold function
 
     def get_reference_value(self):
-        return self._reference_value_lower, self._reference_value_upper
+        return self._reference_value_lower_W, self._reference_value_upper_V
 
 
 

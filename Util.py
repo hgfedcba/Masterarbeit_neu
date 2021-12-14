@@ -34,7 +34,7 @@ def real_fake_net(j, N):
     return f
 
 
-def robbins_problem_lower_boundary(n):
+def robbins_problem_lower_boundary_of_W(n):
     n = n+1
     if n > 12:
         return 1 + 4*(n-1)/(3*(n+1))
@@ -65,14 +65,14 @@ def robbins_problem_lower_boundary(n):
 
 
 # TODO: recall this conjecture is in the paper
-def robbins_problem_experimental_upper_boundary(n):
+def robbins_problem_experimental_upper_boundary_of_V(n):
     out = 1.908
     for k in range(1, n-4):
         out += 0.048*0.615**k
     return out
 
 
-def robbins_problem_known_upper_boundary(n):
+def robbins_problem_known_upper_boundary_of_V(n):
 
     return 1.908
 

@@ -57,7 +57,7 @@ class Alg20_NN(NN):
                 """
 
                 # recall m+2 = self.N+1 = N
-                l = m + 3 - robbins_problem_lower_boundary(m + 1)  # explicit threshhold function
+                l = m + 3 - robbins_problem_lower_boundary_of_W(m + 1)  # explicit threshhold function
 
                 log.info("For N = " + str(m+2) + " the val-value is " + str(disc_payoff) + " and the reference value for W_" + str(m+2) + " is " + str(l))
 
@@ -80,7 +80,7 @@ class Alg20_NN(NN):
         elif self.algorithm == 20:
             self.val_paths = val_paths
             # recall m+2 = self.N+1 = N
-            l = self.N + 2 - robbins_problem_lower_boundary(self.N)  # explicit threshhold function
+            l = self.N + 2 - robbins_problem_lower_boundary_of_W(self.N)  # explicit threshhold function
 
             for m in range(end):
                 self.Memory.total_net_durations_per_validation.append(0)
