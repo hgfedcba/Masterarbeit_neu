@@ -42,7 +42,7 @@ def initialize_model(option):
 
     import pathlib
     path = pathlib.Path(__file__).parent.absolute().__str__()
-    if not "Olus" in path:
+    if "Olus" not in path:
         main_pc = "\tZweitrechner"
     else:
         main_pc = "\tHauptrechner"
@@ -667,7 +667,6 @@ def initialize_model(option):
             val_paths_file = "../val_paths_SR60.npy"
             test_paths_file = "../test_paths_SR60.npy"
 
-            h = Model.getpath_dim()
             with open(val_paths_file, "rb") as fp:  # Unpickling
                 val_paths = pickle.load(fp)
             # with open(test_paths_file, "rb") as fp:  # Unpickling
@@ -896,17 +895,7 @@ def initialize_model(option):
         test_size *= 8
         last_paths = True
 
-    """
-    if isinstance(val_paths, list):
-        val_size = min(len(val_paths), val_size)
-        test_size = min(len(test_paths), test_size)
-    else:
-        val_size = min(val_paths.shape[0], val_size)
-        test_size = min(test_paths.shape[0], test_size)
-    """
-
     return val_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, test_paths_file, last_paths
-    # return val_paths, test_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, test_paths_file, last_paths
 
 
 def load_test_paths(test_paths_file, Model, test_size, last_paths):
@@ -925,4 +914,3 @@ def load_test_paths(test_paths_file, Model, test_size, last_paths):
         else:
             test_paths = test_paths[:test_size]
     return test_paths, test_size
-

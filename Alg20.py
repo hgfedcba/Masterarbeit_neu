@@ -1,8 +1,5 @@
-import copy
 from RobbinsModel import RobbinsModel
 from NN import NN
-
-import W_RobbinsModel
 from Util import *
 
 
@@ -36,7 +33,7 @@ class Alg20_NN(NN):
 
                 m_th_iteration_start_time = time.time()
 
-                avg_list = self.empty_pretrain_net_n(self.Model.getpath_dim()[m], m, duration * ratio_single_to_together, iterations * ratio_single_to_together)
+                avg_list = self.empty_pretrain_net_n(m, duration * ratio_single_to_together, iterations * ratio_single_to_together)
 
                 # Note: last joined training is longer
                 if m == end-1:
@@ -87,7 +84,7 @@ class Alg20_NN(NN):
 
                 m_th_iteration_start_time = time.time()
 
-                avg_list = self.empty_pretrain_net_n(self.Model.getpath_dim()[m], m, duration * ratio_single_to_together, iterations * ratio_single_to_together)
+                avg_list = self.empty_pretrain_net_n(m, duration * ratio_single_to_together, iterations * ratio_single_to_together)
 
                 # Note: last is longer
                 if m == end-1:

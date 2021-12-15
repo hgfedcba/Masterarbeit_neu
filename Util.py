@@ -1,9 +1,7 @@
-import scipy.stats
 import numpy as np
 import time
-from pylab import plot, show, grid, xlabel, ylabel
+from pylab import plot
 import matplotlib.pyplot as plt
-import matplotlib.backends.backend_pdf as pdfp
 import torch
 
 
@@ -111,7 +109,6 @@ def draw_function(x, f, plot_number=0, color=None, algorithm=False):
     y = []
     actual_x = []
     for c in x:
-        h = None
         if not algorithm:
             h = torch.tensor([c], dtype=torch.float32, requires_grad=False)
         else:

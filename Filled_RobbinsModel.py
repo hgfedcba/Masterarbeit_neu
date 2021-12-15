@@ -1,13 +1,7 @@
-import copy
-
 import numpy as np
 import pytest
 import torch
 import Util
-
-from ModelDefinitions import sigma_dict, payoff_dict, mu_dict
-import scipy.stats
-import random
 from AbstractMathematicalModel import AbstractMathematicalModel
 
 
@@ -23,8 +17,8 @@ class Filled_RobbinsModel(AbstractMathematicalModel):  # die pfade werden voene 
         self._K = 0  # solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
 
     def update_parameter_string(self, main_pc):
-        parameter_string = "Filled Robbins Model mit unterer Schranke für V: ", round(self._reference_value_upper_V, 3), "oberer Schranke für W_n: ", round(self._reference_value_lower_W, 3), "N: ", self._N + 1,\
-                           "auf dem " + main_pc
+        parameter_string = "Filled Robbins Model mit unterer Schranke für V: ", round(self._reference_value_upper_V, 3), "oberer Schranke für W_n: ", round(self._reference_value_lower_W, 3),\
+                           "N: ", self._N + 1, "auf dem " + main_pc
 
         parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
 
@@ -81,7 +75,7 @@ class Filled_RobbinsModel(AbstractMathematicalModel):  # die pfade werden voene 
         return 1
 
     def getpath_dim(self):
-        return (self._N + 1) * np.ones(self._N, dtype=np.int)  # TODO: why N and not N+1?
+        return (self._N + 1) * np.ones(self._N+1, dtype=np.int)
 
     def convert_NN_path_to_mathematical_path(self, x):
         # Dude, seriously
@@ -134,18 +128,14 @@ class Filled_RobbinsModel(AbstractMathematicalModel):  # die pfade werden voene 
 
         # Dieser Schritt ist für Alg10, damit nur so viele Werte betrachtet werden wie U enthält
         z2 = z1[-len(U):]
-        h = torch.matmul(U, torch.tensor(z2, dtype=torch.float, device=device))  # TODO: Hier wird ein vektor von der cpu auf die gpu geladen -> Zeitproblem
 
-        return torch.matmul(U, torch.tensor(z2, dtype=torch.float, device=device))
+        return torch.matmul(U, torch.tensor(z2, dtype=torch.float, device=device))  # TODO: Hier wird ein vektor von der cpu auf die gpu geladen -> Zeitproblem
 
     def set_reference_value(self):
         # 1.908 ist die beste bekannte untere Grenze für V und da die V_n monoton wachsend sind ist es auch eine untere Grenze für V_n
         self._reference_value_upper_V = self.getN() + 2 - Util.robbins_problem_known_upper_boundary_of_V(self.getN())
-        # self.__reference_value_upper = self.getN()+2-Util.robbins_problem_experimental_upper_boundary(self.getN())  # TODO: remember
+        # self.__reference_value_upper = self.getN()+2-Util.robbins_problem_experimental_upper_boundary(self.getN()) # remember
         self._reference_value_lower_W = self.getN() + 2 - Util.robbins_problem_lower_boundary_of_W(self.getN())  # explicit threshhold function
 
     def get_reference_value(self):
         return self._reference_value_lower_W, self._reference_value_upper_V
-
-
-

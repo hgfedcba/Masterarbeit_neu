@@ -1,24 +1,11 @@
-import datetime
-import time
-import numpy as np
-from pylab import plot, show, grid, xlabel, ylabel
-import matplotlib.pyplot as plt
-import matplotlib.backends.backend_pdf as pdfp
-import torch
-
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
-import numpy as np
 
 import RussianOption
 from RobbinsModel import RobbinsModel
-from Shortened_RobbinsModel import Shortened_RobbinsModel
 from Filled_RobbinsModel import Filled_RobbinsModel
 
 from Util import *
-import statistics
 
 
 def average_value_stopped_at(final_result, Model, paths):
@@ -345,7 +332,6 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     # t = np.array(range(iteration_number, step=Config.validation_frequency))
     iter = []
     td = []
-    tn = []
 
     # Ich lasse die letzten val_frequency iterationen absichtlich aus dem plot heraus da es nicht einfach ist sie richtig anzuzeigen
     for k in range(0, len(Memory.single_train_durations)):

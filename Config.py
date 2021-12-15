@@ -1,13 +1,14 @@
+# noinspection PyUnresolvedReferences
 from NetDefinitions import Adam, relu, hardtanh, relu6, elu, selu, celu, leaky_relu, rrelu, gelu, logsigmoid, hardshrink, tanhshrink, softsign, softplus, softmin, softmax, softshrink, \
     gumbel_softmax, log_softmax, hardsigmoid, tanh, sigmoid, pretrain_functions, lr_decay_algs, pretrain_func_dict, activation_func_dict, lr_decay_dict, optimizer_dict
 
 
 class Config:
     # Ich gebe Standardwerte an um den Datentyp zu deklarieren. Ich möchte die Standardwerte in fast allen Fällen überschreiben.
-    def __init__(self, device="cpu", algorithm=0, sort_net_input=False, pretrain_with_empty_nets=False, internal_neurons=50, hidden_layer_count=3, activation_internal=tanh, activation_final=sigmoid, optimizer_number=Adam, do_pretrain=True,
-                 pretrain_func=None, pretrain_iterations=800,
-                 max_number_of_iterations=50, max_minutes_of_iterations=5, training_size_during_pretrain=1, train_size=32, initial_lr=0.0001, do_lr_decay=False, lr_decay_alg=lr_decay_algs[0], dropout_rate=0, random_seed=23343,
-                 validation_frequency=2, antithetic_val=True, antithetic_train=False, val_size=64, test_size=128, stop_paths_in_plot=False, x_plot_range_for_net_plot=None, angle_for_net_plot=40):
+    def __init__(self, device="cpu", algorithm=0, sort_net_input=False, pretrain_with_empty_nets=False, internal_neurons=50, hidden_layer_count=3, activation_internal=tanh, activation_final=sigmoid,
+                 optimizer_number=Adam, do_pretrain=True, pretrain_func=None, pretrain_iterations=800, max_number_of_iterations=50, max_minutes_of_iterations=5, training_size_during_pretrain=1,
+                 train_size=32, initial_lr=0.0001, do_lr_decay=False, lr_decay_alg=lr_decay_algs[0], dropout_rate=0, random_seed=23343, validation_frequency=2, antithetic_val=True,
+                 antithetic_train=False, val_size=64, test_size=128, stop_paths_in_plot=False, x_plot_range_for_net_plot=None, angle_for_net_plot=40):
 
         # net
 
@@ -60,7 +61,7 @@ class Config:
             5: "Paper with empty pretrain",
             6: "Paper with net resets",
             10: "back to front",
-            11: "seq with pretrain",
+            11: "seq with pretrain",  # deleted
             12: "explicit stop condition given",  # doesn't run through
             14: "(14) back to front empty pretrain",
             15: "(15) train together at the end",
@@ -69,14 +70,14 @@ class Config:
             21: "front to back N=inc"
         }
 
-        pl = [["device", device], ["algorithm", alg_dict.get(algorithm)], ["sort net input", sort_net_input], ["pretrain with empty nets", pretrain_with_empty_nets], ["internal neurons per layer", internal_neurons], ["hidden layer count", hidden_layer_count],
-              ["internal activation function", activation_func_dict.get(activation_internal)], ["final activation function", activation_func_dict.get(activation_final)],
-              ["optimizer", optimizer_dict.get(optimizer_number)], ["do pretrain", do_pretrain], ["pretrain function", pretrain_func_dict.get(pretrain_func)],
-              ["number pretrain iterations", pretrain_iterations], ["max number of iterations", max_number_of_iterations],
+        pl = [["device", device], ["algorithm", alg_dict.get(algorithm)], ["sort net input", sort_net_input], ["pretrain with empty nets", pretrain_with_empty_nets],
+              ["internal neurons per layer", internal_neurons], ["hidden layer count", hidden_layer_count], ["internal activation function", activation_func_dict.get(activation_internal)],
+              ["final activation function", activation_func_dict.get(activation_final)], ["optimizer", optimizer_dict.get(optimizer_number)], ["do pretrain", do_pretrain],
+              ["pretrain function", pretrain_func_dict.get(pretrain_func)], ["number pretrain iterations", pretrain_iterations], ["max number of iterations", max_number_of_iterations],
               ["max minutes of iterations", max_minutes_of_iterations], ["initial lr", initial_lr], ["do lr decay", do_lr_decay], ["lr decay algorithm", lr_decay_dict.get(lr_decay_alg)],
               ['dropout rate', dropout_rate], ["random seed", random_seed], ["validation frequency", validation_frequency], ["antithetic variables on validation set", antithetic_val],
-              ["antithetic variables on train set", antithetic_train], ['training size during pretrain', training_size_during_pretrain], ["training batch size", train_size], ["number of validation paths", val_size], ["number of test paths", test_size],
-              ["stop paths in plot", stop_paths_in_plot]]
+              ["antithetic variables on train set", antithetic_train], ['training size during pretrain', training_size_during_pretrain], ["training batch size", train_size],
+              ["number of validation paths", val_size], ["number of test paths", test_size], ["stop paths in plot", stop_paths_in_plot]]
 
         self.parameter_list = pl
 

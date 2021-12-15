@@ -1,15 +1,5 @@
-import copy
-import time
-
-import numpy as np
-import torch
-
 import W_RobbinsModel
 from Util import *
-from ProminentResults import ProminentResults
-import torch.nn as nn
-import torch.optim as optim
-import pytest
 from RobbinsModel import RobbinsModel
 from NN import NN
 
@@ -103,15 +93,6 @@ class Alg10_NN(NN):
         return m, self.ProminentResults, self.Memory
 
     def training_caller(self, k, duration, iterations):
-
-        # pretrain, deprecated
-        if isinstance(self.Model, RobbinsModel) and self.algorithm == 11:
-            start_time = time.time()
-            barrier = 0.55+(self.Model.getN()-k)/self.Model.getN()/3  # klappt nicht
-            barrier = 0.65
-            self.robbins_pretrain(self.u[0], k, barrier)  # This is deprecated...
-            self.Memory.pretrain_duration = self.Memory.pretrain_duration + time.time() - start_time
-
         # time spendning: 1/4 pretrain, 3/4 train. Alg 15 and 16 have one extra duration-unit spend in the last run on train together
         pretrain_factor = 0.25
         if self.algorithm == 14:
@@ -180,10 +161,11 @@ class Alg10_NN(NN):
         return avg_list
     """
 
-    # erklärung für den sehr merkwüurdigen value on train batch graphen: die iterationen werden sehr viel langsamer mit der zeit (höhere input dimension, mehr netzauswertungen), also werden es immer weniger
+    # erklärung für den sehr merkwüurdigen value on train batch graphen: die iterationen werden sehr viel langsamer mit der zeit (höhere input dimension, mehr netzauswertungen),
+    # also werden es immer weniger
     def train_net_k(self, k, iterations, duration, fake=False, train_all_nets=False):
         if fake:
-            return self.empty_pretrain_net_n(self.Model.getpath_dim()[k], k, duration, iterations)
+            return self.empty_pretrain_net_n(k, duration, iterations)
         start_time = time.time()
         if train_all_nets:
             net_list = self.u[k:]

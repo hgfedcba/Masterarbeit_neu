@@ -1,12 +1,7 @@
-import copy
-
 import numpy as np
 import pytest
 import torch
 
-from ModelDefinitions import sigma_dict, payoff_dict, mu_dict
-import scipy.stats
-import random
 import Util
 from AbstractMathematicalModel import AbstractMathematicalModel
 
@@ -98,8 +93,6 @@ class W_RobbinsModel(AbstractMathematicalModel):
         # Dieser Schritt ist für Alg10, damit nur so viele Werte betrachtet werden wie U enthält
         z2 = z1[-len(U):]
 
-        h = torch.matmul(U, torch.tensor(z2, dtype=torch.float))
-
         # Schritt 2: Bilde das Skalarprodukt von t und z1
         return torch.matmul(U, torch.tensor(z2, dtype=torch.float))
 
@@ -108,6 +101,3 @@ class W_RobbinsModel(AbstractMathematicalModel):
 
     def get_reference_value(self):
         return self._reference_value_W
-
-
-

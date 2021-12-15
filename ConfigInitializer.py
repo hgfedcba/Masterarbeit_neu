@@ -1,7 +1,9 @@
-import Alg10, Alg20
+import Alg10
+import Alg20
 import ModelInitializer
 import Util
 
+# noinspection PyUnresolvedReferences
 from NetDefinitions import add_am_call_default_pretrain, add_am_put_default_pretrain, add_multiplicative_lr_scheduler, pretrain_functions, lr_decay_algs, optimizers, add_step_lr_scheduler
 # noinspection PyUnresolvedReferences
 from NetDefinitions import Adam, relu, hardtanh, relu6, elu, selu, celu, leaky_relu, rrelu, gelu, logsigmoid, hardshrink, tanhshrink, softsign, softplus, softmin, softmax, softshrink, \
@@ -25,7 +27,6 @@ import Out
 
 from RobbinsModel import RobbinsModel
 from Shortened_RobbinsModel import Shortened_RobbinsModel
-from W_RobbinsModel import W_RobbinsModel
 
 
 class ConfigInitializer:
@@ -38,7 +39,8 @@ class ConfigInitializer:
         current_Config = None
 
         result_list = []
-        val_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, test_paths_file, last_paths = ModelInitializer.initialize_model(option)
+        val_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, test_paths_file, last_paths =\
+            ModelInitializer.initialize_model(option)
 
         # Parametergrid für Netz
         # addAdam
@@ -53,7 +55,7 @@ class ConfigInitializer:
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
-            'algorithm'                             : [2],  # 5, 0, 21, 20, 15  # [5, 6]
+            'algorithm'                             : [0, 2],  # 5, 0, 21, 20, 15  # [5, 6]
             'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again | only for robbins problem
             'pretrain with empty nets'              : [True],
             'internal neurons per layer'            : [100, 50],  # 50, 100
@@ -142,10 +144,10 @@ class ConfigInitializer:
             antithetic_train = params['antithetic variables on train set']
             training_size_during_pretrain = params['training size during pretrain']
 
-            current_Config = Config(device, algorithm, sort_net_input, pretrain_with_empty_nets, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer_number, do_pretrain, pretrain_func, pretrain_iterations,
-                                    max_number_of_iterations,
-                                    max_minutes_of_iterations, training_size_during_pretrain, train_size, initial_lr, do_lr_decay, lr_decay_alg, dropout_rate, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size,
-                                    val_size, stop_paths_in_plot, x_plot_range_for_net_plot, angle_for_net_plot)
+            current_Config = Config(device, algorithm, sort_net_input, pretrain_with_empty_nets, internal_neurons, hidden_layer_count, activation_internal, activation_final, optimizer_number,
+                                    do_pretrain, pretrain_func, pretrain_iterations, max_number_of_iterations, max_minutes_of_iterations, training_size_during_pretrain, train_size, initial_lr,
+                                    do_lr_decay, lr_decay_alg, dropout_rate, random_seed, validation_frequency, antithetic_val, antithetic_train, test_size, val_size, stop_paths_in_plot,
+                                    x_plot_range_for_net_plot, angle_for_net_plot)
             if run_number == 0:
                 f = open("intermediate_results.txt", "w")
                 intro_string = "Wir optimieren \t" + Model.parameter_string + "Folgende Parameter sind konstant über alle runs: \t" + \
@@ -236,7 +238,7 @@ class ConfigInitializer:
             f.close()
 
             Out.create_graphics(Memory, optimization_result[0][0], Model, current_Config, run_number, val_paths, test_paths, current_NN)
-            test_paths = None
+            test_paths = None  # Wieso wird das nicht genutzt, die Schleife läuft doch weiter...
 
             run_number += 1
 
@@ -283,8 +285,8 @@ class ConfigInitializer:
                        "\ttime taken until discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
                        result[1].end_time - result[1].start_time,
                        "\titerations taken until final result:        ", str(len(result[1].average_train_payoffs)).ljust(30, " "),
-                       "\ttime spend training:", sum(result[1].single_train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations_per_validation),
-                       "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
+                       "\ttime spend training:", sum(result[1].single_train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:",
+                       sum(result[1].total_net_durations_per_validation), "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
                        "Parameterstring:", result[3], (result[1].net_resets != "") * "\tnet resets:", result[1].net_resets)
         else:
             os = mylog("\trun: ", str(result[2]),
@@ -295,8 +297,8 @@ class ConfigInitializer:
                        "\ttime taken until discrete/cont/final result:", result[0].disc_best_result.time_to_this_result, " | ", result[0].cont_best_result.time_to_this_result, " | ",
                        result[1].end_time - result[1].start_time,
                        "\titerations taken until discrete/cont/final result:", result[0].disc_best_result.m, " | ", result[0].cont_best_result.m, " | ", result[0].final_result.m,
-                       "\ttime spend training:", sum(result[1].single_train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:", sum(result[1].total_net_durations_per_validation),
-                       "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
+                       "\ttime spend training:", sum(result[1].single_train_durations), "time spend testing:", sum(result[1].val_durations), "time spend on net:",
+                       sum(result[1].total_net_durations_per_validation), "time spend on pretrain:", result[1].pretrain_duration, "time spend on final val:", result[1].test_duration,
                        "Parameterstring:", result[3], (result[1].net_resets != "") * "\tnet resets:", result[1].net_resets)
 
         return os
@@ -319,25 +321,11 @@ class ConfigInitializer:
         fig_background_color = 'skyblue'
         fig_border = 'steelblue'
 
-        data = []
-        # too long
-        '''
-        data.append(['average payoff of on the test set using the net giving the best result on the val set', 'average payoff of on the test set using the final net',
-                     'time until intermediate result', 'time total'])
-        '''
-        data.append(['disc value', '# no stop', 'iterations', 'time'] + [param[0] for param in resultlist[0][4]])
+        data = [['disc value', '# no stop', 'iterations', 'time'] + [param[0] for param in resultlist[0][4]]]
         for res in resultlist:
-            data.append(['  ' + str(res[2]) + '  ', res[0].return_best_disc(), res[0].final_result.amount_of_times_where_no_stopping_happens, str(len(res[1].average_train_payoffs)), res[1].end_time - res[1].start_time]
-                            + [str(param[1]) for param in res[4]])
-            """
-            if isinstance(res[0].NN, Alg10.Alg10_NN) or isinstance(res[0].NN, Alg20.Alg20_NN):
-                data.append(['  ' + str(res[2]) + '  ', res[0].return_best_disc(), res[0].final_result.amount_of_times_where_no_stopping_happens, str(len(res[1].average_train_payoffs)), res[1].end_time - res[1].start_time]
-                            + [str(param[1]) for param in res[4]])
-            else:
-                data.append(['  ' + str(res[2]) + '  ', res[0].return_best_disc(), res[0].final_result.amount_of_times_where_no_stopping_happens,
-                             str(res[0].disc_best_result.m) + " | " + str(res[0].cont_best_result.m) + " | " + str(res[0].final_result.m), res[1].end_time - res[1].start_time] + [str(param[1]) for
-                                                                                                                                                                 param in res[4]])
-            """
+            data.append(['  ' + str(res[2]) + '  ', res[0].return_best_disc(), res[0].final_result.amount_of_times_where_no_stopping_happens, str(len(res[1].average_train_payoffs)),
+                         res[1].end_time - res[1].start_time] + [str(param[1]) for param in res[4]])
+
         for i in range(1, data.__len__()):
             for j in range(data[1].__len__()):
                 if isinstance(data[i][j], float):

@@ -1,4 +1,3 @@
-from copy import deepcopy
 from Util import *
 
 
@@ -35,7 +34,7 @@ class ProminentResults:
     def get_max_time_to_best_result(self):
         return max(self.cont_best_result.time_to_this_result, self.disc_best_result.time_to_this_result)
 
-    def test(self, paths_for_test):  # TODO: file instead of paths
+    def test(self, paths_for_test):
         out = self.final_result.test(paths_for_test, self.NN)
 
         if self.final_result.m == self.cont_best_result.m:

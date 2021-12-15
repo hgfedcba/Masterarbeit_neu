@@ -65,13 +65,10 @@ class AbstractMathematicalModel(ABC):
         out = np.zeros((self.getprocess_dim(), self.getN() + 1))
         out[:, 0] = self.getxi()
         for n in range(self.getN()):
-            h = out[:, n]
             part2 = self.getmu(out[:, n]) * (self.t[n + 1] - self.t[n])
             part3 = self.getsigma(out[:, n]) @ (bm[:, n + 1] - bm[:, n])
             out[:, n + 1] = out[:, n] + part2 + part3
-            # out[:, n + 1] = out[:, n] * (1 + part2 + part3)
 
-        # return self.Sim_Paths_GeoBM(self.Model.getxi(), self.Model.getmu(1), self.Model.getsigma(1), self.Model.getT(), self.N)
         return out
 
     def calculate_payoffs(self, U, x, g, t, device=None):
@@ -84,9 +81,6 @@ class AbstractMathematicalModel(ABC):
         else:
             j = U.size
         for n in range(j):
-            h1 = U[n]
-            h3 = x[:, n]
-            h2 = g(t[n], x[:, n])
             s += U[n] * g(t[n], x[:, n])
         return s
 
@@ -98,4 +92,3 @@ class AbstractMathematicalModel(ABC):
 
     def getxi(self):
         pass
-

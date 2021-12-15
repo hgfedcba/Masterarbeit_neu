@@ -1,12 +1,7 @@
-import copy
-
-import numpy as np
-
 import W_RobbinsModel
 from Util import *
 from ProminentResults import ProminentResults
 import torch.nn as nn
-import torch.optim as optim
 import pytest
 from RobbinsModel import RobbinsModel
 from NetDefinitions import optimizers
@@ -132,7 +127,7 @@ class NN:
             return False
         assert False
 
-    def return_optimizer(self, parameters, special_config=None, lr=None):
+    def return_optimizer(self, parameters, lr=None):
         if lr is None:
             lr = self.initial_lr
         if self.optimizer_number < 10:
@@ -230,7 +225,7 @@ class NN:
                     for i in indicies_to_reset:
                         if i < len(self.u):
                             self.u[i] = self.define_net_with_path_dim_k(self.path_dim[i])
-                            self.empty_pretrain_net_n(self.Model.getpath_dim()[i], i, self.T_max/8, max(m, 100), end_condition=min(m/10, 30))
+                            self.empty_pretrain_net_n(i, self.T_max/8, max(m, 100), end_condition=min(m/10, 30))
 
                             params = []
                             for k in range(len(self.u)):
@@ -254,13 +249,12 @@ class NN:
 
         avg_list = []
         for n in range(self.N):
-            avg_list.extend(self.empty_pretrain_net_n(self.Model.getpath_dim()[n], n, duration / self.N, iterations / self.N))
+            avg_list.extend(self.empty_pretrain_net_n(n, duration / self.N, iterations / self.N))
 
         return avg_list
 
     # nth net
-    # k = path dim at time n
-    def empty_pretrain_net_n(self, k, n, max_duration, max_iterations, end_condition=5):
+    def empty_pretrain_net_n(self, n, max_duration, max_iterations, end_condition=5):
         start_time = time.time()
 
         pretrain_batch_size = int(self.batch_size * self.training_size_during_pretrain)
@@ -289,7 +283,7 @@ class NN:
         m = 0
         maximum = [0, 0]  # max, iterations since max
         while (maximum[1] < end_condition and (m < max_iterations and (time.time() - start_time) / 60 < max_duration)) or m < 30:
-            iteration_start = time.time()  # TODO: find out where the pretty pattern comes from
+            iteration_start = time.time()  # I found a strange time used pattern when pretraining. Find out why.
             if self.pretrain_with_empty_nets:
                 training_paths = self.Model.generate_paths(pretrain_batch_size, self.antithetic_train)
             else:
@@ -415,16 +409,16 @@ class NN:
             local_N = x_input.shape[1]
         assert len(net_list)+1 == local_N or self.single_net_algorithm(), "First is " + str(len(net_list)+1) + " and second is " + str(local_N)
         U = []
-        sum = []
+        probability_sum = []
         x = []
         # x = torch.from_numpy(x_input) doesn't work for some reason
 
         local_u = []
         for n in range(local_N):
             if n > 0:
-                sum.append(sum[n - 1] + U[n - 1])  # 0...n-1
+                probability_sum.append(probability_sum[n - 1] + U[n - 1])  # 0...n-1
             else:
-                sum.append(torch.zeros(1, device=self.device))
+                probability_sum.append(torch.zeros(1, device=self.device))
             if n < local_N-1:
                 t = time.time()
                 if not self.single_net_algorithm():
@@ -442,11 +436,10 @@ class NN:
             else:
                 local_u.append(torch.ones(1, device=self.device))
             if isinstance(local_u[n], int) or isinstance(local_u[n], float):
-                U.append(local_u[n] * (torch.ones(1) - sum[n]))
+                U.append(local_u[n] * (torch.ones(1) - probability_sum[n]))
             else:
-                U.append(local_u[n] * (torch.ones(1, device=self.device) - sum[n]))
+                U.append(local_u[n] * (torch.ones(1, device=self.device) - probability_sum[n]))
 
         z = torch.stack(U)
         assert torch.sum(z).item() == pytest.approx(1, 0.00001), "Should be 1 but is instead " + str(torch.sum(z).item())
         return z, self.generate_discrete_stopping_time_from_u(local_u)
-        # return z, self.generate_discrete_stopping_time_from_U(z)

@@ -35,7 +35,7 @@ input sortieren
 
 # TODO: Save gif of 2d plot
 
-#VZibglagdbölsgbunrslgubnsrlhsrbnthlsrtghöbhnuhunu
+# VZibglagdbölsgbunrslgubnsrlhsrbnthlsrtghöbhnuhunu
 
 # TODO: recall conjectured upper bound
 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     import os
     log.warning("Start")
     # TODO: R3f crasheds memory, don'T!
-    ConfigInitializer("FR20l", log)
+    ConfigInitializer("R00", log)
     """
     time.sleep(5)
     os.chdir("../current run2")
