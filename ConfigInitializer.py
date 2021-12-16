@@ -323,7 +323,8 @@ class ConfigInitializer:
 
         data = [['disc value', '# no stop', 'iterations', 'time'] + [param[0] for param in resultlist[0][4]]]
         for res in resultlist:
-            data.append(['  ' + str(res[2]) + '  ', res[0].return_best_disc(), res[0].final_result.amount_of_times_where_no_stopping_happens, str(len(res[1].average_train_payoffs)),
+            # changed from highest disc to last disc after run 30
+            data.append(['  ' + str(res[2]) + '  ', res[0].final_result.test_disc_value, res[0].final_result.amount_of_times_where_no_stopping_happens, str(len(res[1].average_train_payoffs)),
                          res[1].end_time - res[1].start_time] + [str(param[1]) for param in res[4]])
 
         for i in range(1, data.__len__()):
