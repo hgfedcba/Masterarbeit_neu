@@ -100,12 +100,12 @@ if __name__ == '__main__':
     log.error("this is an error message")
     log.critical("this is a critical message")
     '''
-    # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R00, R12, R13, R20, R30, R40 und 0, W, S als pre und s, l, f als suffixe  # TODO: mache lokale pfade für alles
-    import os
+    # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R00, R12, R13, R20, R30, R40 und 0, W, S als pre und s, l, f als suffixe
     log.warning("Start")
     # TODO: R3f crasheds memory, don'T!
-    ConfigInitializer("R00", log)
+    ConfigInitializer("WR12l", log)
     """
+    import os
     time.sleep(5)
     os.chdir("../current run2")
     ConfigInitializer("FR12f", log)

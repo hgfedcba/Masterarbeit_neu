@@ -55,10 +55,10 @@ class ConfigInitializer:
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
-            'algorithm'                             : [0, 2],  # 5, 0, 21, 20, 15  # [5, 6]
+            'algorithm'                             : [2, 6],  # 5, 0, 21, 20, 15  # [5, 6]  # TODO: for W12/20: [2, 6] for SR12: [5, 6, 20, 21], vorher checken ob es durchläuft und sinn ergibt
             'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again | only for robbins problem
             'pretrain with empty nets'              : [True],
-            'internal neurons per layer'            : [100, 50],  # 50, 100
+            'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
             'internal activation function'          : [tanh],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
@@ -69,7 +69,7 @@ class ConfigInitializer:
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
-            'initial lr'                            : [0.005, 0.02],  # [0.005, 0.02] 0.01 for other setting
+            'initial lr'                            : [0.02, 0.05],  # [0.005, 0.02] 0.01 for other setting  # TODO: Recall: Ich habe ein continue eingebaut damit nur die beiden guten konfigs genommen werden
             'lr decay algorithm'                    : [2, 3],  # [2, 3] 2 Information in 1 entry
             'dropout rate'                          : [0],  # only 0, breaks alg20
             'random seed'                           : [1337],
@@ -135,6 +135,8 @@ class ConfigInitializer:
             else:
                 do_lr_decay = True
                 lr_decay_alg = lr_decay_algs[params['lr decay algorithm']]
+            if (lr_decay_alg == 3 and initial_lr == 0.05) or (lr_decay_alg == 2 and initial_lr == 0.02):  # added 17.12.21 after run 30
+                continue
             dropout_rate = params['dropout rate']
             random_seed = params['random seed']
             validation_frequency = params['validation frequency']
