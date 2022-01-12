@@ -135,8 +135,6 @@ class ConfigInitializer:
             else:
                 do_lr_decay = True
                 lr_decay_alg = lr_decay_algs[params['lr decay algorithm']]
-            if (lr_decay_alg == 3 and initial_lr == 0.05) or (lr_decay_alg == 2 and initial_lr == 0.02):  # added 17.12.21 after run 30
-                continue
             dropout_rate = params['dropout rate']
             random_seed = params['random seed']
             validation_frequency = params['validation frequency']
@@ -192,6 +190,8 @@ class ConfigInitializer:
 
             if algorithm == 21 and not isinstance(Model, RobbinsModel):
                 log.info("continued")
+                continue
+            if (lr_decay_alg == 3 and initial_lr == 0.05) or (lr_decay_alg == 2 and initial_lr == 0.02):  # added 17.12.21 after run 30
                 continue
 
             if 20 > algorithm >= 10:
