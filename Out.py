@@ -458,7 +458,8 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test
             Y, X = np.meshgrid(Y, X)
         # Plot the surface
         if NN.single_net_algorithm():
-            surf = ax.plot_surface(X-NN.K, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False, vmin=0, vmax=1)
+            # surf = ax.plot_surface(X-NN.K, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False, vmin=0, vmax=1)  # changed 20.12.21
+            surf = ax.plot_surface(X-NN.K, Y, Z, cmap=cm.turbo, linewidth=0, antialiased=False, vmin=0, vmax=1)
         else:
             surf = ax.plot_surface(X, Y, Z, cmap=cm.turbo, linewidth=0, antialiased=False, vmin=0, vmax=1)
         ax.set_title("Probability to stop using the final net")
@@ -477,7 +478,8 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test
         # Add a color bar which maps values to colors
         fig.colorbar(surf, shrink=0.5, aspect=5)
 
-        ax.view_init(30, 40)
+        ax.view_init(30, Config.angle_for_net_plot)  # changed from 30, 40 on 20.12.21 for WR
+        # ax.view_init(30, 220)  # good
         """
         # rotate the axes and update
         for angle in range(0, 720, 5):

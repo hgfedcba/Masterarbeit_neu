@@ -308,6 +308,7 @@ def initialize_model(option):
         val_size = 256
         test_size = 512
         x_plot_range_for_net_plot = [0, 1]
+        angle_for_net_plot = 225
 
         if short:
             Model = Shortened_RobbinsModel(N)
@@ -341,6 +342,7 @@ def initialize_model(option):
             val_size *= 4
             test_size *= 8
         x_plot_range_for_net_plot = [0, 1]
+        angle_for_net_plot = 225
 
         if short:
             Model = Shortened_RobbinsModel(N)
@@ -393,6 +395,8 @@ def initialize_model(option):
         val_size = 2048
         test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
+        angle_for_net_plot = 225
+
         if short:
             Model = Shortened_RobbinsModel(N)
             Model.set_reference_value()
@@ -442,6 +446,8 @@ def initialize_model(option):
         val_size = 2048
         test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
+        angle_for_net_plot = 225
+
         if short:
             Model = Shortened_RobbinsModel(N)
             Model.set_reference_value()
@@ -492,6 +498,7 @@ def initialize_model(option):
         val_size = 2048
         test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
+        angle_for_net_plot = 225
 
         if short:
             Model = Shortened_RobbinsModel(N)
@@ -543,6 +550,7 @@ def initialize_model(option):
         val_size = 2048
         test_size = 16384
         x_plot_range_for_net_plot = [0, 1]
+        angle_for_net_plot = 225
 
         if short:
             Model = Shortened_RobbinsModel(N)
@@ -594,6 +602,7 @@ def initialize_model(option):
         val_size = 4096
         test_size = 16384 // 2  # neccessary for secondary pc
         x_plot_range_for_net_plot = [0, 1]
+        angle_for_net_plot = 225
 
         if short:
             Model = Shortened_RobbinsModel(N)
@@ -645,6 +654,8 @@ def initialize_model(option):
         val_size = 4096
         test_size = 8192
         x_plot_range_for_net_plot = [0, 1]
+        angle_for_net_plot = 225
+
         if short:
             Model = Shortened_RobbinsModel(N)
             Model.set_reference_value()
