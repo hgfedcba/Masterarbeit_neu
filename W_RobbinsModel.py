@@ -14,7 +14,7 @@ class W_RobbinsModel(AbstractMathematicalModel):
         self.t = self.get_time_partition()
         self.parameter_string = ""
         self.parameter_list = []
-        self._K = 0.5  # solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
+        self._K = 0  # solve this better. This exists since K is the offset towards the origin for the nets   (f.e. K=0.5 :P)
 
     def update_parameter_string(self, main_pc):
         parameter_string = "Robbins Model ohne Vergangenheit mit Referenzwert: ", round(self._reference_value_W, 3), "N: ", self._N + 1, "auf dem " + main_pc
