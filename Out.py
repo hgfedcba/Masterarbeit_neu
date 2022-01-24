@@ -214,7 +214,7 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     pdf.savefig(fig14)
     plt.close(fig14)
 
-    if len(test_paths) > 0:  # I kind of forgot why this is here np.all(Model.getpath_dim() == np.ones_like(Model.getpath_dim())) or isinstance(Model, RobbinsModel)
+    if len(test_paths) > 0:
         # bar graph of stopping boundary
         c, v, p = average_value_stopped_at(ProminentResults.final_result, Model, test_paths)
 
@@ -231,18 +231,19 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         pdf.savefig(fig16)
         plt.close(fig16)
 
-        # mean
-        plot_number_final_stopping_boundary_mean = 15
-        fig15 = plt.figure(plot_number_final_stopping_boundary_mean)
-        plt.bar(x[:len(v)], v, color=c[0:-1])
-        plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
-        plt.xlabel('Time')
-        plt.ylabel('average value')
-        plt.title('avg value stopped at on the test set at each timestep')
-        # plt.yscale('log')
+        if np.all(Model.getpath_dim() == np.ones_like(Model.getpath_dim())) or isinstance(Model, RobbinsModel):
+            # mean
+            plot_number_final_stopping_boundary_mean = 15
+            fig15 = plt.figure(plot_number_final_stopping_boundary_mean)
+            plt.bar(x[:len(v)], v, color=c[0:-1])
+            plt.grid(color='#95a5a6', linestyle='--', linewidth=2, axis='y', alpha=0.7)
+            plt.xlabel('Time')
+            plt.ylabel('average value')
+            plt.title('avg value stopped at on the test set at each timestep')
+            # plt.yscale('log')
 
-        pdf.savefig(fig15)
-        plt.close(fig15)
+            pdf.savefig(fig15)
+            plt.close(fig15)
 
     # Duration over time graph
     plot_number_duration = 2

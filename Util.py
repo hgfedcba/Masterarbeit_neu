@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import torch
 
 
-# sorts all given lists
+# For robbins: sorts all given lists except the last one. Also keeps the last entry.
 def sort_lists_inplace_except_last_one(lists, in_place=True, N=None):
     if in_place:
         out = lists
@@ -18,6 +18,20 @@ def sort_lists_inplace_except_last_one(lists, in_place=True, N=None):
             h = sorted(out[k][l][0:-1])
             h.append(out[k][l][-1])
             out[k][l] = h
+
+    return out
+
+
+# For Finance: sorts all values
+def sort_np_inplace(paths, in_place=True, N=None):
+    if in_place:
+        out = paths
+    else:
+        out = np.copy(paths)
+    if N is None:
+        N = out.shape[0]
+    for k in range(out.shape[0]):
+        out[k].sort(axis=0)
 
     return out
 

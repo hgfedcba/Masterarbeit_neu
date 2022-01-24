@@ -45,7 +45,7 @@ class ConfigInitializer:
         # Parametergrid für Netz
         # addAdam
         add_step_lr_scheduler(500)
-        add_multiplicative_lr_scheduler(0.999)
+        add_multiplicative_lr_scheduler(0.998)  # changed from 0.999 to 0.998 on 21.10.21
         add_multiplicative_lr_scheduler(0.994)  # this halves the learning rate compared to the one above at 150 iterations
 
         list_individual_parameters = []
@@ -60,24 +60,24 @@ class ConfigInitializer:
             'pretrain with empty nets'              : [True],
             'internal neurons per layer'            : [50, 100],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
-            'internal activation function'          : [tanh, relu, selu],  # [tanh, relu, leaky_relu, softsign, selu]
+            'internal activation function'          : [tanh, selu],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
-            'optimizer'                             : [72, 2, 7],  # [7, 72] [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
+            'optimizer'                             : [72],  # [7, 72] [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
             # Wenn 2 -> _, dann 21 -> _ mit den ersten besonderen einstellungen.
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
             'number pretrain iterations'            : [500],
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
-            'initial lr'                            : [0.02, 0.05],  # [0.005, 0.02] 0.01 for other setting  # TODO: Recall: Ich habe ein continue eingebaut damit nur die beiden guten konfigs genommen werden
-            'lr decay algorithm'                    : [3, 2],  # [2, 3] 2 Information in 1 entry
+            'initial lr'                            : [0.02 / 10],  # [0.005, 0.02] 0.01 for other setting  # TODO: Recall: Ich habe ein continue eingebaut damit nur die beiden guten konfigs genommen werden
+            'lr decay algorithm'                    : [3],  # [2, 3] 2 Information in 1 entry
             'dropout rate'                          : [0],  # only 0, breaks alg20
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
             'antithetic variables on validation set': [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
             'antithetic variables on train set'     : [False],
             'training size during pretrain'         : [0.25],
-            'training batch size'                   : [train_size],  # why does this have to be >= 4?
+            'training batch size'                   : [train_size * 2],  # why does this have to be >= 4?
             'number of validation paths'            : [val_size],  # with my current implementation this has to be constant over a programm execution, changes here have noe effect!
             'number of test paths'                  : [test_size]  # with my current implementation this has to be constant over a programm execution, changes here have noe effect!
         }

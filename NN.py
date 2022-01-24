@@ -408,6 +408,9 @@ class NN:
         else:
             local_N = x_input.shape[1]
         assert len(net_list)+1 == local_N or self.single_net_algorithm(), "First is " + str(len(net_list)+1) + " and second is " + str(local_N)
+
+        x_input = sort_np_inplace(x_input, False)  # TODO: THIS HAS TO GO; I ONLY USE THIS ONCE
+
         U = []
         probability_sum = []
         x = []
