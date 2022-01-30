@@ -37,42 +37,89 @@ input sortieren
 
 # VZibglagdbölsgbunrslgubnsrlhsrbnthlsrtghöbhnuhunu
 
-# TODO: recall conjectured upper bound
+# recall conjectured upper bound
 
-# TODO: Note: RNG freeze funktioniert (tested with True/False bei sorted input ohne funktion)
+# Note: RNG freeze funktioniert (tested with True/False bei sorted input ohne funktion)
 
-# TODO: recall robbins bound from reference also has an explicit realization
+# recall robbins bound from reference also has an explicit realization
 
-# TODO: test regularization, dropout      (not functional, breaks alg20)
-# TODO: <- both are supposed to reduce overfitting, but as overfitting is not possible in my setting it shouldn't help (much)
+# test regularization, dropout      (not functional, breaks alg20)
+# <- both are supposed to reduce overfitting, but as overfitting is not possible in my setting it shouldn't help (much)
 
 # TODO: noch einmal gpu (ich muss calculate payoffs anpassen)
 
 # writing
 # TODO: pretrainiere mehrere netze gleichzeitig
-
+"""
+Aufbau des Programms:
+- In der main Methode wird festgelegt, 
+"""
 
 if __name__ == '__main__':
     if False:
         import Shortened_RobbinsModel
         from Util import *
-        n = 39
+        from matplotlib.pyplot import xlabel, ylabel, grid
+        import matplotlib.pyplot as plt
+
+        plt.rc('font', size=12)  # controls default text size
+        plt.rc('axes', titlesize=12)  # fontsize of the title
+        plt.rc('axes', labelsize=12)  # fontsize of the x and y labels
+        plt.rc('xtick', labelsize=12)  # fontsize of the x tick labels
+        plt.rc('ytick', labelsize=12)  # fontsize of the y tick labels
+        plt.rc('legend', fontsize=12)  # fontsize of the legend
+        n = 19
         s = Shortened_RobbinsModel.Shortened_RobbinsModel(n)
         h = s.getpath_dim()
         # I draw n=0 ... 19 as those are the values used by the net
         draw_connected_points(range(n), s.getpath_dim(), do_scatter=True, plot_number=1)
         draw_connected_points(range(n), np.asarray(range(n))+1, do_scatter=True, plot_number=1)
-        plt.legend(["shortened", "full"])
-        xlabel("net number")
-        ylabel("number of arguments")
+        plt.legend(["Verringert", "Alle"])
+        xlabel("Zeitpunkt")
+        ylabel("Eingabedaten")
         grid(True)
         plt.ylim([0, n+1])
         plt.show()
 
-    matplotlib.use("Agg")
+    if False:
+        import Shortened_RobbinsModel
+        from Util import *
+        from matplotlib.pyplot import xlabel, ylabel, grid
+        import matplotlib.pyplot as plt
+        from NetDefinitions import add_am_put_default_pretrain, pretrain_functions
 
+        K = 100
+
+        add_am_put_default_pretrain(K, 16)
+
+        plt.rc('font', size=12)  # controls default text size
+        plt.rc('axes', titlesize=12)  # fontsize of the title
+        plt.rc('axes', labelsize=12)  # fontsize of the x and y labels
+        plt.rc('xtick', labelsize=12)  # fontsize of the x tick labels
+        plt.rc('ytick', labelsize=12)  # fontsize of the y tick labels
+        plt.rc('legend', fontsize=12)  # fontsize of the legend
+        # I draw n=0 ... 19 as those are the values used by the net
+        x = np.asarray(range(K-25, K+10))*1.0
+        draw_function(x, pretrain_functions[2], linewidth=8)
+        """
+        y = np.ones_like(x)
+        f = pretrain_functions[2]
+        for m in range(x.size):
+            y[m] = f(x[m])
+
+        draw_connected_points(x, y, plot_number=1)
+        """
+        # plt.legend(["Verringert", "Alle"])
+        xlabel("Stock Price")
+        ylabel("Target Value")
+        grid(True)
+        plt.ylim([0, 1])
+        plt.show()
+
+    matplotlib.use("Agg")  # sets a convenient mode for matplotlib
+
+    # configure log
     log = logging.getLogger('l')
-    # logging.basicConfig(format='%(asctime)s:  %(message)s')
     log.setLevel(logging.INFO)
     level_styles = dict(
         spam=dict(color='green', faint=True),
@@ -93,7 +140,9 @@ if __name__ == '__main__':
     formatter = logging.Formatter('%(asctime)s %(message)s')
     fh.setFormatter(formatter)
     log.addHandler(fh)
+
     '''
+    # log color test
     log.debug("this is a debugging message")
     log.info("this is an informational message")
     log.warning("this is a warning message")
@@ -103,7 +152,7 @@ if __name__ == '__main__':
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R00, R12, R13, R20, R30, R40 und 0, W, S als pre und s, l, f als suffixe
     log.warning("Start")
     # TODO: R3f crasheds memory, don'T!
-    ConfigInitializer("WR20l", log)
+    ConfigInitializer("Russ111", log)
     """
     import os
     time.sleep(5)
@@ -120,7 +169,3 @@ if __name__ == '__main__':
     ConfigInitializer("FR12f", log)
     """
     log.warning("The End")
-    """
-    from catboost_test_file import main
-    main()
-    """

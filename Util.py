@@ -98,7 +98,7 @@ def draw_net(x, f, plot_number=0, color=None, algorithm=0):
 """
 
 
-def draw_function(x, f, plot_number=0, color=None, algorithm=False):
+def draw_function(x, f, plot_number=0, color=None, algorithm=False, linewidth=1):
     """
     if plot_number == 0:
         h = time.time()
@@ -114,14 +114,14 @@ def draw_function(x, f, plot_number=0, color=None, algorithm=False):
         else:
             h = torch.tensor([np.append(plot_number-1, c)], dtype=torch.float32, requires_grad=False)
         y.append(f(h))
-        if len(c) > 1:
+        if not isinstance(c, float) and len(c) > 1:
             actual_x.append(c[0])
         else:
             actual_x.append(c)
     # TODO: very fucking cool [ys.numpy() for ys in y]
     z = np.array([ys.detach().numpy()[0] for ys in y])
 
-    plot(actual_x, z, color=color)
+    plot(actual_x, z, color=color, linewidth=linewidth)
     return plot_number
 
 

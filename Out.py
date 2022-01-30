@@ -29,6 +29,12 @@ def average_value_stopped_at(final_result, Model, paths):
                     stop.append(paths[k][n][-1])
                 elif stopping_times[k] > n:
                     no_stop.append(paths[k][n][-1])
+        elif isinstance(Model, RussianOption.RussianOption):
+            for k in range(len(paths)):
+                if stopping_times[k] == n:
+                    stop.append(paths[k][1][n])
+                elif stopping_times[k] > n:
+                    no_stop.append(paths[k][1][n])
         else:
             for k in range(paths.shape[0]):
                 if stopping_times[k] == n:
@@ -43,7 +49,7 @@ def average_value_stopped_at(final_result, Model, paths):
         else:
             l = len(stop)
             p.append(l/(l+len(no_stop)))
-            if isinstance(Model, RobbinsModel):
+            if isinstance(Model, RobbinsModel) or isinstance(Model, RussianOption.RussianOption):
                 if l > len(paths) / Model.getN():
                     c.append('green')
                 elif l > len(paths) / Model.getN() / 3:
@@ -214,7 +220,9 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     pdf.savefig(fig14)
     plt.close(fig14)
 
-    if len(test_paths) > 0:  # I kind of forgot why this is here np.all(Model.getpath_dim() == np.ones_like(Model.getpath_dim())) or isinstance(Model, RobbinsModel)
+    # I kind of forgot why this is here np.all(Model.getpath_dim() == np.ones_like(Model.getpath_dim())) or isinstance(Model, RobbinsModel)
+    # -> reason: only when the dimension is 1 it is clear what value to display
+    if len(test_paths) > 0:
         # bar graph of stopping boundary
         c, v, p = average_value_stopped_at(ProminentResults.final_result, Model, test_paths)
 
