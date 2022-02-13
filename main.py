@@ -152,7 +152,7 @@ if __name__ == '__main__':
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R00, R12, R13, R20, R30, R40 und 0, W, S als pre und s, l, f als suffixe
     log.warning("Start")
     # TODO: R3f crasheds memory, don'T!
-    ConfigInitializer(4411_5, log)
+    ConfigInitializer(4411_5, log)  # fix bug that 4411_5 scheinbar merkwürdige val/test paths hat
     """
     import os
     time.sleep(5)

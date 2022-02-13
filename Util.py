@@ -13,7 +13,7 @@ def sort_lists_inplace_except_last_one(lists, in_place=True, N=None):
         out = lists.copy()
     if N is None:
         N = len(out[0])
-    for k in range(len(out)):
+    for k in range(len(out)):  # important not N!
         for l in range(N - 1):
             h = sorted(out[k][l][0:-1])
             h.append(out[k][l][-1])
@@ -29,8 +29,11 @@ def sort_np_inplace(paths, in_place=True, N=None):
     else:
         out = np.copy(paths)
     if N is None:
-        N = out.shape[0]
-    for k in range(out.shape[0]):
+        if isinstance(paths, list):
+            N = len(out)
+        else:
+            N = out.shape[0]
+    for k in range(N):
         out[k].sort(axis=0)
 
     return out

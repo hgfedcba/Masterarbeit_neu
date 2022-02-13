@@ -27,6 +27,7 @@ import Out
 
 from RobbinsModel import RobbinsModel
 from Shortened_RobbinsModel import Shortened_RobbinsModel
+from Filled_RobbinsModel import Filled_RobbinsModel
 
 
 class ConfigInitializer:
@@ -56,7 +57,7 @@ class ConfigInitializer:
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
             'algorithm'                             : [2],  # 5, 0, 21, 20, 15  # [5, 6]  # TODO: for W12/20: [2, 6] for SR12: [5, 6, 20, 21], vorher checken ob es durchläuft und sinn ergibt
-            'sort net input'                        : [True],  # remember: val and test list are sorted, for alg 21 I load val_paths again | only for robbins problem
+            'sort net input'                        : [True],  # TODO: This is always important
             'pretrain with empty nets'              : [True],
             'internal neurons per layer'            : [50, 100],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
@@ -69,7 +70,7 @@ class ConfigInitializer:
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
-            'initial lr'                            : [0.02 / 10],  # [0.005, 0.02] 0.01 for other setting  # TODO: Recall: Ich habe ein continue eingebaut damit nur die beiden guten konfigs genommen werden
+            'initial lr'                            : [0.02],  # [0.005, 0.02] 0.01 for other setting  # TODO: Recall: Ich habe ein continue eingebaut damit nur die beiden guten konfigs genommen werden
             'lr decay algorithm'                    : [3],  # [2, 3] 2 Information in 1 entry
             'dropout rate'                          : [0],  # only 0, breaks alg20
             'random seed'                           : [1337],
@@ -77,7 +78,7 @@ class ConfigInitializer:
             'antithetic variables on validation set': [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
             'antithetic variables on train set'     : [False],
             'training size during pretrain'         : [0.25],
-            'training batch size'                   : [train_size * 2],  # why does this have to be >= 4?
+            'training batch size'                   : [train_size],  # why does this have to be >= 4?
             'number of validation paths'            : [val_size],  # with my current implementation this has to be constant over a programm execution, changes here have noe effect!
             'number of test paths'                  : [test_size]  # with my current implementation this has to be constant over a programm execution, changes here have noe effect!
         }
@@ -105,11 +106,9 @@ class ConfigInitializer:
             stop_paths_in_plot = False
             algorithm = params['algorithm']
             sort_net_input = params['sort net input']
-            pretrain_with_empty_nets = params['pretrain with empty nets']
-            if not isinstance(Model, RobbinsModel):
-                sort_net_input = False
-            if isinstance(Model, Shortened_RobbinsModel):
+            if isinstance(Model, Shortened_RobbinsModel) or isinstance(Model, Filled_RobbinsModel):
                 sort_net_input = True
+            pretrain_with_empty_nets = params['pretrain with empty nets']
             internal_neurons = params['internal neurons per layer']
             hidden_layer_count = params['hidden layer count']
             activation_internal = params['internal activation function']
@@ -164,10 +163,12 @@ class ConfigInitializer:
                 else:
                     val_paths = val_paths[:val_size]
                     # test_paths = test_paths[:test_size]
-
+                """
+                # sorting happens in NN class. Saver, but slightly less efficient
                 if sort_net_input:
                     Util.sort_lists_inplace_except_last_one(val_paths)  # I am sorting too often
                     # Util.sort_lists_inplace_except_last_one(test_paths)
+                """
 
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)

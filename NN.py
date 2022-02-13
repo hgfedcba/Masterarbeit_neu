@@ -318,7 +318,10 @@ class NN:
         if training_paths is None:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
             if self.sort_net_input:
-                sort_lists_inplace_except_last_one(training_paths)
+                if isinstance(self.Model, RobbinsModel):
+                    sort_lists_inplace_except_last_one(training_paths)
+                else:
+                    training_paths = sort_np_inplace(training_paths)
             U = torch.empty(len(training_paths), self.N + 1, device=self.device)
 
         else:
@@ -357,9 +360,14 @@ class NN:
             N = len(net_list)  # This is only for alg 21
         else:
             N = self.N
+
         L = len(paths)
         if self.sort_net_input:
-            paths = sort_lists_inplace_except_last_one(paths, N=N)
+            if isinstance(self.Model, RobbinsModel):
+                paths = sort_lists_inplace_except_last_one(paths, N=N)
+            else:
+                paths = sort_np_inplace(paths, in_place=False)
+
         cont_individual_payoffs = []
         disc_individual_payoffs = []
         stopping_times = []
@@ -408,8 +416,6 @@ class NN:
         else:
             local_N = x_input.shape[1]
         assert len(net_list)+1 == local_N or self.single_net_algorithm(), "First is " + str(len(net_list)+1) + " and second is " + str(local_N)
-
-        x_input = sort_np_inplace(x_input, False)  # TODO: THIS HAS TO GO; I ONLY USE THIS ONCE
 
         U = []
         probability_sum = []
