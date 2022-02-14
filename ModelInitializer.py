@@ -173,14 +173,14 @@ def initialize_model(option):
 
         add_am_call_default_pretrain(K + 10, 60)
 
-        max_minutes = 90
+        max_minutes = 90 * 1.5
         # batch_size = 8192
         # val_size = 8192
         # test_size = 16384
 
         train_size = 2048
         val_size = 4092
-        test_size = 16384
+        test_size = 16384 * 4
 
         x_plot_range_for_net_plot = [60, 200]
         angle_for_net_plot = 225

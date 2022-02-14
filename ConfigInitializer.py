@@ -59,9 +59,9 @@ class ConfigInitializer:
             'algorithm'                             : [2],  # 5, 0, 21, 20, 15  # [5, 6]  # TODO: for W12/20: [2, 6] for SR12: [5, 6, 20, 21], vorher checken ob es durchläuft und sinn ergibt
             'sort net input'                        : [True],  # TODO: This is always important
             'pretrain with empty nets'              : [True],
-            'internal neurons per layer'            : [50, 100],  # 50, 100
+            'internal neurons per layer'            : [50],  # 50, 100
             'hidden layer count'                    : [2],  # [1, 2, 3]
-            'internal activation function'          : [tanh, selu],  # [tanh, relu, leaky_relu, softsign, selu]
+            'internal activation function'          : [selu],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
             'optimizer'                             : [72],  # [7, 72] [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
             # Wenn 2 -> _, dann 21 -> _ mit den ersten besonderen einstellungen.
