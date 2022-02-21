@@ -3,6 +3,7 @@ import math
 from MarkovBlackScholesModel import MarkovBlackScholesModel
 import numpy as np
 from ModelDefinitions import payoff_dict, add_russian_option
+from ModelDefinitions import sigma_dict, payoff_dict, mu_dict
 
 
 class RussianOption(MarkovBlackScholesModel):
@@ -11,7 +12,14 @@ class RussianOption(MarkovBlackScholesModel):
         assert payoff_dict.get(self._internal_g) == "russian option"
 
     def update_parameter_string(self, main_pc):
-        super().update_parameter_string(main_pc)
+        parameter_string = "Russian Model with reference_value: ", round(self._reference_value,
+                                                                               3), "T: ", self._T, "N: ", self._N, "d: ", self._d, "K: ", self._K, "delta: ", self._delta, "mu: ", mu_dict.get(
+            self._internal_mu), "sigma: ", \
+                           sigma_dict.get(self._internal_sigma), "g: ", payoff_dict.get(self._internal_g), "xi: ", self._xi, "auf dem " + main_pc
+
+        parameter_string = ''.join(str(s) + " \t" for s in parameter_string)
+        # parameter_string = mylog(parameter_string)
+        self.parameter_string = parameter_string + "\n"
 
     @staticmethod
     def path_to_russian_path(p):
