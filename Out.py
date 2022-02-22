@@ -539,7 +539,7 @@ def create_net_pdf(run_number, Memory, Config, Model, ProminentResults, NN, test
                 surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False, vmin=0, vmax=1)
             else:
                 surf = ax.plot_surface(X, Y, Z, cmap=cm.turbo, linewidth=0, antialiased=False, vmin=0, vmax=1)
-            ax.set_title('Probability to stop for time ' + str(k) + " using the final net")
+            ax.set_title('Probability to stop for the ' + str(k) + "-th final net ")
             ax.set_xlabel("X")
             ax.set_ylabel("Y")
             # ax.set_zlabel('u_%s' % k)
