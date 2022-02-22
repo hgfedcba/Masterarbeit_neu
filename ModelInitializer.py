@@ -708,7 +708,7 @@ def initialize_model(option):
 
         Model.update_parameter_string(main_pc)
 
-    elif option == "Russ1":
+    elif option == "Russ1":  # run 42
         # Model
         r = 0.05
         sigma_constant = 0.3  # beta
@@ -716,7 +716,7 @@ def initialize_model(option):
         xi = 1
         K = xi
         T = 10
-        N = 10
+        N = 10  # maybe his 10=tau=T-t?
         d = 1  # dimension
         delta = 0.03  # dividend rate
         sigma = add_sigma_c_x(sigma_constant)
@@ -725,12 +725,12 @@ def initialize_model(option):
 
         add_am_put_default_pretrain(K, 16)
 
-        max_minutes = 5
-        train_size = 256
-        val_size = 256
-        test_size = 2048
+        max_minutes = 5*4
+        train_size = 256*4
+        val_size = 256*2
+        test_size = 2048*8
 
-        x_plot_range_for_net_plot = [0.5, 3]
+        x_plot_range_for_net_plot = [0.25, 4]
 
         Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
         Model.set_reference_value(1.5273)
@@ -743,32 +743,32 @@ def initialize_model(option):
         val_paths = Model.generate_paths(val_size)
         # test_paths = Model.generate_paths(test_size)
 
-    elif option == "Russ11":
+    elif option == "Russ11":  # run 46
         # Model
-        r = 0.05
-        sigma_constant = 0.3  # beta
+        r = 0.04
+        sigma_constant = 0.2  # beta
         mu_constant = r
         xi = 1
         K = xi
-        T = 1
-        N = 10
+        T = 10
+        N = 10  # maybe his 10=tau=T-t?
         d = 1  # dimension
-        delta = 0.03  # dividend rate
+        delta = 0.04  # dividend rate
         sigma = add_sigma_c_x(sigma_constant)
         mu = add_mu_c_x(mu_constant, delta)
         g = add_russian_option(r)
 
         add_am_put_default_pretrain(K, 16)
 
-        max_minutes = 5
-        train_size = 256
-        val_size = 256
-        test_size = 2048
+        max_minutes = 5*4*8
+        train_size = 256*4*4
+        val_size = 256*2*2
+        test_size = 2048*8*4
 
-        x_plot_range_for_net_plot = [0.5, 3]
+        x_plot_range_for_net_plot = [0.25, 4]
 
         Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
-        Model.set_reference_value(1.2188)
+        Model.set_reference_value(-1)
         Model.update_parameter_string(main_pc)
 
         # val_paths_file = "../val_paths_1.npy"
