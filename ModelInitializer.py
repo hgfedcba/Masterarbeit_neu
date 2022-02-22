@@ -785,35 +785,25 @@ def initialize_model(option):
         mu_constant = r
         xi = 1
         K = xi
-        T = 5
-        N = 30
+        T = 10
+        N = 15  # maybe his 10=tau=T-t?
         d = 1  # dimension
         delta = 0.03  # dividend rate
         sigma = add_sigma_c_x(sigma_constant)
         mu = add_mu_c_x(mu_constant, delta)
         g = add_russian_option(r)
 
-        """
-        h = np.ones((2, 11))
-        h1 = np.zeros((2,2))
-        h1[0, 0] = 1
-        h1[1, 1] = 20
-        h2 = np.matmul(h1, h)
-        h3 = g(10, h2)
-        print(h3)
-        """
-
         add_am_put_default_pretrain(K, 16)
 
-        max_minutes = 0.5
-        train_size = 256*2
-        val_size = 256*4
-        test_size = 4096*2
+        max_minutes = 5 * 4 * 8
+        train_size = 256 * 4 * 4
+        val_size = 256 * 2 * 2
+        test_size = 2048 * 8 * 4
 
-        x_plot_range_for_net_plot = [0.5, 3]
+        x_plot_range_for_net_plot = [0.25, 4]
 
         Model = RussianOption.RussianOption(T, N, d, K, delta, mu, sigma, g, xi)
-        Model.set_reference_value(1.4288)
+        Model.set_reference_value(1.5273)
         Model.update_parameter_string(main_pc)
 
         # val_paths_file = "../val_paths_1.npy"
