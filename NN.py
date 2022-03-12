@@ -235,6 +235,8 @@ class NN:
                             if self.do_lr_decay:
                                 scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
                                 scheduler.verbose = False  # prints updates
+                        else:
+                            print("This shouldn't happen")
 
             m += 1
 

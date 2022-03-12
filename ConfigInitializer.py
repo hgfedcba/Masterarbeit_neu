@@ -56,7 +56,7 @@ class ConfigInitializer:
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
-            'algorithm'                             : [7],  # 5, 0, 21, 20, 15  # [5, 6]  # TODO: for W12/20: [2, 6] for SR12: [5, 6, 20, 21], vorher checken ob es durchläuft und sinn ergibt
+            'algorithm'                             : [6],  # 5, 0, 21, 20, 15  # [5, 6]  # TODO: for W12/20: [2, 6] for SR12: [5, 6, 20, 21], vorher checken ob es durchläuft und sinn ergibt
             'sort net input'                        : [True],  # TODO: This is always important
             'pretrain with empty nets'              : [True],
             'internal neurons per layer'            : [50],  # 50, 100
@@ -70,7 +70,7 @@ class ConfigInitializer:
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
             # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
-            'initial lr'                            : [0.02],  # [0.005, 0.02] 0.01 for other setting  # TODO: Recall: Ich habe ein continue eingebaut damit nur die beiden guten konfigs genommen werden
+            'initial lr'                            : [0.005],  # [0.005, 0.02] 0.01 for other setting  # TODO: Recall: Ich habe ein continue eingebaut damit nur die beiden guten konfigs genommen werden
             'lr decay algorithm'                    : [3],  # [2, 3] 2 Information in 1 entry
             'dropout rate'                          : [0],  # only 0, breaks alg20
             'random seed'                           : [1337],
