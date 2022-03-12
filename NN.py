@@ -123,7 +123,7 @@ class NN:
     def single_net_algorithm(self):
         if self.algorithm == 2 or self.algorithm == 3:
             return True
-        if self.algorithm == 0 or self.algorithm == 5 or self.algorithm == 6 or self.algorithm >= 10:
+        if self.algorithm == 0 or self.algorithm == 5 or self.algorithm == 6 or self.algorithm == 7 or self.algorithm >= 10:
             return False
         assert False
 
@@ -215,7 +215,8 @@ class NN:
                 self.Memory.train_durations_per_validation.append(0)
                 self.Memory.total_net_durations_per_validation.append(0)
 
-            if m % (5*self.validation_frequency) == 0 and m > 5 and self.algorithm == 6:
+            # reset nets
+            if m % (5*self.validation_frequency) == 0 and m > 5 and (self.algorithm == 6 or self.algorithm == 7):
                 summed_stopping_times = np.sum(stopping_times, axis=0)
                 while summed_stopping_times[-1] == 0:
                     summed_stopping_times = summed_stopping_times[:-1]

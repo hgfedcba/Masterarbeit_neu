@@ -17,6 +17,7 @@ class Alg20_NN(NN):
         end = self.N
 
         if self.algorithm == 21:
+            # I don't use the external val_paths, only their size as they are modified here
             import pickle
             if self.val_paths_file is None:
                 print("generating new val paths")

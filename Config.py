@@ -60,6 +60,7 @@ class Config:
             3: "smaller N pretrain",
             5: "Paper with empty pretrain",
             6: "Paper with net resets",
+            7: "Paper with net resets and pretrain",
             10: "back to front",
             11: "seq with pretrain",  # deleted
             12: "explicit stop condition given",  # doesn't run through
