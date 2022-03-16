@@ -9,8 +9,10 @@ class Alg20_NN(NN):
 
         log = self.log
 
-        duration = self.T_max/(self.N+2)
-        iterations = self.M_max/(self.N+2)
+        div = self.N*(self.N+1)/2
+
+        duration = self.T_max/div  # duration is proportional to number of random variables
+        iterations = self.M_max/div
         ratio_single_to_together = 0.66
 
         # consists of fake nets. Fake nets are overridden gradually
@@ -34,13 +36,9 @@ class Alg20_NN(NN):
 
                 m_th_iteration_start_time = time.time()
 
-                avg_list = self.empty_pretrain_net_n(m, duration * ratio_single_to_together, iterations * ratio_single_to_together)
+                avg_list = self.empty_pretrain_net_n(m, duration * ratio_single_to_together * (m+1), iterations * ratio_single_to_together * (m+1))
 
-                # Note: last joined training is longer
-                if m == end-1:
-                    iterations = max(100/(1 - ratio_single_to_together), iterations*4)
-                    duration = duration * 3 / ratio_single_to_together
-                avg_list += self.train_together(m, duration * (1 - ratio_single_to_together), iterations * (1 - ratio_single_to_together), alg20=False)
+                avg_list += self.train_together(m, duration * (1 - ratio_single_to_together) * (m+1), iterations * (1 - ratio_single_to_together) * (m+1), alg20=False)
 
                 self.Memory.train_durations_per_validation.append(time.time() - m_th_iteration_start_time)
                 self.Memory.average_train_payoffs.extend(avg_list)
@@ -85,13 +83,9 @@ class Alg20_NN(NN):
 
                 m_th_iteration_start_time = time.time()
 
-                avg_list = self.empty_pretrain_net_n(m, duration * ratio_single_to_together, iterations * ratio_single_to_together)
+                avg_list = self.empty_pretrain_net_n(m, duration * ratio_single_to_together * (m+1), iterations * ratio_single_to_together * (m+1))
 
-                # Note: last is longer
-                if m == end-1:
-                    iterations = max(100/(1 - ratio_single_to_together), iterations*4)
-                    duration = duration * 3 / ratio_single_to_together
-                avg_list += self.train_together(m, duration * (1 - ratio_single_to_together), iterations * (1 - ratio_single_to_together), alg20=True)
+                avg_list += self.train_together(m, duration * (1 - ratio_single_to_together) * (m+1), iterations * (1 - ratio_single_to_together) * (m+1), alg20=True)
 
                 self.Memory.train_durations_per_validation.append(time.time() - m_th_iteration_start_time)
                 self.Memory.average_train_payoffs.extend(avg_list)

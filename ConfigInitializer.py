@@ -56,7 +56,7 @@ class ConfigInitializer:
         # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
         dict_a = {  #
             'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
-            'algorithm'                             : [6],  # 5, 0, 21, 20, 15  # [5, 6]  # TODO: for W12/20: [2, 6] for SR12: [5, 6, 20, 21], vorher checken ob es durchläuft und sinn ergibt
+            'algorithm'                             : [21],  # 5, 0, 21, 20, 15  # [5, 6]
             'sort net input'                        : [True],  # TODO: This is always important
             'pretrain with empty nets'              : [True],
             'internal neurons per layer'            : [50],  # 50, 100
