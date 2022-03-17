@@ -152,6 +152,9 @@ if __name__ == '__main__':
     # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R00, R12, R13, R20, R30, R40 und 0, W, S als pre und s, l, vl, f als suffixe
     log.warning("Start")
     # TODO: R3f crasheds memory, don'T!
+
+    # TODO: Alg21 metric 1 broken
+    # TODO: Alg 21 time spending bad
     ConfigInitializer("R20vl", log)  # fix bug that 4411_5 scheinbar merkwürdige val/test paths hat
     """
     import os

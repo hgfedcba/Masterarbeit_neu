@@ -13,7 +13,7 @@ class Alg20_NN(NN):
 
         duration = self.T_max/div  # duration is proportional to number of random variables
         iterations = self.M_max/div
-        ratio_single_to_together = 0.66
+        ratio_single_to_together = 0.5
 
         # consists of fake nets. Fake nets are overridden gradually
         end = self.N
@@ -137,7 +137,7 @@ class Alg20_NN(NN):
         avg_list = []
         m = 0
 
-        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 10:
+        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 20:
             iteration_start = time.time()
             if alg20:
                 avg = self.training_step(optimizer)
@@ -152,4 +152,6 @@ class Alg20_NN(NN):
 
             self.Memory.single_train_durations.append(time.time() - iteration_start)
             m += 1
+        print("Joined training stops. There have been " + str(m) + " Iterations and there should be no more then " +
+              str(iterations) + " Time spend is " + str((time.time() - start_time)/60) + " and it should be less then " + str(duration))
         return avg_list

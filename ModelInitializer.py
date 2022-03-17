@@ -930,15 +930,18 @@ def initialize_model(option):
 
     if s:
         max_minutes /= 4
+        max_number /= 4
 
     if l:
         max_minutes *= 3
+        max_number *= 3
         train_size *= 2
         val_size *= 2
         test_size *= 2
 
     if vl:
         max_minutes *= 6
+        max_number *= 6
         train_size *= 2
         val_size *= 2
         test_size *= 2
@@ -946,6 +949,7 @@ def initialize_model(option):
     last_paths = False
     if f:
         max_minutes *= 4
+        max_number *= 4
         train_size *= 2
         val_size *= 2
         test_size *= 8

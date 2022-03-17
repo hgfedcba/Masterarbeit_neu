@@ -257,7 +257,7 @@ class NN:
         return avg_list
 
     # nth net
-    def empty_pretrain_net_n(self, n, max_duration, max_iterations, end_condition=5):
+    def empty_pretrain_net_n(self, n, max_duration, max_iterations, end_condition=8):
         start_time = time.time()
 
         pretrain_batch_size = int(self.batch_size * self.training_size_during_pretrain)
@@ -314,6 +314,8 @@ class NN:
 
             self.Memory.single_train_durations.append(time.time() - iteration_start)
             m += 1
+        print("Pretrain stops. There were " + str(maximum[1]) + " iterations since the maximum was attained. There have been " + str(m) + " Iterations and there should be no more then " +
+              str(max_iterations) + " Time spend is " + str((time.time() - start_time)/60) + " and it should be less then " + str(max_duration))
 
         return avg_list
 
