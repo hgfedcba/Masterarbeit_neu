@@ -6,6 +6,7 @@ import Util
 from AbstractMathematicalModel import AbstractMathematicalModel
 
 
+# Das gedächtnislose Robbinsmodell
 # important note: Ich maximiere den Rang statt ihn zu minimieren. Es gibt N+1 Ränge
 class W_RobbinsModel(AbstractMathematicalModel):
     def __init__(self, N):

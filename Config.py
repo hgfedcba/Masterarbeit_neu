@@ -3,6 +3,7 @@ from NetDefinitions import Adam, relu, hardtanh, relu6, elu, selu, celu, leaky_r
     gumbel_softmax, log_softmax, hardsigmoid, tanh, sigmoid, pretrain_functions, lr_decay_algs, pretrain_func_dict, activation_func_dict, lr_decay_dict, optimizer_dict
 
 
+# Hier speichere ich die Variablen, die einen Durchlauf beschreiben. Außerdem habe ich hier das alg_dict, in dem steht welcher Algorithmus welche Funktionalität hat.
 class Config:
     # Ich gebe Standardwerte an um den Datentyp zu deklarieren. Ich möchte die Standardwerte in fast allen Fällen überschreiben.
     def __init__(self, device="cpu", algorithm=0, sort_net_input=False, pretrain_with_empty_nets=False, internal_neurons=50, hidden_layer_count=3, activation_internal=tanh, activation_final=sigmoid,
@@ -55,19 +56,21 @@ class Config:
 
         alg_dict = {
             # I hardcoded that algs 10-19 are similar to 10 and 20-29 are similar to 20, algs >= 10 learn sequentially
-            0: "Paper",
-            2: "single Net",
-            3: "smaller N pretrain",
-            5: "Paper with empty pretrain",
-            6: "Paper with net resets",
-            10: "back to front",
-            11: "seq with pretrain",  # deleted
-            12: "explicit stop condition given",  # doesn't run through
-            14: "(14) back to front empty pretrain",
-            15: "(15) train together at the end",
-            16: "(16) train all nets after pretrain",
-            20: "front to back N=const",  # I think 20 and 21 differ in the joint training, while the pretrain is identically controlled by "pretrain with empty nets"
-            21: "front to back N=inc"
+            0: "Paper",  # Kernalgorithmus
+            2: "single Net",  # Ich habe nur ein Netz für alle Zeitpunkte
+            3: "smaller N pretrain",  # EIne Variante von 2, bei der ich mich am Finite-Elemente-Verfahren aus der Vorlesung Wissenschaftliches Rechnen orientiere. In Kürze ist die Idee erst
+            # einmal ein kleineres N zu betrachten und dann ein größeres
+            5: "Paper with empty pretrain",  # Kernalgorithmus, bei dem jedes Netz vortrainiert wird
+            6: "Paper with net resets",  # Kernalgorithmus, bei dem Netze zurückgesetzt werden, die nicht stoppen
+            7: "Paper with both",  # Funktionalität von 5 und 6
+            10: "back to front",  # Ich lerne die Netze von hinten nach vorne, erste implementation
+            11: "seq with pretrain",  # abgebrochen
+            12: "explicit stop condition given",  # abgebrochen
+            14: "(14) back to front empty pretrain",  # Die folgenden Netze sind leere Netze, da sonst kein Training stattfindet
+            15: "(15) train together at the end",  # Es wird am Ende zusammen trainiert
+            16: "(16) train all nets after pretrain",  # Diese Version beschreibe ich in der Arbeit
+            20: "front to back N=const",  # Die Varainte 2 aus der Arbeit
+            21: "front to back N=inc"  # Die Variante 1 aus der Arbeit
         }
 
         pl = [["device", device], ["algorithm", alg_dict.get(algorithm)], ["sort net input", sort_net_input], ["pretrain with empty nets", pretrain_with_empty_nets],

@@ -1,6 +1,7 @@
 from time import time
 
 
+# Hier speichere ich verschiedene Ergebnisse eines Durchlaufs für die Ausgabe
 class Memory:
     def __init__(self):
         self.start_time = time()

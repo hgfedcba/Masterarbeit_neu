@@ -5,6 +5,7 @@ import Util
 from AbstractMathematicalModel import AbstractMathematicalModel
 
 
+# Bei diesem Modell fülle ich die Pfade auf, damit ich den Algorithmus mit einem Netz anwenden kann
 # important note: Ich maximiere den Rang statt ihn zu minimieren. Es gibt N+1 Ränge
 class Filled_RobbinsModel(AbstractMathematicalModel):  # die pfade werden voene mit 0en aufgefüllt und sind sortiert
     def __init__(self, N):

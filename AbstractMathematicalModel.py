@@ -5,7 +5,7 @@ import scipy.stats
 import numpy as np
 import torch
 
-
+# Dies ist eine abstrakte Klasse, in der ich die Funktionen definiere, die von den tatsächlichen Modellen aufgeurfen werden
 class AbstractMathematicalModel(ABC):
     def convert_vector_stopping_times_to_int(self, stopping_times):
         if not isinstance(stopping_times, np.ndarray):

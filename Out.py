@@ -9,6 +9,8 @@ from pylab import grid, xlabel, ylabel
 from Util import *
 
 
+# Die Ausgabe
+
 def average_value_stopped_at(final_result, Model, paths):
     c = []
     v = []

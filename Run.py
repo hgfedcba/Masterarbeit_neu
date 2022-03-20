@@ -30,57 +30,54 @@ from Shortened_RobbinsModel import Shortened_RobbinsModel
 from Filled_RobbinsModel import Filled_RobbinsModel
 
 
-class ConfigInitializer:
+# Dies ist die Run Klasse. Sie führt eine Serie von Tests aus und ist dafür zuständig alle anderen Klassen zu initialisieren und aufzurufen. Alles geschieht im Konstruktor.
+class Run:
     def __init__(self, option, log):
-        # Here i first choose the option i want to price. For every kind of option i implement a parameter grid that contains all parameters that are used for the option. I then define a model
-        # class that contains all stats of the theoretical model including prices i have from other sources. i also define a new instance of the config class for every element of the parameter grid.
-        # i later use this concrete config for the nets etc.
 
         intro_string = None
         current_Config = None
 
         result_list = []
+
+        # Initilisiere Modell
         val_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, test_paths_file, last_paths =\
             ModelInitializer.initialize_model(option)
 
         # Parametergrid für Netz
-        # addAdam
         add_step_lr_scheduler(500)
         add_multiplicative_lr_scheduler(0.998)  # changed from 0.999 to 0.998 on 21.10.21
         add_multiplicative_lr_scheduler(0.994)  # this halves the learning rate compared to the one above at 150 iterations
 
-        list_individual_parameters = []
-        list_common_parameters = []
-        # [Adam, Adadelta, Adagrad, AdamW, Adamax, ASGD, RMSprop, SGD]
+        list_individual_parameters = []  # Eine Liste der Parameter, die sich in den Durchläufen ändern
+        list_common_parameters = []  # Eine Liste der Parameter, die in allen Durchläufen identisch sind
 
-        # assert not self.single_net_algorithm() or not isinstance(Model, RobbinsModel)
+        # Hier werden die verschiedenen Durchläufe eingestellt. Im Kommentar ist eventuell erklärt welche Konfigurationen es gibt/welche ich verwende
         dict_a = {  #
-            'device'                                : ["cpu"],  # ["cpu", "cuda:0"]  # doesn't work with anything but Robbins
-            'algorithm'                             : [2],  # 5, 0, 21, 20, 15  # [5, 6]  # TODO: for W12/20: [2, 6] for SR12: [5, 6, 20, 21], vorher checken ob es durchläuft und sinn ergibt
-            'sort net input'                        : [True],  # TODO: This is always important
+            'device'                                : ["cpu"],  # ["cpu", "cuda:0"]
+            'algorithm'                             : [0],
+            'sort net input'                        : [True],
             'pretrain with empty nets'              : [True],
             'internal neurons per layer'            : [50],  # 50, 100
-            'hidden layer count'                    : [2],  # [1, 2, 3]
+            'hidden layer count'                    : [2],  # [2, 3]
             'internal activation function'          : [selu],  # [tanh, relu, leaky_relu, softsign, selu]
             'final activation function'             : [sigmoid],
-            'optimizer'                             : [72],  # [7, 72] [2, 7, 71, 72, 73] [0, 2, 3, 4, 7, 71, 72, 73] ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
-            # Wenn 2 -> _, dann 21 -> _ mit den ersten besonderen einstellungen.
+            'optimizer'                             : [72],  # [2, 72]  ... 1, 5, 8 scheinen schlechter, 7 besonders gut.
             'pretrain function'                     : [False],  # 2 information in 1 entry "False" for pass
             'number pretrain iterations'            : [500],
             'max number of iterations'              : [max_number],
             'max minutes of iterations'             : [max_minutes],
-            # [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
-            'initial lr'                            : [0.005],  # [0.005, 0.02] 0.01 for other setting  # TODO: Recall: Ich habe ein continue eingebaut damit nur die beiden guten konfigs genommen werden
+            # Lernraten von [0.02] + 0.999 und [0.05] + 0.994 haben sich beide bewährt
+            'initial lr'                            : [0.005],  # [0.005, 0.02]  Recall: Ich habe ein continue eingebaut damit nur die beiden guten konfigs genommen werden
             'lr decay algorithm'                    : [3],  # [2, 3] 2 Information in 1 entry
-            'dropout rate'                          : [0],  # only 0, breaks alg20
+            'dropout rate'                          : [0],
             'random seed'                           : [1337],
             'validation frequency'                  : [10],
             'antithetic variables on validation set': [True],  # ALWAYS TRUE, SINCE I LOAD FROM MEMORY
             'antithetic variables on train set'     : [False],
             'training size during pretrain'         : [0.25],
-            'training batch size'                   : [train_size],  # why does this have to be >= 4?
-            'number of validation paths'            : [val_size],  # with my current implementation this has to be constant over a programm execution, changes here have noe effect!
-            'number of test paths'                  : [test_size]  # with my current implementation this has to be constant over a programm execution, changes here have noe effect!
+            'training batch size'                   : [train_size],
+            'number of validation paths'            : [val_size],
+            'number of test paths'                  : [test_size]
         }
 
         for u, v in dict_a.items():
@@ -99,6 +96,7 @@ class ConfigInitializer:
 
         run_number = 0
 
+        # Hier parse ich die Werte aus dem Parametergrid
         for params in ParameterGrid(dict_a):
             Memory = MemeClass()
 
@@ -159,31 +157,14 @@ class ConfigInitializer:
 
                 if last_paths:
                     val_paths = val_paths[-val_size:]
-                    # test_paths = test_paths[-test_size:]
                 else:
                     val_paths = val_paths[:val_size]
-                    # test_paths = test_paths[:test_size]
-                """
-                # sorting happens in NN class. Saver, but slightly less efficient
-                if sort_net_input:
-                    Util.sort_lists_inplace_except_last_one(val_paths)  # I am sorting too often
-                    # Util.sort_lists_inplace_except_last_one(test_paths)
-                """
 
             # Rufe main_routine auf und erhalte result
             individual_parameter_string = current_Config.get_psl_wrt_list(list_individual_parameters)
             individual_parameter_list = current_Config.get_pl_wrt_list(list_individual_parameters)
 
             log.warning("This is run " + str(run_number) + " and the current config is: " + individual_parameter_string + "\n")
-            '''
-            if algorithm == 3:
-                Model_copied = copy.deepcopy(Model)
-                Model.__N = 10
-                current_NN = NN.NN(current_Config, Model_copied, Memory, log, testxxx_paths)
-
-                # result enthält prominent_result klasse, memory klasse
-                optimitaion_result = [current_NN.optimization()]
-            '''
 
             if (algorithm == 2 or algorithm == 3) and isinstance(Model, RobbinsModel):
                 log.info("continued")
@@ -202,6 +183,7 @@ class ConfigInitializer:
             elif algorithm >= 20:
                 current_NN = Alg20.Alg20_NN(current_Config, Model, Memory, log, val_paths_file=val_paths_file)
             else:
+                # current_NN = NNKatagoInspired.KatagoNet(current_Config, Model, Memory, log, val_paths_file=val_paths_file)  # This would start the Katago-NN if I had come around to finish it
                 current_NN = NN.NN(current_Config, Model, Memory, log, val_paths_file=val_paths_file)
 
             m_out = 0
@@ -224,9 +206,13 @@ class ConfigInitializer:
 
                 # deletes old Prominent Results
                 current_NN.ProminentResults.initialize_empty()
+
+            # Hier findet das Training statt
             optimization_result = [current_NN.optimization(val_paths, m_out)[1:]]
             log.warning("Test begins")
             fvs = time.time()
+            # Hier findet das Testen statt
+            # Idee vom 8.3.22: Lade die pfade erst in der test funktion und nur weniger auf einmal
             test_paths, test_size = ModelInitializer.load_test_paths(test_paths_file, Model, test_size, last_paths)
             final = optimization_result[0][0].test(test_paths)
             log.info("Testing on the final net gives: " + str(final))
@@ -270,15 +256,6 @@ class ConfigInitializer:
         def short_cont(a):
             return Util.force_5_decimal(a.val_cont_value) + " \t (" + Util.force_5_decimal(a.test_cont_value) + ")\t"
 
-        """
-        def short_disc(a):
-            return str(round(a.val_disc_value, 5)) + " \t (" + str(round(a.test_disc_value, 5)) + ")\t"
-
-        def short_cont(a):
-            return str(round(a.val_cont_value, 5)) + " \t (" + str(round(a.test_cont_value, 5)) + ")\t"
-        """
-
-        # use ljust more
         if alg >= 10:
             os = mylog("\trun: ", str(result[2]),
                        "\tamount of times without stopping:", result[0].final_result.amount_of_times_where_no_stopping_happens,
@@ -306,10 +283,8 @@ class ConfigInitializer:
 
         return os
 
-    # discrete final/best disc auf final daten, time until for both    -  variable parameter
     @staticmethod
     def create_outputtable(Model, current_config, list_common_parameters, resultlist):
-        # Colorcode name vs value?
         title_text1 = "Wir optimieren für das Modell: \n" + Model.parameter_string + "\n\nFolgende Parameter sind konstant über alle Runs:\n"
         title_text2 = current_config.get_psl_wrt_list(list_common_parameters)
 
@@ -320,7 +295,6 @@ class ConfigInitializer:
         title_text = title_text1 + title_text2
         title_text = title_text.replace('\t', '    ')
 
-        # footer_text = 'stub'
         fig_background_color = 'skyblue'
         fig_border = 'steelblue'
 
@@ -334,22 +308,19 @@ class ConfigInitializer:
             for j in range(data[1].__len__()):
                 if isinstance(data[i][j], float):
                     data[i][j] = round(data[i][j], 3)
-        # Pop the headers from the data array
         column_headers = data.pop(0)
-        row_headers = [x.pop(0) for x in data]  # Table data needs to be non-numeric text. Format the data
-        # while I'm at it.
+        row_headers = [x.pop(0) for x in data]
         cell_text = []
         for row in data:
-            cell_text.append([str(x) for x in row])  # Get some lists of color specs for row and column headers
+            cell_text.append([str(x) for x in row])
         rcolors = plt.cm.BuPu(np.full(len(row_headers), 0.1))
         ccolors = plt.cm.BuPu(np.full(len(column_headers), 0.1))
-        # Create the figure. Setting a small pad on tight_layout seems to better regulate white space. Sometimes experimenting with an explicit figsize here can produce better outcome.
         plt.figure(linewidth=2,
                    edgecolor=fig_border,
                    facecolor=fig_background_color,
                    tight_layout={'pad': 1},
                    figsize=(10, 3 + data.__len__() / 5)  # figsize=(10, 3)   gerade 2.5 / 4
-                   )  # Add a table at the bottom of the axes
+                   )
         # my current guess 20.10.21: Es wird die breite der zellen angegeben von links nach recht und wenn h zu lang ist wir es zurechtgeschnitten. Warum die erste Spalte klein ist weiß ich nicht.
         h = [0.07, 0.07, 0.1, 0.07]
         h.extend([0.15] * 10)
@@ -364,20 +335,17 @@ class ConfigInitializer:
                               cellLoc='center')  # Scaling is the only influence we have over top and bottom cell padding.
         the_table.auto_set_font_size(False)
         the_table.set_fontsize(6)
-        # Make the rows taller (i.e., make cell y scale larger).
         the_table.scale(1, 1)  # Hide axes
         ax = plt.gca()
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)  # Hide axes border
         plt.box(on=None)  # Add title
         plt.suptitle(title_text, fontsize=6)  # Add footer
-        # plt.figtext(0.95, 0.05, horizontalalignment='right', size=6, weight='light')  # Force the figure to update, so backends center objects correctly within the figure.
-        # Without plt.draw() here, the title will center on the axes and not the figure.
-        plt.draw()  # Create image. plt.savefig ignores figure edge and face colors, so map them.
+        plt.draw()
         fig = plt.gcf()
         plt.savefig('Overview.png',
                     # bbox='tight',
                     edgecolor=fig.get_edgecolor(),
                     facecolor=fig.get_facecolor(),
-                    dpi=500  # AUFLÖSUNG
+                    dpi=500  # Auflösung
                     )

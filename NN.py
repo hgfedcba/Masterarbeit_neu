@@ -7,9 +7,10 @@ from RobbinsModel import RobbinsModel
 from NetDefinitions import optimizers
 
 
+# Hier nutze ich das torch Modul um das Netz zu definieren
 # TODO: IMPORTANT NOTE: I subtract K from the input of the Network to ensure the learning works from the beginning on
 class Net(nn.Module):
-    def __init__(self, d, internal_neurons, hidden_layer_count, activation_internal, activation_final, K, device, dropout_rate=0):
+    def __init__(self, d, internal_neurons, hidden_layer_count, activation_internal, activation_final, K, device, dropout_rate=0, out=1):
         super(Net, self).__init__()
         # an affine operation: y = Wx + b
         self.fc1 = nn.Linear(d, internal_neurons).to(device)
@@ -17,7 +18,7 @@ class Net(nn.Module):
         for _ in range(hidden_layer_count+1):
             self.fcs.append(nn.Linear(internal_neurons, internal_neurons).to(device))
             # self.fcs.append(nn.Linear(internal_neurons, internal_neurons).cuda())
-        self.fcl = nn.Linear(internal_neurons, 1).to(device)
+        self.fcl = nn.Linear(internal_neurons, out).to(device)
 
         self.activation_internal = activation_internal
         self.activation_final = activation_final
@@ -41,6 +42,7 @@ class Net(nn.Module):
         return y
 
 
+# Diese Klasse ist dafür zuständig das Netz zu definieren, trainieren und auszuwerten
 class NN:
     def __init__(self, Config, Model, Memory, log, val_paths_file=None):
         self.Memory = Memory
@@ -111,8 +113,8 @@ class NN:
         define_nets()
         self.ProminentResults = ProminentResults(log, self)
 
-    def define_net_with_path_dim_k(self, k):
-        net = Net(k, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK(), self.device, self.dropout_rate)
+    def define_net_with_path_dim_k(self, k, out_dim=1):
+        net = Net(k, self.internal_neurons, self.hidden_layer_count, self.activation_internal, self.activation_final, self.Model.getK(), self.device, self.dropout_rate, out=out_dim)
         net.to(self.device)
         return net
 
@@ -120,6 +122,7 @@ class NN:
         b = b.to(self.device)
         return self.u[a](b)
 
+    # This checks if the algorithm consists of a single net or multiple nets.
     def single_net_algorithm(self):
         if self.algorithm == 2 or self.algorithm == 3:
             return True
@@ -127,6 +130,7 @@ class NN:
             return False
         assert False
 
+    # defines the optimizer from optimizer_number and perhaps additional parameters
     def return_optimizer(self, parameters, lr=None):
         if lr is None:
             lr = self.initial_lr
@@ -147,6 +151,7 @@ class NN:
         elif self.optimizer_number == 83:
             return optimizers[self.optimizer_number // 10](parameters, lr=lr, momentum=0.5, dampening=0.5)
 
+    # This function controls the training procedure.
     def optimization(self, val_paths, m_out):
         self.N = self.Model.getN()
 
@@ -161,6 +166,7 @@ class NN:
             scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
             scheduler.verbose = False  # prints updates
 
+        # do pretrain if it is supposed to
         pretrain_start = time.time()
         if self.do_pretrain:
             log.info("pretrain starts")
@@ -173,6 +179,7 @@ class NN:
         self.Memory.train_durations_per_validation.append(0)
         self.Memory.total_net_durations_per_validation.append(0)
 
+        # starts the training loop
         m = m_out
         # continues if:
         # 1. die letzte Iteration keine validation stattgefunden hat
@@ -215,6 +222,7 @@ class NN:
                 self.Memory.train_durations_per_validation.append(0)
                 self.Memory.total_net_durations_per_validation.append(0)
 
+            # net resets
             if m % (5*self.validation_frequency) == 0 and m > 5 and self.algorithm == 6:
                 summed_stopping_times = np.sum(stopping_times, axis=0)
                 while summed_stopping_times[-1] == 0:
@@ -240,6 +248,7 @@ class NN:
         self.Memory.train_durations_per_validation.pop()
         self.Memory.total_net_durations_per_validation.pop()
 
+        # set final prominent result
         self.ProminentResults.set_final_net(self, m-1 + len(self.Memory.average_pretrain_payoffs), cont_payoff, disc_payoff, stopping_times, (time.time() - self.Memory.start_time))
 
         return m + len(self.Memory.average_pretrain_payoffs), self.ProminentResults, self.Memory
@@ -253,7 +262,7 @@ class NN:
 
         return avg_list
 
-    # nth net
+    # pretrain nth net
     def empty_pretrain_net_n(self, n, max_duration, max_iterations, end_condition=5):
         start_time = time.time()
 
@@ -261,8 +270,8 @@ class NN:
 
         net_list = [self.u[n]]
 
-        # version 1: no empty nets
-        # version 2: empty nets
+        # version 1: no empty nets after n+1
+        # version 2: empty nets -> full length
 
         # version 1 is much faster but gets worse values.
         if self.pretrain_with_empty_nets:
@@ -314,6 +323,7 @@ class NN:
 
         return avg_list
 
+    # one training step
     def training_step(self, optimizer, training_paths=None, net_list=None):
         if training_paths is None:
             training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
@@ -331,7 +341,6 @@ class NN:
                 local_N = training_paths[0].shape[1]
             U = torch.empty(len(training_paths), local_N, device=self.device)
 
-        # breaks alg20
         for net in self.u:
             if net != fake_net:
                 net.train(mode=True)
@@ -348,13 +357,14 @@ class NN:
 
         t = time.time()
         optimizer.zero_grad()
-        # torch.autograd.set_detect_anomaly(True)
+        # torch.autograd.set_detect_anomaly(True)  # fürs debugging
         loss.backward()
         optimizer.step()
         self.Memory.total_net_durations_per_validation[-1] += time.time() - t
 
         return average_payoff.item()
 
+    # validiere/teste auf gegebenen Pfaden
     def validate(self, paths, net_list=None):
         if net_list is not None:
             N = len(net_list)  # This is only for alg 21
@@ -401,6 +411,7 @@ class NN:
         # tau list is better then stopping_times
         return cont_payoff, disc_payoff, stopping_times
 
+    # Generiert die diskrete Stoppzeit aus der stetigen
     def generate_discrete_stopping_time_from_u(self, u):
         # between 0 and N
         for n in range(self.N + 1):
@@ -408,6 +419,7 @@ class NN:
                 return n
         return self.N
 
+    # Auf einem Pfad wird die absolute Wahrscheinlichkeit zu stoppenfür die diskrete und stetige Stoppzeit berechnet.
     def generate_stopping_time_factors_and_discrete_stoppoint_from_path(self, x_input, grad, net_list=None):
         if net_list is None:
             net_list = self.u

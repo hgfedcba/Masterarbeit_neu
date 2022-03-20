@@ -14,6 +14,7 @@ def real_fake_net(j, N):
     return f
 
 
+# In dieser Klasse implementiere ich die Algorithmen, die die Netze einzeln von hinten nach vorne trainieren.
 class Alg10_NN(NN):
     def optimization(self, val_paths, m_out):
         self.val_paths = val_paths
@@ -118,49 +119,6 @@ class Alg10_NN(NN):
 
         return avg_list
 
-    """
-    # I probably don't need this anymore
-    def alg20_train_net_k(self, k, duration, iterations):
-        start_time = time.time()
-        saved_u = copy.deepcopy(self.u)
-        net = self.u[0]
-
-        self.u = []
-        self.u.append(net)
-        for j in range(k + 1, self.N):
-            self.u.append(fake_net)
-        params = list(self.u[0].parameters())
-
-        optimizer = self.return_optimizer(params)
-        if self.do_lr_decay:
-            scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
-            scheduler.verbose = False  # prints updates
-
-        avg_list = []
-        m = 0
-        while (m < iterations and (time.time() - start_time) / 60 < duration) or m < 40:
-            training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
-            if not isinstance(self.Model, W_RobbinsModel.W_RobbinsModel):
-                for j in range(len(training_paths)):
-                    if isinstance(self.Model, RobbinsModel):
-                        training_paths[j] = training_paths[j][k:]
-                    else:
-                        training_paths[j] = training_paths[j][:, k:]
-            else:
-                training_paths = training_paths[:, :, k:]
-            avg = self.training_step(optimizer, training_paths)
-            avg_list.append(avg)
-
-            if self.do_lr_decay:
-                scheduler.step()
-            m += 1
-
-        self.u = saved_u
-        self.u[0] = net
-
-        return avg_list
-    """
-
     # erklärung für den sehr merkwüurdigen value on train batch graphen: die iterationen werden sehr viel langsamer mit der zeit (höhere input dimension, mehr netzauswertungen),
     # also werden es immer weniger
     def train_net_k(self, k, iterations, duration, fake=False, train_all_nets=False):
@@ -210,48 +168,3 @@ class Alg10_NN(NN):
             m += 1
 
         return avg_list
-    """
-    # Train given net to only stop when the last value is big enough
-    def robbins_pretrain(self, net, k, barrier):
-        params = list(net.parameters())
-        optimizer = self.optimizer_number(params, lr=0.1)
-
-        for m in range(100):
-            training_paths = self.Model.generate_paths(self.batch_size, self.antithetic_train)
-            # training paths (0,...,0, rand) klappen deutlich besser als vollkommen random
-            training_paths = np.zeros((self.batch_size, k+1))
-            training_paths[:, -1] = np.random.random(self.batch_size)
-            for j in range(len(training_paths)):
-                if isinstance(self.Model, RobbinsModel):
-                    training_paths[j] = training_paths[j][k]
-                else:
-                    training_paths[j] = training_paths[j][:, k]
-
-            targets = []
-            x = []
-            losses = []
-            count = 0
-            for j in range(len(training_paths)):
-                targets.append(int(training_paths[j][-1] > barrier))
-                x.append(torch.tensor(training_paths[j], dtype=torch.float32, requires_grad=True))
-                losses.append(torch.abs(targets[j]-net(x[j])))
-                h1 = targets[j]
-                h2 = net(x[j]).item()
-                h3 = losses[-1].item()
-                h4 = (torch.sum(torch.stack(losses)) / len(losses)).item()
-                count += int(training_paths[j][-1] > barrier)
-                if m == 10:
-                    assert True
-
-            average_payoff = torch.sum(torch.stack(losses)) / len(losses)
-
-            t = time.time()
-            optimizer.zero_grad()
-            # torch.autograd.set_detect_anomaly(True)
-            average_payoff.backward()
-            optimizer.step()
-            print(str(m) + "\t\t" + str(average_payoff.item()))
-
-            if average_payoff.item() < 0.05:
-                break
-    """

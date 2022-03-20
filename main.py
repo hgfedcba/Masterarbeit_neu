@@ -3,59 +3,30 @@ import logging
 import time
 
 import matplotlib
-from ConfigInitializer import ConfigInitializer
+from Run import Run
 
 """
-Eigene Kniffe:
-Netz x-K
-nutze u statt U
-u[N] = 1
-trainingsset, aber das bringt vermutlich nichts da overfitting nicht exisitiert
-antitheitc variables
-input sortieren
-"""
+Struktur des Programmes:
+Das Programm ist aufgeteilt in verschiedene Klassen, von denen man viele thematisch zusammenordnen kann. Diese sind hier aufgeführt.
+1. Modelle: Die Folgen Klassen sind alles Kinder der AbstractMathematicalModel Klasse und implementieren eine Art Modell: MarkovBlackScholesModel, RussianOption, RobbinsModel, Shortened_RobbinsModel,
+ Filled_RobbinsModel, W_RobbinsModel
+    Weiterhin gehören auch ModelDefinitions und ModelInitializer in den Bereich der Modelle. Ersteres ist eine Sammlung an Definitionen, die ich für die Modelle benutze und letzteres wird aufgerufen
+     um die Modelle zu initialisieren. Es gibt noch eine Datei NetDefinitions, in der verschiedene Definitionen durchgeführt werden, die dann von den NN-Klassen verwendet werden. 
+2. Algoritmusvarianten: Der Kernalgorithmus ist implementiert in der NN-Klasse. Die Klassen Alg10 und Alg20 sind Kinder der NN Klasse, die andere Algorithmusvarianten implementieren. Eine Übersicht
+ welcher Algorithmus hinter welcher Zahl steckt gibt es in der Config-Kalsse.
+3. Es gibt mehrere Klassen die die Daten eines Durchgangs verwalten. Sie haben die Aufgaben zu speichern was für ein Durchlauf gerade stattfindet (Config), die in der Masterarbeit angesprochenen Rekordergebnisse zu
+ speichern (ProminentResults) und die Daten des Durchgangs zu speichern (Memory).
+4. Diese Daten werden dann in der Out-Klasse verwendet, um die Ausgabe zu erzeugen.
+5. Eine Run-Klasse, in der ich die Konfiguration für den aktuellen Durchlauf setze und die dann alle anderen Klassen aufruft und initialisiert.
+6. Es gibt noch eine Sammlung von Hilfsfunktionen in Util.
+7. Die Dateien catboost_test_file, NNKatagoInspired und sklearn_test_file werden nicht genutzt. In den Dateien habe ich weitere Ansaätze ausprobiert die aber nie/nicht mehr funktionierten.
 
-# Options:
-
-# Inhalt:
-# sklearn -> gradient boost, random forrest
-# catboost?
-# betrachte das Problem als ein Klassifikationsproblem
-# lineare regression etc ausprobieren
-# graphikkarte (überraschend schwer)  andere pytorch installation!
-# random forest 10.000 sample auf einmal und dann einmal iterieren.
-
-# Grafik:
-# plotly express
-# colorcode output
-
-# TODO: train with random origin (+/-10%) every 2nd iteration
-
-# TODO: decide on russian parameters
-
-# TODO: Save gif of 2d plot
-
-# VZibglagdbölsgbunrslgubnsrlhsrbnthlsrtghöbhnuhunu
-
-# recall conjectured upper bound
-
-# Note: RNG freeze funktioniert (tested with True/False bei sorted input ohne funktion)
-
-# recall robbins bound from reference also has an explicit realization
-
-# test regularization, dropout      (not functional, breaks alg20)
-# <- both are supposed to reduce overfitting, but as overfitting is not possible in my setting it shouldn't help (much)
-
-# TODO: noch einmal gpu (ich muss calculate payoffs anpassen)
-
-# writing
-# TODO: pretrainiere mehrere netze gleichzeitig
-"""
-Aufbau des Programms:
-- In der main Methode wird festgelegt, 
+Da es so wichtig ist erwähne ich es noch einmal: Welcher Algorithmus hinter welcher Zahl steht sieht man in der Konfig Klasse im alg_dict .
 """
 
 if __name__ == '__main__':
+
+    # erzeugt die Ausgabe der verkürtzten Ausgabedaten
     if False:
         import Shortened_RobbinsModel
         from Util import *
@@ -81,6 +52,7 @@ if __name__ == '__main__':
         plt.ylim([0, n+1])
         plt.show()
 
+    # erzeugt den Plot der amerikanischen Pretrain funktion
     if False:
         import Shortened_RobbinsModel
         from Util import *
@@ -149,10 +121,13 @@ if __name__ == '__main__':
     log.error("this is an error message")
     log.critical("this is a critical message")
     '''
-    # 4312 = am put, 0 = test, 4411_2, 4411_5, R0, R00, R12, R13, R20, R30, R40 und 0, W, S als pre und s, l, f als suffixe
+    # 4312 = am put, 0 = test, 4411_2 = Bermuda mit 2 Aktien, 4411_5 = Bermuda mit 5 Aktien
+    # Hier alles in Anführungszeichen -> R0, R00, R12 = Robbins mit 12 ZV, R13, R20 = Robbins mit 20 ZV, R30, R40, Russ1 = Meistgenutztes russisches Setting, Russ11
+    # Es gibt 0, W, S als pre und s, l, f als suffixe. 0, W, S geben Varianten vom Robbins Modell an und s, l gibt an ob der Durchlauf schnell oder lang sein soll. f wurde nicht genutzt
     log.warning("Start")
-    # TODO: R3f crasheds memory, don'T!
-    ConfigInitializer("Russ111", log)  # fix bug that 4411_5 scheinbar merkwürdige val/test paths hat
+
+    # Hier wird der Run aufgerufen. Man kann auch mehrere Runs in Folge ausführen
+    Run("R00", log)  # fix bug that 4411_5 scheinbar merkwürdige val/test paths hat
     """
     import os
     time.sleep(5)

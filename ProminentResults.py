@@ -1,6 +1,7 @@
 from Util import *
 
 
+# Hier speichere ich die Netze und die Ergebnisse von Rekordwerten
 class ProminentResults:
     def __init__(self, log, NN):
         self.cont_best_result = None

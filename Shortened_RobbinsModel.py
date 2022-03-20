@@ -7,6 +7,7 @@ import Util
 from RobbinsModel import RobbinsModel
 
 
+# Das Robbins Modell mit verkürtzten Eingabedaten
 # important note: Ich maximiere den Rang statt ihn zu minimieren. Es gibt N+1 Ränge
 class Shortened_RobbinsModel(RobbinsModel):
     def __init__(self, N):

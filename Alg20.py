@@ -3,6 +3,7 @@ from NN import NN
 from Util import *
 
 
+# In dieser Klasse definiere ich die beiden Algorithmen, die die Netze von vorne nach hintern trainieren.
 class Alg20_NN(NN):
     def optimization(self, val_paths, m_out):
         self.N = self.Model.getN()
