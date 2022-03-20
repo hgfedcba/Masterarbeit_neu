@@ -117,7 +117,7 @@ class Run:
             else:
                 do_pretrain = True
             pretrain_func = pretrain_functions[params['pretrain function']]
-            if algorithm == 5:
+            if algorithm == 5 or algorithm == 7:
                 do_pretrain = True
                 pretrain_func = None
             pretrain_iterations = params['number pretrain iterations']

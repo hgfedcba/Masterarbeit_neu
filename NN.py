@@ -126,7 +126,7 @@ class NN:
     def single_net_algorithm(self):
         if self.algorithm == 2 or self.algorithm == 3:
             return True
-        if self.algorithm == 0 or self.algorithm == 5 or self.algorithm == 6 or self.algorithm >= 10:
+        if self.algorithm == 0 or self.algorithm == 5 or self.algorithm == 6 or self.algorithm == 7 or self.algorithm >= 10:
             return False
         assert False
 
@@ -222,8 +222,8 @@ class NN:
                 self.Memory.train_durations_per_validation.append(0)
                 self.Memory.total_net_durations_per_validation.append(0)
 
-            # net resets
-            if m % (5*self.validation_frequency) == 0 and m > 5 and self.algorithm == 6:
+            # reset nets
+            if m % (5*self.validation_frequency) == 0 and m > 5 and (self.algorithm == 6 or self.algorithm == 7):
                 summed_stopping_times = np.sum(stopping_times, axis=0)
                 while summed_stopping_times[-1] == 0:
                     summed_stopping_times = summed_stopping_times[:-1]
@@ -242,6 +242,8 @@ class NN:
                             if self.do_lr_decay:
                                 scheduler = self.lr_decay_alg[0](optimizer, self.lr_decay_alg[1])
                                 scheduler.verbose = False  # prints updates
+                        else:
+                            print("This shouldn't happen")
 
             m += 1
 
@@ -262,8 +264,8 @@ class NN:
 
         return avg_list
 
-    # pretrain nth net
-    def empty_pretrain_net_n(self, n, max_duration, max_iterations, end_condition=5):
+    # nth net
+    def empty_pretrain_net_n(self, n, max_duration, max_iterations, end_condition=8):
         start_time = time.time()
 
         pretrain_batch_size = int(self.batch_size * self.training_size_during_pretrain)
@@ -320,6 +322,8 @@ class NN:
 
             self.Memory.single_train_durations.append(time.time() - iteration_start)
             m += 1
+        print("Pretrain stops. There were " + str(maximum[1]) + " iterations since the maximum was attained. There have been " + str(m) + " Iterations and there should be no more then " +
+              str(max_iterations) + " Time spend is " + str((time.time() - start_time)/60) + " and it should be less then " + str(max_duration))
 
         return avg_list
 

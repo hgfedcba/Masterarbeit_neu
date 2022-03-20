@@ -90,10 +90,10 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
     # plt.yscale('log')
 
     if Config.algorithm >= 10:
-        x = range(0, len(Memory.val_discrete_value_list))
+        x = range(1, len(Memory.val_discrete_value_list)+1)
         xlabel('nets trained', fontsize=16)
     else:
-        x = range(0, Config.validation_frequency * (len(Memory.val_discrete_value_list)), Config.validation_frequency)
+        x = range(Config.validation_frequency, Config.validation_frequency * (len(Memory.val_discrete_value_list) + 1), Config.validation_frequency)
         xlabel('iteration', fontsize=16)
     x = np.array(x)
     do_scatter = False
@@ -110,13 +110,19 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         draw_connected_points(x, r_value*np.ones_like(x), plot_number_value, 'black')
         plt.legend(["cont value", "disc value", "reference value"])
     elif Config.algorithm == 21:
+        """
         o = [[], []]
         for m in range(x.size):
             o[0].append(m + 3 - robbins_problem_lower_boundary_of_W(m + 1))
             o[1].append(m + 3 - robbins_problem_known_upper_boundary_of_V(m))
         draw_connected_points(x, o[0], plot_number_value, 'black', do_scatter=do_scatter)
         draw_connected_points(x, o[1], plot_number_value, 'gray', do_scatter=do_scatter)
-        plt.legend(["disc value", "W_n", "V barrier"])
+        """
+        o = []
+        for m in range(x.size):
+            o.append(m + 3 - robbins_problem_lower_boundary_of_W(m + 1))
+        draw_connected_points(x, o, plot_number_value, 'black', do_scatter=do_scatter)
+        plt.legend(["disc value", "W_n"])
     else:
         draw_connected_points(x, r_value[0] * np.ones_like(x), plot_number_value, 'black')
         draw_connected_points(x, r_value[1] * np.ones_like(x), plot_number_value, 'gray')
@@ -142,13 +148,11 @@ def create_metrics_pdf(run_number, Memory, Config, Model, ProminentResults, val_
         # h1 = h - np.array(Memory.val_discrete_value_list)
         draw_connected_points(x, np.arange(len(Memory.val_discrete_value_list)) + 3 - np.array(Memory.val_discrete_value_list), plot_number_inverted_value, do_scatter=do_scatter)
 
-        o = [[], []]
+        o = []
         for m in range(x.size):
-            o[0].append(robbins_problem_lower_boundary_of_W(m + 1))
-            o[1].append(robbins_problem_known_upper_boundary_of_V(m))
-        draw_connected_points(x, o[0], plot_number_inverted_value, 'black', do_scatter=do_scatter)
-        draw_connected_points(x, o[1], plot_number_inverted_value, 'gray', do_scatter=do_scatter)
-        plt.legend(["disc value", "W_n", "V barrier"])
+            o.append(robbins_problem_lower_boundary_of_W(m + 1))
+        draw_connected_points(x, o, plot_number_inverted_value, 'black', do_scatter=do_scatter)
+        plt.legend(["disc value", "W_n"])
 
         pdf.savefig(fig1)
         plt.close(fig1)

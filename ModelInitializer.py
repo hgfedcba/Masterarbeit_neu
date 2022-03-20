@@ -50,6 +50,10 @@ def initialize_model(option):
     l = False
     s = False
     f = False
+    vl = False  # added 11.3.2022
+    if str(option)[-2:] == "vl":
+        vl = True
+        option = option[:-2]
     if str(option)[-1] == "l":
         l = True
         option = option[:-1]
@@ -778,7 +782,7 @@ def initialize_model(option):
         val_paths = Model.generate_paths(val_size)
         # test_paths = Model.generate_paths(test_size)
 
-    elif option == "Russ111":
+    elif option == "Russ111":  # crashed 23.02.22
         # Model
         r = 0.05
         sigma_constant = 0.3  # beta
@@ -786,7 +790,7 @@ def initialize_model(option):
         xi = 1
         K = xi
         T = 10
-        N = 15  # maybe his 10=tau=T-t?
+        N = 20  # maybe his 10=tau=T-t?
         d = 1  # dimension
         delta = 0.03  # dividend rate
         sigma = add_sigma_c_x(sigma_constant)
@@ -926,9 +930,18 @@ def initialize_model(option):
 
     if s:
         max_minutes /= 4
+        max_number /= 4
 
     if l:
         max_minutes *= 3
+        max_number *= 3
+        train_size *= 2
+        val_size *= 2
+        test_size *= 2
+
+    if vl:
+        max_minutes *= 6
+        max_number *= 6
         train_size *= 2
         val_size *= 2
         test_size *= 2
@@ -936,6 +949,7 @@ def initialize_model(option):
     last_paths = False
     if f:
         max_minutes *= 4
+        max_number *= 4
         train_size *= 2
         val_size *= 2
         test_size *= 8
