@@ -4,16 +4,6 @@ from RobbinsModel import RobbinsModel
 from NN import NN
 
 
-def fake_net(x):
-    return 0
-
-
-def real_fake_net(j, N):
-    def f(x):
-        return x[j] > (N-j-1)/(N-j)
-    return f
-
-
 # In dieser Klasse implementiere ich die Algorithmen, die die Netze einzeln von hinten nach vorne trainieren.
 class Alg10_NN(NN):
     def optimization(self, val_paths, m_out):

@@ -39,10 +39,12 @@ def sort_np_inplace(paths, in_place=True, N=None):
     return out
 
 
+# Diese Funktion hat immer eine relative Stoppwahrscheinlichkeit von 0
 def fake_net(x):
     return 0
 
 
+# Diese fake-Netz ist 1 im letzten Zeitpunkt
 def real_fake_net(j, N):
     def f(x):
         return x[j] > (N-j-1)/(N-j)
@@ -88,7 +90,6 @@ def robbins_problem_experimental_upper_boundary_of_V(n):
 
 
 def robbins_problem_known_upper_boundary_of_V(n):
-
     return 1.908
 
 
@@ -142,6 +143,7 @@ def draw_function(x, f, plot_number=0, color=None, algorithm=False, linewidth=1)
     return plot_number
 
 
+# if do_scatter=True they are not connected
 def draw_connected_points(x, y, plot_number=0, color=None, do_scatter=False, line_style='-'):
     if plot_number == 0:
         h = time.time()

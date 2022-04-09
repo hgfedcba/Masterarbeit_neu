@@ -18,18 +18,18 @@ class Config:
 
         if x_plot_range_for_net_plot is None:
             x_plot_range_for_net_plot = [20, 60]
-        self.device = device
-        self.algorithm = algorithm  # 0 is source, 2 is christensen learn f, 3 is different N
+        self.device = device  # CPU oder GPU
+        self.algorithm = algorithm  # see below
         self.sort_net_input = sort_net_input
-        self.pretrain_with_empty_nets = pretrain_with_empty_nets
+        self.pretrain_with_empty_nets = pretrain_with_empty_nets  # Der Unterschied, ob nach dem Pretrain-Zeitpunkt weitere leere Netze und ZV sind
         self.internal_neurons = internal_neurons
         self.hidden_layer_count = hidden_layer_count
         self.activation_internal = activation_internal
         self.activation_final = activation_final
-        self.optimizer_number = optimizer_number
+        self.optimizer_number = optimizer_number  # see below
 
         self.do_pretrain = do_pretrain
-        self.pretrain_func = pretrain_func
+        self.pretrain_func = pretrain_func  # target function, only for finance settings
         self.pretrain_iterations = pretrain_iterations
 
         self.max_number_iterations = max_number_of_iterations
@@ -44,8 +44,8 @@ class Config:
         # Meta
         self.random_seed = random_seed
         self.validation_frequency = validation_frequency
-        self.antithetic_val = antithetic_val  # only in validation!
-        self.antithetic_train = antithetic_train
+        self.antithetic_val = antithetic_val  # antithetic variables in validation
+        self.antithetic_train = antithetic_train  # antithetic variables in test
         self.val_size = val_size
         self.test_size = test_size
 
@@ -55,10 +55,10 @@ class Config:
         self.angle_for_net_plot = angle_for_net_plot
 
         alg_dict = {
-            # I hardcoded that algs 10-19 are similar to 10 and 20-29 are similar to 20, algs >= 10 learn sequentially
+            # I hardcoded that algs 10-19 are similar to 10 (back to front) and 20-29 are similar to 20 (front to back), algs >= 10 learn sequentially
             0: "Paper",  # Kernalgorithmus
             2: "single Net",  # Ich habe nur ein Netz für alle Zeitpunkte
-            3: "smaller N pretrain",  # EIne Variante von 2, bei der ich mich am Finite-Elemente-Verfahren aus der Vorlesung Wissenschaftliches Rechnen orientiere. In Kürze ist die Idee erst
+            3: "smaller N pretrain",  # Eine Variante von 2, bei der ich mich am Finite-Elemente-Verfahren aus der Vorlesung Wissenschaftliches Rechnen orientiere. In Kürze ist die Idee erst
             # einmal ein kleineres N zu betrachten und dann ein größeres
             5: "Paper with empty pretrain",  # Kernalgorithmus, bei dem jedes Netz vortrainiert wird
             6: "Paper with net resets",  # Kernalgorithmus, bei dem Netze zurückgesetzt werden, die nicht stoppen

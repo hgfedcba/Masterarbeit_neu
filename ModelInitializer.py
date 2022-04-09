@@ -11,6 +11,7 @@ from Shortened_RobbinsModel import Shortened_RobbinsModel
 from W_RobbinsModel import W_RobbinsModel
 from Filled_RobbinsModel import Filled_RobbinsModel
 
+# Codeausschnitte zum Speichern von Pfaden.
 """
 val_paths = Model.generate_paths(1048576, True)
 print("1/2")
@@ -35,22 +36,23 @@ with open(test_paths_file, 'wb') as f:
 
 def initialize_model(option):
     angle_for_net_plot = None
-    val_paths_file = None  # wird übergeben
+    val_paths_file = None
     test_paths_file = None
     max_number = 10000
-    # I deleated max_number everywhere. It was mostly 400 and was multiplied like max_time
+    # I deleted max_number everywhere. It was mostly 400 and was multiplied like max_time
 
     import pathlib
     path = pathlib.Path(__file__).parent.absolute().__str__()
+    # Überprüft, an welchem Rechner ich arbeite
     if "Olus" not in path:
         main_pc = "\tZweitrechner"
     else:
         main_pc = "\tHauptrechner"
 
-    l = False
-    s = False
-    f = False
-    vl = False  # added 11.3.2022
+    l = False  # für einen langen test
+    s = False  # für einen kurzen test
+    f = False  # für den abschlusstest (nicht genutzt, sollte besonders lang sein und andere testpfade verwenden)
+    vl = False  # added 11.3.2022, länger als lang
     if str(option)[-2:] == "vl":
         vl = True
         option = option[:-2]
@@ -64,9 +66,9 @@ def initialize_model(option):
         f = True
         option = option[:-1]
 
-    short = False
-    W = False
-    filled = False
+    short = False  # verkürzte eingabedaten bei Robbins
+    W = False  # gedächtnsloses Robbins Modell
+    filled = False  # Für robbins mit einem netz
     if str(option)[0] == "S":
         short = True
         option = option[1:]
@@ -121,7 +123,7 @@ def initialize_model(option):
         # test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == 4411_2:
-        # bermudan max call
+        # bermudan max call with 2 stocks
 
         r = 0.05
         sigma_constant = 0.2  # beta
@@ -160,7 +162,7 @@ def initialize_model(option):
         # test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == 4411_5:
-        # bermudan max call
+        # bermudan max call with 5 stocks
 
         r = 0.05
         sigma_constant = 0.2  # beta
@@ -198,7 +200,7 @@ def initialize_model(option):
         # test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == 2:
-        # Model
+        # Testmodell in 2 Dimensionen
         r = 0.05
         sigma_constant = 0.25  # beta
         mu_constant = r
@@ -231,7 +233,7 @@ def initialize_model(option):
         # test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == 1:
-        # Model
+        # Testmodell in einer Dimension
         r = 0.05
         sigma_constant = 0.25  # beta
         mu_constant = r
@@ -273,7 +275,7 @@ def initialize_model(option):
         # test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == 0:
-        # Model
+        # Testmodell, dass sehr kurz optimiert
         r = 0.05
         sigma_constant = 0.25  # beta
         mu_constant = r
@@ -306,6 +308,7 @@ def initialize_model(option):
         # test_paths = np.load(test_paths_file, mmap_mode="r")
 
     elif option == "R00":
+        # Testmodell, dass Robbins sehr kurz optimiert
         N = 5
         max_minutes = 0.1
         train_size = 128
@@ -333,6 +336,7 @@ def initialize_model(option):
         # test_paths = Model.generate_paths(test_size, True)
 
     elif option == "R1" or option == "R0":
+        # Längeres Robbins Testmodell
         N = 11
         train_size = 128
         val_size = 256
@@ -393,6 +397,7 @@ def initialize_model(option):
         Model.update_parameter_string(main_pc)
 
     elif option == "R12":
+        # Robbins mit 12 ZV
         N = 11
         max_minutes = 25
         train_size = 1024
@@ -444,6 +449,7 @@ def initialize_model(option):
         Model.update_parameter_string(main_pc)
 
     elif option == "R13":
+        # Robbins mit 13 ZV
         N = 12
         max_minutes = 25
         train_size = 1024
@@ -496,6 +502,7 @@ def initialize_model(option):
         Model.update_parameter_string(main_pc)
 
     elif option == "R20":
+        # Robbins mit 20 ZV
         N = 19
         max_minutes = 50  # changed 23.11. 30->50
         train_size = 1024
@@ -548,6 +555,7 @@ def initialize_model(option):
         Model.update_parameter_string(main_pc)
 
     elif option == "R30":
+        # Robbins mit 30 ZV
         N = 29
         max_minutes = 50  # changed 23.11. 30->50
         train_size = 1024
@@ -600,6 +608,7 @@ def initialize_model(option):
         Model.update_parameter_string(main_pc)
 
     elif option == "R40":
+        # Robbins mit 40 ZV
         N = 39
         max_minutes = 120
         train_size = 2048
@@ -652,6 +661,7 @@ def initialize_model(option):
         Model.update_parameter_string(main_pc)
 
     elif option == "R60":
+        # Robbins mit 60 ZV
         N = 59
         max_minutes = 150
         train_size = 2048
@@ -712,8 +722,8 @@ def initialize_model(option):
 
         Model.update_parameter_string(main_pc)
 
-    elif option == "Russ1":  # run 42
-        # Model
+    elif option == "Russ1":
+        # Russische Option genutzt in run 42
         r = 0.05
         sigma_constant = 0.3  # beta
         mu_constant = r
@@ -747,8 +757,8 @@ def initialize_model(option):
         val_paths = Model.generate_paths(val_size)
         # test_paths = Model.generate_paths(test_size)
 
-    elif option == "Russ11":  # run 46
-        # Model
+    elif option == "Russ11":
+        # Russische Option genutzt in run 46
         r = 0.04
         sigma_constant = 0.2  # beta
         mu_constant = r
@@ -782,8 +792,9 @@ def initialize_model(option):
         val_paths = Model.generate_paths(val_size)
         # test_paths = Model.generate_paths(test_size)
 
-    elif option == "Russ111":  # crashed 23.02.22
-        # Model
+    elif option == "Russ111":
+        # Testoption
+        # crashed 23.02.22
         r = 0.05
         sigma_constant = 0.3  # beta
         mu_constant = r
@@ -853,7 +864,7 @@ def initialize_model(option):
         # test_paths = Model.generate_paths(test_size)
 
     elif option == "Russ0":
-        # Model
+        # Russische testoption
         r = 0.05
         sigma_constant = 0.25  # beta
         mu_constant = r
@@ -925,6 +936,7 @@ def initialize_model(option):
         # falsche Option eingegeben
         assert False
     if main_pc == "\tZweitrechner":
+        # Der Zweitrechner hat schlechtere hardware als der hauptrechner. ich habe alle finalen tests auf dem zweitrechner durchgeführt.
         max_minutes *= 1.3
         max_number *= 1.3
 
@@ -958,6 +970,8 @@ def initialize_model(option):
     return val_paths, angle_for_net_plot, max_number, max_minutes, train_size, val_size, test_size, Model, x_plot_range_for_net_plot, val_paths_file, test_paths_file, last_paths
 
 
+# Diese Funktion lädt die Testpfade aus der übergebenen file datei. Dafür muss sie wissen, welches Modell vorliegt und wie viele Pfaade übergeben werden sollen. last_paths ist ein boolscher Wert,
+# der angibt ob die pfade von vorne oder hinten genommen werden sollen.
 def load_test_paths(test_paths_file, Model, test_size, last_paths):
     if test_paths_file is None:
         test_paths = Model.generate_paths(test_size)

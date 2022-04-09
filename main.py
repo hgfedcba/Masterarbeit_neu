@@ -6,6 +6,8 @@ import matplotlib
 from Run import Run
 
 """
+Die Struktur des Programmes ist auch noch etwas bildlicher in der Übersicht.png Datei dargestellt, die sich auch in diesem Projekt befindet.
+
 Struktur des Programmes:
 Das Programm ist aufgeteilt in verschiedene Klassen, von denen man viele thematisch zusammenordnen kann. Diese sind hier aufgeführt.
 1. Modelle: Die Folgen Klassen sind alles Kinder der AbstractMathematicalModel Klasse und implementieren eine Art Modell: MarkovBlackScholesModel, RussianOption, RobbinsModel, Shortened_RobbinsModel,
@@ -26,7 +28,7 @@ Da es so wichtig ist erwähne ich es noch einmal: Welcher Algorithmus hinter wel
 
 if __name__ == '__main__':
 
-    # erzeugt die Ausgabe der verkürtzten Ausgabedaten
+    # erzeugt die Grafik der verkürtzten Ausgabedaten
     if False:
         import Shortened_RobbinsModel
         from Util import *
@@ -90,7 +92,7 @@ if __name__ == '__main__':
 
     matplotlib.use("Agg")  # sets a convenient mode for matplotlib
 
-    # configure log
+    # Ich übergebe überall eine eigene logger Instanz, die ich log nenne. Sie gibt farbig kodierte logs aus und speichert alle in einer Textdatei.
     log = logging.getLogger('l')
     log.setLevel(logging.INFO)
     level_styles = dict(
@@ -127,7 +129,7 @@ if __name__ == '__main__':
     log.warning("Start")
 
     # Hier wird der Run aufgerufen. Man kann auch mehrere Runs in Folge ausführen
-    Run("R00", log)  # fix bug that 4411_5 scheinbar merkwürdige val/test paths hat
+    Run("R00", log)
     """
     import os
     time.sleep(5)

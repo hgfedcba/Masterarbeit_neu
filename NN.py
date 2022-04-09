@@ -137,11 +137,11 @@ class NN:
         if self.optimizer_number < 10:
             return optimizers[self.optimizer_number](parameters, lr=lr)
         elif self.optimizer_number == 71:
-            return optimizers[self.optimizer_number//10](parameters, lr=lr, centered=True)
+            return optimizers[self.optimizer_number // 10](parameters, lr=lr, centered=True)
         elif self.optimizer_number == 72:
-            return optimizers[self.optimizer_number//10](parameters, lr=lr, momentum=0.5)
+            return optimizers[self.optimizer_number // 10](parameters, lr=lr, momentum=0.5)
         elif self.optimizer_number == 73:
-            return optimizers[self.optimizer_number//10](parameters, lr=lr, momentum=0.9)
+            return optimizers[self.optimizer_number // 10](parameters, lr=lr, momentum=0.9)
         elif self.optimizer_number == 31:
             return optimizers[self.optimizer_number // 10](parameters, lr=lr, amsgrad=True)
         elif self.optimizer_number == 81:  # Unused
@@ -182,11 +182,12 @@ class NN:
         # starts the training loop
         m = m_out
         # continues if:
-        # 1. die letzte Iteration keine validation stattgefunden hat
-        # 2. die maximale zeit nicht überschritten wurde
-        # 3. es keine maximale Iterationszahl gibt oder sie noch nicht erreicht wurde
-        # 4. in den letzten 200 Iterationen es ein neues optimum gab
-        # noch kaum iteriert wurde
+        # 1. In der letzten Iteration keine validation stattgefunden hat
+        # 2. noch kaum iteriert wurde
+        # Eines der folgenden gilt:
+        # 3.a die maximale zeit nicht überschritten wurde
+        # 3.b es keine maximale Iterationszahl gibt oder sie noch nicht erreicht wurde
+        # 3.c es in den letzten 200 Iterationen ein neues optimum gab
         while (m % self.validation_frequency != 1 and not self.validation_frequency == 1) or \
                 ((time.time() - self.Memory.start_time) / 60 < self.T_max and (self.M_max == -1 or m < self.M_max) and self.ProminentResults.get_m_max() + 200 > m)\
                 or m < 30:
@@ -264,7 +265,7 @@ class NN:
 
         return avg_list
 
-    # nth net
+    # pretrain the nth net
     def empty_pretrain_net_n(self, n, max_duration, max_iterations, end_condition=8):
         start_time = time.time()
 
