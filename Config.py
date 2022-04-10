@@ -63,12 +63,14 @@ class Config:
             5: "Paper with empty pretrain",  # Kernalgorithmus, bei dem jedes Netz vortrainiert wird
             6: "Paper with net resets",  # Kernalgorithmus, bei dem Netze zurückgesetzt werden, die nicht stoppen
             7: "Paper with both",  # Funktionalität von 5 und 6
+            # folgende Algorithemn befinden sich in der ALG10 Klasse
             10: "back to front",  # Ich lerne die Netze von hinten nach vorne, erste implementation
             11: "seq with pretrain",  # abgebrochen
             12: "explicit stop condition given",  # abgebrochen
             14: "(14) back to front empty pretrain",  # Die folgenden Netze sind leere Netze, da sonst kein Training stattfindet
             15: "(15) train together at the end",  # Es wird am Ende zusammen trainiert
             16: "(16) train all nets after pretrain",  # Diese Version beschreibe ich in der Arbeit
+            # folgende Algorithmen befinden sich in der ALg20 Klasse
             20: "front to back N=const",  # Die Varainte 2 aus der Arbeit
             21: "front to back N=inc"  # Die Variante 1 aus der Arbeit
         }

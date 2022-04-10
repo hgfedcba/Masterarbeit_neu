@@ -10,12 +10,12 @@ Die Struktur des Programmes ist auch noch etwas bildlicher in der Übersicht.png
 
 Struktur des Programmes:
 Das Programm ist aufgeteilt in verschiedene Klassen, von denen man viele thematisch zusammenordnen kann. Diese sind hier aufgeführt.
-1. Modelle: Die Folgen Klassen sind alles Kinder der AbstractMathematicalModel Klasse und implementieren eine Art Modell: MarkovBlackScholesModel, RussianOption, RobbinsModel, Shortened_RobbinsModel,
+1. Mathematische Modelle: Die Folgen Klassen sind alles Kinder der AbstractMathematicalModel Klasse und implementieren eine Art Modell: MarkovBlackScholesModel, RussianOption, RobbinsModel, Shortened_RobbinsModel,
  Filled_RobbinsModel, W_RobbinsModel
     Weiterhin gehören auch ModelDefinitions und ModelInitializer in den Bereich der Modelle. Ersteres ist eine Sammlung an Definitionen, die ich für die Modelle benutze und letzteres wird aufgerufen
-     um die Modelle zu initialisieren. Es gibt noch eine Datei NetDefinitions, in der verschiedene Definitionen durchgeführt werden, die dann von den NN-Klassen verwendet werden. 
+     um die Modelle zu initialisieren. 
 2. Algoritmusvarianten: Der Kernalgorithmus ist implementiert in der NN-Klasse. Die Klassen Alg10 und Alg20 sind Kinder der NN Klasse, die andere Algorithmusvarianten implementieren. Eine Übersicht
- welcher Algorithmus hinter welcher Zahl steckt gibt es in der Config-Kalsse.
+ welcher Algorithmus hinter welcher Zahl steckt gibt es in der Config-Kalsse. Es gibt noch eine Datei NetDefinitions, in der verschiedene Definitionen durchgeführt werden, die dann von den NN-Klassen verwendet werden. 
 3. Es gibt mehrere Klassen die die Daten eines Durchgangs verwalten. Sie haben die Aufgaben zu speichern was für ein Durchlauf gerade stattfindet (Config), die in der Masterarbeit angesprochenen Rekordergebnisse zu
  speichern (ProminentResults) und die Daten des Durchgangs zu speichern (Memory).
 4. Diese Daten werden dann in der Out-Klasse verwendet, um die Ausgabe zu erzeugen.
